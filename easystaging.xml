@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="1.6.0" method="upgrade">
  
-	<name>Hello World!</name>
+	<name>EasyStaging</name>
 	<!-- The following elements are optional and free of formatting constraints -->
-	<creationDate>5 May 2010</creationDate>
+	<creationDate>06-May-2011</creationDate>
 	<author>Craig Phillips</author>
 	<authorEmail>support@craigphillips.biz</authorEmail>
 	<authorUrl>http://craigphillips.biz</authorUrl>
 	<copyright>© 2011 Craig Phillips Pty Ltd</copyright>
 	<license>License Info</license>
 	<!--  The version string is recorded in the components table -->
-	<version>0.0.1</version>
+	<version>0.0.1 (a9e37cb)</version>
 	<!-- The description is optional and defaults to the name -->
 	<description>EasyStaging is a simply component that allows you to prepare content on a "staging" version of your website and when you're ready push it out to the live website.</description>
- 
-	<update> <!-- Runs on update; New in 1.6 -->
-		<schemas>
-			<schemapath type="mysql">sql/updates/mysql</schemapath>
-		</schemas>
-	</update>
- 
-	<!-- Site Main File Copy Section -->
-	<!-- Note the folder attribute: This attribute describes the folder
-		to copy FROM in the package to install therefore files copied
-		in this section are copied from /site/ in the package -->
- 
+
+	<install> <!-- Runs on install -->
+		<sql>
+			<file driver="mysql" charset="utf8">sql/install.mysql.utf8.sql</file>
+		</sql>
+	</install>
+	<uninstall> <!-- Runs on uninstall -->
+		<sql>
+			<file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
+		</sql>
+	</uninstall>
+
 	<administration>
 		<!-- Administration Menu Section -->
 		<menu>EasyStaging</menu>
@@ -34,8 +34,14 @@
 			in this section are copied from /admin/ in the package -->
 		<files folder="admin">
 			<!-- Admin Main File Copy Section -->
-			<filename>index.html</filename>
+			<filename>controller.php</filename>
 			<filename>easystaging.php</filename>
+			<filename>index.html</filename>
+			<!-- Folders section -->
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>models</folder>
+			<folder>views</folder>
 			<!-- SQL files section -->
 			<folder>sql</folder>
 		</files>

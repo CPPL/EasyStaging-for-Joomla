@@ -1,0 +1,9 @@
+#editcell {
+	float:left;
+	width:60%;
+}
+#howtopanel {
+	float:right;
+	width:35%;
+	padding-left:10px;
+}

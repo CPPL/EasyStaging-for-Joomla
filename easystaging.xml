@@ -3,14 +3,14 @@
  
 	<name>EasyStaging</name>
 	<!-- The following elements are optional and free of formatting constraints -->
-	<creationDate>06-May-2011</creationDate>
+	<creationDate>26-Sep-2011</creationDate>
 	<author>Craig Phillips</author>
 	<authorEmail>support@craigphillips.biz</authorEmail>
 	<authorUrl>http://craigphillips.biz</authorUrl>
 	<copyright>© 2011 Craig Phillips Pty Ltd</copyright>
 	<license>License Info</license>
 	<!--  The version string is recorded in the components table -->
-	<version>0.0.1 (a9e37cb)</version>
+	<version>0.0.3d (250891f)</version>
 	<!-- The description is optional and defaults to the name -->
 	<description>EasyStaging is a simply component that allows you to prepare content on a "staging" version of your website and when you're ready push it out to the live website.</description>
 
@@ -32,6 +32,9 @@
 		<!-- Note the folder attribute: This attribute describes the folder
 			to copy FROM in the package to install therefore files copied
 			in this section are copied from /admin/ in the package -->
+		<languages folder="admin/language">
+			<language tag="en-GB">en-GB/en-GB.com_easystaging.ini</language>
+		</languages>
 		<files folder="admin">
 			<!-- Admin Main File Copy Section -->
 			<filename>controller.php</filename>
@@ -41,7 +44,9 @@
 			<folder>controllers</folder>
 			<folder>helpers</folder>
 			<folder>models</folder>
+			<folder>syncfiles</folder>
 			<folder>views</folder>
+			<folder>assets</folder>
 			<!-- SQL files section -->
 			<folder>sql</folder>
 		</files>

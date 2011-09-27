@@ -2,8 +2,21 @@
 	float:left;
 	width:60%;
 }
-#howtopanel {
+#howitworkspanel {
 	float:right;
 	width:35%;
-	padding-left:10px;
+	height: 132px;
+	overflow: hidden;
+}
+#howitworksbody {
+	maring: 5px;
+}
+#howitworksimage1, #howitworksimage2 {
+	margin-left: auto;
+	margin-right: auto;
+	width: 240px;
+}
+#howitworkstoggle {
+	width:20px;
+	float: right;
 }

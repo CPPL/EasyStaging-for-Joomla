@@ -52,9 +52,9 @@ class EasyStagingViewEasyStaging extends JView
 		$document = &JFactory::getDocument();
 		
 		// First add CSS to the document
-		$document->addStyleSheet(JURI::base().'components/com_easystaging/assets/css/easystaging.css');
+		$document->addStyleSheet('/administrator/components/com_easystaging/assets/css/easystaging.css');
 		
 		// Then add JS to the document ‚ - make sure all JS comes after CSS
-		//$document->addScript('templates/' . $this->template . '/js/jquery-1.4.4.min.js');
+		$document->addScript('/administrator/components/com_easystaging/assets/js/easystaging.js');
 	}
 }

@@ -16,11 +16,11 @@ jimport( 'joomla.application.component.view' );
  * EasyStaging Manager View
  *
  */
-class EasyStagingViewEasyStaging extends JView
+class EasyStagingViewPlans extends JView
 {
 	function display($tpl = null)
 	{
-		JHtml::addIncludePath(JPATH_COMPONENT.'/helpers/html');
+		// JHtml::addIncludePath(JPATH_COMPONENT.'/helpers/html');
 		JHtml::_('behavior.framework', true);
 		JHtml::_('behavior.tooltip');
 		JHtml::_('behavior.multiselect');
@@ -30,20 +30,32 @@ class EasyStagingViewEasyStaging extends JView
 		$this->addCSSEtc();
 
 		// Get data from the model
-		$items =& $this->get( 'Data');
+		$items =& $this->get( 'Items');
+		$pagination = $this->get('Pagination');
 		
-		$this->assignRef( 'items', $items );
+		if (count($errors = $this->get('Errors'))) 
+		{
+			JError::raiseError(500, implode('<br />', $errors));
+			return false;
+		}
+		// Assign data to the view
+		$this->items = $items;
+		$this->pagination = $pagination;
 		
 		parent::display($tpl);
 	}
 
 	private function addToolbar ()
 	{
-		JToolBarHelper::title( JText::_( 'EasyStaging Manager' ), 'easystaging' );
-		JToolBarHelper::publishList();
-		JToolBarHelper::deleteList();
-		JToolBarHelper::editListX();
-		JToolBarHelper::addNewX();
+		JToolBarHelper::title( JText::_( 'COM_EASYSTAGING_EASYSTAGING_MANAGER' ), 'easystaging' );
+		JToolBarHelper::addNew('plan.add');
+		JToolBarHelper::editList('plan.edit');
+		JToolBarHelper::divider();
+		JToolBarHelper::publishList('plans.publish', 'JTOOLBAR_PUBLISH', true);
+		JToolBarHelper::unpublishList('plans.unpublish', 'JTOOLBAR_UNPUBLISH', true);
+		JToolBarHelper::deleteList('','plans.delete');
+		JToolBarHelper::divider();
+		JToolBarHelper::help('COM_EASYSTAGING_HELP_EASYSTAGING_MANAGER',false,'http://seepeoplesoftware.com/products/easystaging/1.0/help/plans.html');
 	}
 	
 	private function addCSSEtc ()

@@ -22,9 +22,11 @@ class EasyStagingController extends JController
      *
      * @access    public
      */
-    function display()
-    {
-        parent::display();
+    function display($cachable = false)
+    {	// Set the default view if required
+		JRequest::setVar('view', JRequest::getCmd('view', 'Plans'));
+
+    	parent::display($cachable);
     }
  
 }

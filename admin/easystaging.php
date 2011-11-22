@@ -10,26 +10,17 @@
  
 defined( '_JEXEC' ) or die( 'Restricted access' );
  
-// Require the base controller
- 
-require_once( JPATH_COMPONENT.DS.'controller.php' );
- 
-// Require specific controller if requested
-if($controller = JRequest::getWord('controller')) {
-    $path = JPATH_COMPONENT.DS.'controllers'.DS.$controller.'.php';
-    if (file_exists($path)) {
-        require_once $path;
-    } else {
-        $controller = '';
-    }
+// Access check.
+if (!JFactory::getUser()->authorise('core.manage', 'com_easystaging')) {
+	return JError::raiseWarning(404, JText::_('JERROR_ALERTNOAUTHOR'));
 }
- 
-// Create the controller
-$classname    = 'EasyStagingController'.$controller;
-$controller   = new $classname( );
- 
-// Perform the Request task
-$controller->execute( JRequest::getVar( 'task' ) );
+
+// Include dependencies
+jimport('joomla.application.component.controller');
+
+$controller = JController::getInstance('EasyStaging');
+
+$controller->execute(JRequest::getCmd('task'));
  
 // Redirect if set by the controller
 $controller->redirect();

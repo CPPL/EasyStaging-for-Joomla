@@ -39,7 +39,7 @@ class EasyStagingViewEasyStaging extends JView
 
 	private function addToolbar ()
 	{
-		JToolBarHelper::title( JText::_( 'EasyStaging Manager' ), 'generic.png' );
+		JToolBarHelper::title( JText::_( 'EasyStaging Manager' ), 'easystaging' );
 		JToolBarHelper::publishList();
 		JToolBarHelper::deleteList();
 		JToolBarHelper::editListX();

@@ -1,6 +1,4 @@
-DROP TABLE IF EXISTS `#__easystaging_plans`;
-
-CREATE TABLE `#__easystaging` (
+CREATE TABLE IF NOT EXISTS `#__easystaging` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   `description` text,
@@ -13,12 +11,11 @@ CREATE TABLE `#__easystaging` (
   `created` datetime DEFAULT NULL,
   `publish_up` datetime DEFAULT NULL,
   `publish_down` datetime DEFAULT NULL,
+  `last_run` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `#__easystaging_schedules`;
-
-CREATE TABLE `#__easystaging_schedules` (
+CREATE TABLE IF NOT EXISTS `#__easystaging_schedules` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `push_plan` int(11) DEFAULT NULL,
   `type` tinyint(1) DEFAULT NULL,
@@ -31,9 +28,7 @@ CREATE TABLE `#__easystaging_schedules` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `#__easystaging_target_sites`;
-
-CREATE TABLE `#__easystaging_target_sites` (
+CREATE TABLE IF NOT EXISTS `#__easystaging_target_sites` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `type` tinyint(1) DEFAULT NULL,
   `site_name` varchar(255) DEFAULT NULL,
@@ -48,9 +43,7 @@ CREATE TABLE `#__easystaging_target_sites` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `#__easystaging_target_tables`;
-
-CREATE TABLE `#__easystaging_target_tables` (
+CREATE TABLE IF NOT EXISTS `#__easystaging_target_tables` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `targetsiteid` int(11) unsigned NOT NULL,
   `targettablename` varchar(128) DEFAULT NULL,
@@ -60,9 +53,7 @@ CREATE TABLE `#__easystaging_target_tables` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `#__easystaging_targets`;
-
-CREATE TABLE `#__easystaging_targets` (
+CREATE TABLE IF NOT EXISTS `#__easystaging_targets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `push_plan` int(11) DEFAULT NULL,
   `target_site` int(11) DEFAULT NULL,

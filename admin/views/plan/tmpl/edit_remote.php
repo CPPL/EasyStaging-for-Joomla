@@ -1,4 +1,7 @@
 <?php
+// No direct access to this file
+defined('_JEXEC') or die('Restricted Access');
+?>
 
 <p class="tab-description"><?php echo JText::_('COM_EASYSTAGING_REMOTESITE_TAB_DESC')?></p>
 	<ul class="adminformlist remotesite">

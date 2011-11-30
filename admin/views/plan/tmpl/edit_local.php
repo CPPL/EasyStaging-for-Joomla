@@ -1,3 +1,7 @@
+<?php
+// No direct access to this file
+defined('_JEXEC') or die('Restricted Access');
+?>
 <p class="tab-description"><?php echo JText::_('COM_EASYSTAGING_LOCALSITE_TAB_DESC')?></p>
 	<ul class="adminformlist localsite">
 		<li><?php echo $this->form->getLabel('site_name','localSite'); ?> <?php echo $this->form->getInput('site_name','localSite'); ?></li>

@@ -65,4 +65,39 @@ class EasyStagingModelPlan extends JModelAdmin
 		}
 		return $data;
 	}
+	/**
+	 * Method to get a single record.
+	 *
+	 * @param	integer	The id of the primary key.
+	 *
+	 * @return	mixed	Object on success, false on failure.
+	 */
+	public function getItem($pk = null)
+	{
+		if ($item = parent::getItem($pk)) {
+			$plan_id = $item->id;
+			// Add the related data here?
+			// Get the sites for this plan
+			$Sites = JTable::getInstance('Site', 'EasyStagingTable');
+			// Get the local site settings
+			$localSite = $Sites->load(array('plan_id'=>$plan_id, 'type'=>'1'));
+			if($localSite) {
+				$localSite = $Sites->getProperties();
+				$item->localSite = $localSite;
+			}
+			// Get the remote site settings
+			$remoteSite = $Sites->load(array('plan_id'=>$plan_id, 'type'=>'2'));
+			if($remoteSite) {
+				$remoteSite = $Sites->getProperties();
+				$item->remoteSite = $remoteSite;
+			}
+			else {
+				// No remote site! What should we do?
+			}
+			// Get the Tables for this plan.
+		}
+
+		return $item;
+	}
+
 }

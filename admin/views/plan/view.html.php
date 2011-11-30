@@ -38,13 +38,18 @@ class EasyStagingViewPlan extends JView
 		$this->form = $form;
 		$this->item = $item;
  
-		// Set the toolbar
+		// Set the toolbar etc
 		$this->addToolBar();
+		$this->addCSSEtc();
  
 		// Display the template
 		parent::display($tpl);
 	}
 
+	/**
+	 * Add the Toolbar for Plan view.
+	 * @return void
+	 */
 	private function addToolbar ()
 	{
 		JRequest::setVar('hidemainmenu', true);
@@ -64,15 +69,19 @@ class EasyStagingViewPlan extends JView
 		JToolBarHelper::help('COM_EASYSTAGING_HELP_EASYSTAGING_MANAGER',false,'http://seepeoplesoftware.com/products/easystaging/1.0/help/plan.html');
 	}
 	
+	/**
+	 * Add the CSS for Plan view.
+	 * @return void
+	 */
 	private function addCSSEtc ()
 	{
 		// Get the document object
 		$document = &JFactory::getDocument();
 		
 		// First add CSS to the document
-		$document->addStyleSheet('/administrator/components/com_easystaging/assets/css/easystaging.css');
+		$document->addStyleSheet('/administrator/components/com_easystaging/assets/css/easystaging_plan.css');
 		
-		// Then add JS to the document ‚ - make sure all JS comes after CSS
+		// Then add JS to the document‚ - make sure all JS comes after CSS
 		$document->addScript('/administrator/components/com_easystaging/assets/js/easystaging.js');
 	}
 }

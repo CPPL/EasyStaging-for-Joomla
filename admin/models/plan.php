@@ -83,8 +83,16 @@ class EasyStagingModelPlan extends JModelAdmin
 			$localSite = $Sites->load(array('plan_id'=>$plan_id, 'type'=>'1'));
 			if($localSite) {
 				$localSite = $Sites->getProperties();
-				$item->localSite = $localSite;
+			} else {
+				// No local site! 
+				$localSite = $this->_getDefaultValuesFromLocal();
+				$localSite->site_url = JURI::root();
+				$localSite->site_path = JPATH_BASE;
+				$localSite->rsync_options = '-avr';
+				
 			}
+			$item->localSite = $localSite;
+
 			// Get the remote site settings
 			$remoteSite = $Sites->load(array('plan_id'=>$plan_id, 'type'=>'2'));
 			if($remoteSite) {
@@ -100,4 +108,26 @@ class EasyStagingModelPlan extends JModelAdmin
 		return $item;
 	}
 
+	/*
+	 * Returns basic site details from local configuration as JObject
+	 * 
+	 * @return JObject
+	 */
+	private function _getDefaultValuesFromLocal()
+	{
+		// Can we read in the configuration.php values as a starting point?
+		$thisSiteConfig = JFactory::getConfig();
+		$thisSite = new JObject();
+
+		if ($thisSiteConfig) {
+			$thisSite->site_name = $thisSiteConfig->get('sitename');
+			$thisSite->database_name = $thisSiteConfig->get('db');
+			$thisSite->database_user = $thisSiteConfig->get('user');
+			$thisSite->database_password = $thisSiteConfig->get('password');
+			$thisSite->database_host = $thisSiteConfig->get('host');
+			$thisSite->database_table_prefix = $thisSiteConfig->get('dbprefix');
+		}
+
+		return $thisSite;
+	}
 }

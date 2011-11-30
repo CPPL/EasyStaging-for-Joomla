@@ -16,6 +16,7 @@ foreach ($this->items as $i => &$row)
 	$published = '';
 	$published = JHtml::_('jgrid.published', $row->published, $i, 'plans.', $canChange, 'cb', $row->publish_up, $row->publish_down);
 	$plan = $canEdit ? ('<a href="'.JRoute::_( 'index.php?option=com_easystaging&task=plan.edit&id='. $row->id ).'">'.$row->name.'</a>'):$row->name;
+	$last_run = ($row->last_run == '0000-00-00 00:00:00') ? JText::_('COM_EASYSTAGING_NOT_RUN') : JText::sprintf('COM_EASYSTAGING_LAST_RUN', JHtml::_('date',$row->last_run, JText::_('DATE_FORMAT_LC1')));
 
 ?>
 		<tr class="<?php echo "row" . $i % 2; ?>">
@@ -26,7 +27,7 @@ foreach ($this->items as $i => &$row)
 				<?php echo $plan; ?>
 			</td>
 			<td>
-				<?php echo $row->description; ?><br /><span class="com_easystaging_mgr_last_run"><?php echo JText::sprintf('COM_EASYSTAGING_LAST_RUN', JHtml::_('date',$row->last_run, JText::_('DATE_FORMAT_LC1'))); ?></span>
+				<?php echo $row->description; ?><br /><span class="com_easystaging_mgr_last_run"><?php echo $last_run; ?></span>
 			</td>
 			<td>
 				<?php echo $published; ?>

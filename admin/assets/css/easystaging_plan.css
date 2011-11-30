@@ -10,3 +10,7 @@
 #com_easystaging_plan_tabs div.current {
 	background-color: white;
 }
+
+#com_easystaging_plan_tabs div.current p.tab-description {
+	font-style: italic;
+}

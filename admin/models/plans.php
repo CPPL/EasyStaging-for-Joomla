@@ -30,7 +30,7 @@ class EasyStagingModelPlans extends JModelList
 		// Select some fields
 		$query->select('id,name,description,published,created_by,publish_down,publish_up,checked_out,last_run');
 		// From the EasyStaging table
-		$query->from('#__easystaging');
+		$query->from('#__easystaging_plans');
 		return $query;
 	}
 }

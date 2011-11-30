@@ -97,11 +97,15 @@ class EasyStagingModelPlan extends JModelAdmin
 			$remoteSite = $Sites->load(array('plan_id'=>$plan_id, 'type'=>'2'));
 			if($remoteSite) {
 				$remoteSite = $Sites->getProperties();
-				$item->remoteSite = $remoteSite;
+			} else {
+				// No remote site! Get some defaults
+				$remoteSite = $this->_getDefaultValuesFromLocal();
+				$remoteSite->site_url = 'http://';
+				$remoteSite->site_path = 'public_html/';
+				$remoteSite->database_host = 'name.ofLiveServer.com';
 			}
-			else {
-				// No remote site! What should we do?
-			}
+			$item->remoteSite = $remoteSite;
+
 			// Get the Tables for this plan.
 		}
 

@@ -62,6 +62,16 @@ JHtml::_('behavior.keepalive');
 	</div>
 
 	<div class="clr"></div>
+<!-- Tab UI -->
+	<div id="com_easystaging_plan_tabs" class="width-100">
+	<?php echo JHtml::_('tabs.start', 'com_easystaging_tabs', array('useCookie'=>true));?> 
+		<?php echo JHtml::_('tabs.panel', JText::_('COM_EASYSTAGING_STATUS_TAB'), 'status'); ?><?php echo $this->loadTemplate('status');?>
+		<?php echo JHtml::_('tabs.panel', JText::_('COM_EASYSTAGING_LOCALSITE_TAB'), 'local_site'); ?><?php echo $this->loadTemplate('local');?>
+		<?php echo JHtml::_('tabs.panel', JText::_('COM_EASYSTAGING_REMOTESITE_TAB'), 'remote_site'); ?><?php echo $this->loadTemplate('remote');?>
+		<?php echo JHtml::_('tabs.panel', JText::_('COM_EASYSTAGING_TABLESETTINGS_TAB'), 'table_settings'); ?><?php echo $this->loadTemplate('tables');?>
+	<?php echo JHtml::_('tabs.end');?> 
+	</div>
+	<div class="clr"></div>
 
 <!-- Permissions UI -->
 		<div class="width-100 fltlft">

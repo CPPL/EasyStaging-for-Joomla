@@ -1,0 +1,12 @@
+.com_easystaging_mgr_last_run {
+	font-style: italic;
+	color: silver;
+}
+
+.icon-48-easystaging {
+	background-image: url("../media/EasyStaging-48-icon.png");
+}
+
+#com_easystaging_plan_tabs div.current {
+	background-color: white;
+}

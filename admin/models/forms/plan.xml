@@ -86,73 +86,78 @@
 		<fieldset>
 			<field
 				name="site_name"
-				label="COM_EASYSTAGING_LOCALSITE_NAME"
+				label="COM_EASYSTAGING_LOCALSITE_NAME" description="COM_EASYSTAGING_LOCALSITE_NAME_DESC"
 				type="text"
 				class="inputbox"
 				default=""
 			/>
 			<field
 				name="site_url"
-				label="COM_EASYSTAGING_LOCALSITE_URL"
+				label="COM_EASYSTAGING_LOCALSITE_URL" description="COM_EASYSTAGING_LOCALSITE_URL_DESC"
 				type="text"
 				class="inputbox"
 				default="http://"
+				size="50"
 			/>
 			<field
 				name="site_path"
-				label="COM_EASYSTAGING_LOCALSITE_PATH"
+				label="COM_EASYSTAGING_LOCALSITE_PATH" description="COM_EASYSTAGING_LOCALSITE_PATH_DESC"
 				type="text"
 				class="inputbox"
 				default="public_html/"
+				size="50"
 			/>
 			<field
 				name="database_name"
-				label="COM_EASYSTAGING_LOCALSITE_DATABASE_NAME"
+				label="COM_EASYSTAGING_LOCALSITE_DATABASE_NAME" description="COM_EASYSTAGING_LOCALSITE_DATABASE_NAME_DESC"
 				type="text"
 				class="inputbox"
 				default=""
 			/>
 			<field
 				name="database_user"
-				label="COM_EASYSTAGING_LOCALSITE_DATABASE_USER"
+				label="COM_EASYSTAGING_LOCALSITE_DATABASE_USER" description="COM_EASYSTAGING_LOCALSITE_DATABASE_USER_DESC"
 				type="text"
 				class="inputbox"
 				default=""
 			/>
 			<field
 				name="database_password"
-				label="COM_EASYSTAGING_LOCALSITE_DATABASE_PASSWORD"
+				label="COM_EASYSTAGING_LOCALSITE_DATABASE_PASSWORD" description="COM_EASYSTAGING_LOCALSITE_DATABASE_PASSWORD_DESC"
 				type="text"
 				class="inputbox"
 				default=""
 			/>
 			<field
 				name="database_host"
-				label="COM_EASYSTAGING_LOCALSITE_DATABASE_HOST"
+				label="COM_EASYSTAGING_LOCALSITE_DATABASE_HOST" description="COM_EASYSTAGING_LOCALSITE_DATABASE_HOST_DESC"
 				type="text"
 				class="inputbox"
 				default="localhost"
+				size="50"
 			/>
 			<field
 				name="database_table_prefix"
-				label="COM_EASYSTAGING_LOCALSITE_DATABASE_TABLE_PREFIX"
+				label="COM_EASYSTAGING_LOCALSITE_DATABASE_TABLE_PREFIX" description="COM_EASYSTAGING_LOCALSITE_DATABASE_TABLE_PREFIX_DESC"
 				type="text"
 				class="inputbox"
 				default=""
 			/>
 			<field
 				name="rsync_options"
-				label="COM_EASYSTAGING_LOCALSITE_RSYNC_OPTIONS"
+				label="COM_EASYSTAGING_LOCALSITE_RSYNC_OPTIONS" description="COM_EASYSTAGING_LOCALSITE_RSYNC_OPTIONS_DESC"
 				type="text"
 				class="inputbox"
 				default=""
 			/>
 			<field
 				name="file_exclusions"
-				label="COM_EASYSTAGING_LOCALSITE_FILE_EXCLUSIONS"
+				label="COM_EASYSTAGING_LOCALSITE_FILE_EXCLUSIONS" description="COM_EASYSTAGING_LOCALSITE_FILE_EXCLUSIONS_DESC"
 				type="textarea"
 				class="inputbox"
 				default=""
+				rows="10"
+				cols="50"
 			/>
 		</fieldset>
 	</fields>

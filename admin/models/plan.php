@@ -83,12 +83,16 @@ class EasyStagingModelPlan extends JModelAdmin
 			$localSite = $Sites->load(array('plan_id'=>$plan_id, 'type'=>'1'));
 			if($localSite) {
 				$localSite = $Sites->getProperties();
+				// Get the Tables for local site.
+				$item->localTables = $this->_getLocalTables($localSite['id']);
 			} else {
 				// No local site! 
-				$localSite = $this->_getDefaultValuesFromLocal();
-				$localSite->site_url = JURI::root();
-				$localSite->site_path = JPATH_BASE;
-				$localSite->rsync_options = '-avr';
+				// Get the Tables currently running site.
+				$item->localTables = $this->_getLocalTables(0);
+				$localSite = $this->_getDefaultValuesFromLocal()->getProperties();
+				$localSite['site_url'] = JURI::root();
+				$localSite['site_path'] = JPATH_BASE;
+				$localSite['rsync_options'] = '-avr';
 				
 			}
 			$item->localSite = $localSite;
@@ -99,14 +103,13 @@ class EasyStagingModelPlan extends JModelAdmin
 				$remoteSite = $Sites->getProperties();
 			} else {
 				// No remote site! Get some defaults
-				$remoteSite = $this->_getDefaultValuesFromLocal();
-				$remoteSite->site_url = 'http://';
-				$remoteSite->site_path = 'public_html/';
-				$remoteSite->database_host = 'name.ofLiveServer.com';
+				$remoteSite = $this->_getDefaultValuesFromLocal()->getProperties();
+				$remoteSite['site_url'] = 'http://';
+				$remoteSite['site_path'] = 'public_html/';
+				$remoteSite['database_host'] = 'name.ofLiveServer.com';
 			}
 			$item->remoteSite = $remoteSite;
 
-			// Get the Tables for this plan.
 		}
 
 		return $item;
@@ -133,5 +136,31 @@ class EasyStagingModelPlan extends JModelAdmin
 		}
 
 		return $thisSite;
+	}
+
+	/*
+	 * Returns the current tables in the local database in an array suitable
+	 * for the 'tables' table.
+	 * 
+	 * @return JObject
+	 */
+	private function _getLocalTables($site_id)
+	{
+		// Create a new query object.
+		$db = JFactory::getDBO();
+		$tableList = $db->getTableList();
+		$localTables = array();
+		
+		// Run through the table list and add acceptable tables to our array to return.
+		foreach ($tableList as $theTable) {
+			$localTables[] = array('id' => 0, 'site_id' => $site_id,'tablename' => $theTable, 'action' => 1, 'last' => '0000-00-00 00:00:00', 'lastresult' => 0);
+		}
+		/*
+		* @todo	Compare local tables to ones on record and add/delete as needed
+		* 			taking care to set new tables to "Don't Copy".
+		* 			Probably need to alert user to changed tables as well...
+		*/
+		
+		return $localTables;
 	}
 }

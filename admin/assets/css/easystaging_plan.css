@@ -14,3 +14,10 @@
 #com_easystaging_plan_tabs div.current p.tab-description {
 	font-style: italic;
 }
+
+.table_name, .action {
+	width: 150px;
+}
+.table_name, .action, .action_result {
+	font-weight: bold;
+}

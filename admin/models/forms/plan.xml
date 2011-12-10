@@ -10,6 +10,7 @@
 				class="inputbox"
 				default=""
 				filter="safehtml"
+				required="true"
 			/>
 			<field
 				name="description"
@@ -23,7 +24,7 @@
 				name="published"
 				type="list"
 				label="COM_EASYSTAGING_PUBLISHED_LABEL" description="COM_EASYSTAGING_PUBLISHED_DESC"
-				default=""
+				default="1"
 			>
 				<option value="1">JPUBLISHED</option>
 				<option value="0">JUNPUBLISHED</option>
@@ -33,6 +34,11 @@
 				readonly="true"  />
 		</fieldset>
 		<fieldset name="basic" label="COM_EASYSTAGING_BASIC_ATTRIBUTES_LABEL">
+
+			<field name="checked_out" type="hidden" filter="unset" />
+	
+			<field name="checked_out_time" type="hidden" filter="unset" />
+
 			<field
 				name="created" type="calendar" class="readonly" 	
 				label="JGLOBAL_FIELD_CREATED_LABEL" description="JGLOBAL_FIELD_CREATED_DESC"

@@ -12,11 +12,11 @@ $actionChoices[] = array('action' => 4, 'actionLabel' => JText::_('COM_EASYSTAGI
 
 foreach ($localTables as $i => $row)
 {
-	if(in_array('last', $row)){ $last =  $row['last']; } else { $last = '0000-00-00 00:00:00'; };
-	if(in_array('lastresult', $row)) { $lastResult =  $row['lastresult']; } else { $lastResult = 0; }
-	if(in_array('action', $row)){ $actionCurrent = $row['action']; } else { $actionCurrent = '1'; }
-
-	$tablename = $row['tablename'];
+	// Retrieve values & Sanitize data
+	if(array_key_exists('last', $row)){ $last =  $row['last']; } else { $last = '0000-00-00 00:00:00'; }
+	if(array_key_exists('lastresult', $row)) { $lastResult =  $row['lastresult']; } else { $lastResult = 0; }
+	if(array_key_exists('action', $row)) { $actionCurrent = $row['action']; } else { $actionCurrent = '1'; }
+	if(array_key_exists('tablename',$row)) { $tablename = $row['tablename']; } else { JError::raiseError('500',JText::_('COM_EASYSTAGING_ERROR_MISSING_TABLE_NAME'));}
 	$id = $row['id'];
 	$tableRowId = $tablename.':'.$id;
 //	$controlName = $tableRowId. '[' .$tablename. ']';

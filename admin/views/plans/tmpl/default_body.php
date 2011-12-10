@@ -23,18 +23,11 @@ foreach ($this->items as $i => &$row)
 
 ?>
 		<tr class="<?php echo "row" . $i % 2; ?>">
-			<td>
-				<?php echo $checked; ?>
-			</td>
-			<td>
-				<?php echo $plan; ?>
-			</td>
-			<td>
-				<?php echo $row->description; ?><br /><span class="com_easystaging_mgr_last_run"><?php echo $last_run; ?></span>
-			</td>
-			<td>
-				<?php echo $published; ?>
-			</td>
+			<td><?php echo $checked; ?></td>
+			<td><?php echo $plan; ?></td>
+			<td><?php echo $row->description; ?><br /><span class="com_easystaging_mgr_last_run"><?php echo $last_run; ?></span></td>
+			<td><?php echo $published; ?></td>
+			<td><?php echo $row->id; ?></td>
 		</tr>
 <?php
 	}

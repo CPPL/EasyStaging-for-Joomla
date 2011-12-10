@@ -12,4 +12,7 @@
 	<th width="20">
 		<?php echo JText::_( 'COM_EASYSTAGING_PUBLISHED' ); ?>
 	</th>
+	<th>
+		<?php echo JText::_( 'JGRID_HEADING_ID' ); ?>
+	</th>
 </tr>            

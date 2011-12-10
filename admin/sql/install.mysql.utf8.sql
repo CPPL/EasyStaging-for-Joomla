@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `#__easystaging_sites` (
 
 CREATE TABLE IF NOT EXISTS `#__easystaging_tables` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `siteid` int(11) unsigned NOT NULL,
+  `plan_id` int(11) unsigned NOT NULL,
   `tablename` varchar(128) NOT NULL DEFAULT '',
   `action` int(11) NOT NULL,
   `last` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',

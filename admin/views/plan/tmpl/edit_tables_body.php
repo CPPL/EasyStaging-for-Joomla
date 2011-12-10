@@ -3,12 +3,7 @@
 defined('_JEXEC') or die('Restricted Access');
 
 $localTables = $this->item->localTables;
-$actionChoices = array( );
-$actionChoices[] = array('action' => 0, 'actionLabel' => '-- '.JText::_('COM_EASYSTAGING_TABLE_ACTION0').' --');
-$actionChoices[] = array('action' => 1, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION1'));
-$actionChoices[] = array('action' => 2, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION2'));
-$actionChoices[] = array('action' => 3, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION3'));
-$actionChoices[] = array('action' => 4, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION4'));
+$actionChoices = $this->actionChoices;
 
 foreach ($localTables as $i => $row)
 {
@@ -18,9 +13,10 @@ foreach ($localTables as $i => $row)
 	if(array_key_exists('action', $row)) { $actionCurrent = $row['action']; } else { $actionCurrent = '1'; }
 	if(array_key_exists('tablename',$row)) { $tablename = $row['tablename']; } else { JError::raiseError('500',JText::_('COM_EASYSTAGING_ERROR_MISSING_TABLE_NAME'));}
 	$id = $row['id'];
-	$tableRowId = $tablename.':'.$id;
-//	$controlName = $tableRowId. '[' .$tablename. ']';
-	$controlName = 'tableAction[' .$tablename. ']';
+	
+	// Setup ControlName so that within the tablesettings each table has its own array
+	$controlName = 'tableSettings[' .$tablename. ']';
+	$tableRowId = 'tableSettings_'.$tablename.'_'.$id;
 	
 	$lastActionResult = '';
 	if($last == '0000-00-00 00:00:00') {
@@ -30,11 +26,14 @@ foreach ($localTables as $i => $row)
 		$lastResult = ($lastResult ? JText::_('COM_EASYSTAGING_TABLE_LAST_RESULT_SUCCESS') : JText::_('COM_EASYSTAGING_TABLE_LAST_RESULT_FAIL')); 
 		$lastActionResult = JText::sprintf('COM_EASYSTAGING_TABLE_LAST_ACTION_RESULT',$last,$lastResult);
 	}
-	$actionSelect = JHtml::_('select.genericlist', $actionChoices, $controlName, 'class="inputbox"', 'action', 'actionLabel', $actionCurrent, $tableRowId);
-	
+	$actionSelect = JHtml::_('select.genericlist', $actionChoices, $controlName.'[action]', 'class="inputbox"', 'action', 'actionLabel', $actionCurrent, $tableRowId);
+
+
 ?>
 		<tr class="<?php echo "row" . $i % 2; ?>">
-			<td><?php echo $tablename; ?><input type="hidden" name="orig-<?php echo $tableRowId; ?>" value="<?php echo $actionCurrent; ?>"></td>
+			<td><?php echo $tablename; ?>
+			<input type="hidden" name="<?php echo $controlName.'[origAction]'; ?>" value="<?php echo $actionCurrent; ?>">
+			<input type="hidden" name="<?php echo $controlName.'[id]';         ?>" value="<?php echo $id;            ?>"></td>
 			<td><span class="com_easystaging_mgr_last_run"><?php echo $lastActionResult; ?></span></td>
 			<td><?php echo $actionSelect; ?></td>
 		</tr>

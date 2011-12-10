@@ -41,6 +41,9 @@ class EasyStagingViewPlan extends JView
 		// Set the toolbar etc
 		$this->addToolBar();
 		$this->addCSSEtc();
+
+		// Create the action choices array
+		$this->assign('actionChoices',$this->_actionChoices());
  
 		// Display the template
 		parent::display($tpl);
@@ -83,5 +86,17 @@ class EasyStagingViewPlan extends JView
 		
 		// Then add JS to the document‚ - make sure all JS comes after CSS
 		$document->addScript('/administrator/components/com_easystaging/assets/js/plan.js');
+	}
+	
+	private function _actionChoices()
+	{
+		$actionChoices = array( );
+		$actionChoices[] = array('action' => 0, 'actionLabel' => '-- '.JText::_('COM_EASYSTAGING_TABLE_ACTION0').' --');
+		$actionChoices[] = array('action' => 1, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION1'));
+		$actionChoices[] = array('action' => 2, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION2'));
+		$actionChoices[] = array('action' => 3, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION3'));
+		$actionChoices[] = array('action' => 4, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION4'));
+		$actionChoices[] = array('action' => 5, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION5'));
+		return $actionChoices;
 	}
 }

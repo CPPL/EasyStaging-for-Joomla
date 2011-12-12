@@ -64,7 +64,7 @@ class EasyStagingViewPlans extends JView
 		$document = &JFactory::getDocument();
 		
 		// First add CSS to the document
-		$document->addStyleSheet('/administrator/components/com_easystaging/assets/css/easystaging_plans.css');
+		$document->addStyleSheet('/administrator/components/com_easystaging/assets/css/plans.css');
 		
 		// Then add JS to the document ‚ - make sure all JS comes after CSS
 		$document->addScript('/administrator/components/com_easystaging/assets/js/plans.js');

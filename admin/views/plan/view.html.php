@@ -90,9 +90,31 @@ class EasyStagingViewPlan extends JView
 		JHtml::_('behavior.multiselect');
 		
 		// Then add JS to the document‚ - make sure all JS comes after CSS
-		$document->addScript('/administrator/components/com_easystaging/assets/js/plan.js');
+		$jsFile = '/assets/js/plan.js';
+		$document->addScript(JURI::base(true).'/components/com_easystaging'.$jsFile);
+		$this->_loadJSLanguageKeys($jsFile);
 	}
 	
+	private  function _loadJSLanguageKeys($jsFile) {
+		if(isset($jsFile))
+		{
+			$jsFile = JPATH_COMPONENT_ADMINISTRATOR.$jsFile;
+		} else {
+			return false;
+		}
+		
+		if($jsContents = file_get_contents($jsFile))
+		{
+			$languageKeys = array();
+			preg_match_all('/Joomla\.JText\..*\)?/', $jsContents, $languageKeys);
+			$languageKeys = $languageKeys[0];
+			foreach ($languageKeys as $lkey) {
+				$lkeyArray = explode('\'', $lkey);
+				$this_lkey = $lkeyArray[1];
+				JText::script($this_lkey);
+			}
+		}
+	}
 	private function _actionChoices()
 	{
 		$actionChoices = array( );

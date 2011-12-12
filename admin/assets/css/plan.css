@@ -21,3 +21,33 @@
 .table_name, .action, .action_result {
 	font-weight: bold;
 }
+
+#lastRunStatus {
+	font-weight: bold;
+}
+
+.planUpdatesDiv, #lastRunStatus {
+	margin: 0px 0px 34px 34px;
+}
+
+#startFileBtn {
+	background: url("../media/orange-1.png") no-repeat;
+}
+#startDBaseBtn {
+	background: url("../media/blue-2.png") no-repeat;
+}
+#startAllBtn {
+	background: url("../media/green-3.png") no-repeat;
+}
+#startFileBtn, #startDBaseBtn, #startAllBtn {
+	height: 32px;
+	padding-top:10px;
+	padding-bottom:10px;
+}
+#startFile, #startDBase, #startAll {
+	margin: 34px;
+	height: 32px;
+}
+#currentStatus {
+	line-height: 1.5em;
+}

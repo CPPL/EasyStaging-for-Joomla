@@ -84,7 +84,7 @@ JHtml::_('behavior.keepalive');
 	</div>
 
 	<div>
-		<input type="hidden" name="id" value="<?php echo $this->form->getValue('id'); ?>">
+		<input type="hidden" id="id" name="id" value="<?php echo $this->form->getValue('id'); ?>">
 		<input type="hidden" name="task" value="plan.edit" />
 		<?php echo JHtml::_('form.token'); ?>
 	</div>

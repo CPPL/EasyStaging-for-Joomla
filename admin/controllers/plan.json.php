@@ -9,22 +9,23 @@
  
 defined( '_JEXEC' ) or die( 'Restricted access' );
  
-// import Joomla controllerform library
 jimport('joomla.application.component.controller');
 jimport( 'joomla.database.table' );
- 
+
 /**
  * EasyStaging Component Plan Controller
  */
 class EasyStagingControllerPlan extends JController
 {
+	protected $plan_id;
+
 	function hello()
 	{
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
 			echo json_encode(array('msg' => 'EasyStaging is ready.', 'status' => 1));
 		} else {
-			echo json_encode(array('msg' => 'Plan ID is missing.', 'status' => 0));
+			echo json_encode(array('msg' => 'Plan ID/token is missing.', 'status' => 0));
 		}
 	}
 	
@@ -36,7 +37,7 @@ class EasyStagingControllerPlan extends JController
 			if($rsResult = $this->_createRSYNCExclusionFile($plan_id))
 			{
 				$fileCreated = $rsResult['fileName'];
-				echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_SUCCEEDED', $fileCreated), 'status' => 1, 'data' => $fileCreated));
+				echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_SUCCEEDED', $fileCreated), 'status' => 1, 'data' => $rsResult));
 			} else {
 				echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_FAILED', $plan_id), 'status' => 0));
 			}
@@ -47,14 +48,128 @@ class EasyStagingControllerPlan extends JController
 	{
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
-			$rsyncCmd = 'rsync -avr';
+			$rsyncCmd = $this->_getRsyncOptions($plan_id);
 	
 			$rsyncOutput = array();
 			// exec($rsyncCmd, $rsyncOutput);
-			echo json_encode(array('msg' => 'RSYNC Step 02 for Plan ID: '.$plan_id, 'status' => 1));
+
+			$rsyncOutput = exec('uptime');
+			
+			echo json_encode(array('msg' => 'RSYNC Step #2 for Plan ID: '.$plan_id, 'status' => 1, 'data' => $rsyncOutput));
 		}
 	}
-	
+
+	function doDBaseStep01()
+	{
+		// Check for request forgeries
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
+			// Get list of tables we'll be acting on
+			$tableResults = $this->_getTablesForReplication($plan_id);
+			if($tableResults) {
+				echo json_encode(array('msg' => 'Database Step 01 - Table list retreived successfully.', 'status' => 1, 'data' => $tableResults));
+			} else {
+				echo json_encode(array('msg' => 'Database Step 01 - FAILED', 'status' => 0, 'data' => $tableResults));
+			}
+		}
+	}
+
+	function doDBaseTableCopy()
+	{
+		// Setup base variables
+		$buildTableSQL = '';
+		$log    = '';
+
+		// Check for request forgeries
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
+			$log = JText::_('Token & plan ID are valid.');
+			
+			$jinput =  JFactory::getApplication()->input;
+			$table = $jinput->get('tableName', '');
+			
+			if($table != '') {
+				$log .= JText::_('Table name not blank.');
+
+				// OK were, going to need access to the datab ase
+				$db = JFactory::getDbo();
+				
+				// Build our SQL to recreate the table on the remote server.
+				// 1. First we drop the existing table
+				$buildTableSQL.= 'DROP TABLE IF EXISTS '.$db->nameQuote($table).';';
+				
+				// 2. Then we create it again :D
+				$db->setQuery('SHOW CREATE TABLE '.$table);
+				$createStatement = $db->loadRow();
+				$buildTableSQL.= "\n\n".$createStatement[1].";\n\n";
+				
+				// 3. Next we try and get the records in the table (after all no point in creating an insert statement if there are no records :D
+				$db->setQuery('SELECT * FROM '.$table);
+				if(($records = $db->loadRowList()) != null)
+				{
+					// 4. Then we build the list of field/column names that we'll insert data into
+					// -- first we get the columns
+					$tables = $db->getTableFields($table);
+					$flds = $this->_getArrayOfFieldNames($tables);
+					$num_fields = count($flds);
+					
+					// -- then we implode them into a suitable statement
+					$columnSQL = 'INSERT INTO '.$table.' ('.implode( ', ' , $flds ).') VALUES ';
+					
+					$buildTableSQL.= $columnSQL;
+					
+					// 5. Now we can process the rows into INSERT values
+					$valuesSQL = array();
+					foreach ($records as $row) {
+						$valuesSQL[] = '("'.implode(', ', $row).'")'; 
+					}
+					$valuesSQL = implode(', ', $valuesSQL);
+				}
+
+				$return.="\n\n\n";
+				echo json_encode(array('msg' => JText::sprintf('%s copied successfully.', $table), 'status' => 1, 'data' => $return, 'log' => $log));
+				return; // bounce out here
+			}
+		}
+		// If we got here things didn't go well ;)
+		echo json_encode(array('msg' => 'Table Copy - FAILED', 'status' => 0,  'data' => $return, 'log' => $log));
+	}
+
+	/**
+	 * Strips out just the field names from the assoc array provided by Joomla!
+	 * @param array $tables
+	 * @return single list of field names 
+	 */
+	private function _getArrayOfFieldNames($tables)
+	{
+		
+		$fieldNames = array();
+		foreach ($tables as $tableName => $tableFields) {
+			foreach ($tableFields as $aField => $aFieldType) {
+				$fieldNames[] = $aField;
+			}
+		}
+		return $fieldNames;
+	}
+
+	private function _getTablesForReplication($plan_id)
+	{
+		if(isset($plan_id))
+		{
+			$db = JFactory::getDbo();
+			$db->setQuery("select * from `#__easystaging_tables` where `plan_id` = ".$plan_id." and `action` = '1'");
+			if($tableRows = $db->loadAssocList()) {
+				$tableResults = array();
+				$tableResults['msg'] = JText::sprintf('Tables successfully retreived for Plan ID: %s (found %s tables)', $plan_id, count($tableRows));
+				$tableResults['rows'] = $tableRows;
+				$tableResults['status'] = count($tableRows);
+				return $tableResults;
+			} else {
+				return array("msg" => JText::sprintf('Failed to retrieve tables from database (possibly no tables found for this plan: %s).', $plan_id), 'status' => 0);
+			}
+		}
+
+		return array("msg" => JText::_('No Plan ID available to retrieve tables.'), 'status' => 0);
+	}
+
 	private function _createRSYNCExclusionFile($plan_id)
 	{
 		if(isset($plan_id))
@@ -80,6 +195,7 @@ EOH;
 
 			// Combine the default exclusions with those in the local site record
 			$allExclusions = $defaultExclusions.$this->_checkExclusionField($Sites->file_exclusions);
+			$result['fileData'] = $allExclusions;
 			
 			// Attempt to write the file
 			$result['status'] = fwrite($exclusionFile, $allExclusions);
@@ -106,9 +222,13 @@ EOH;
 	
 	private function _plan_id()
 	{
-		$jinput =  JFactory::getApplication()->input;
-		$plan_id = $jinput->get('plan_id', 0, 'INT');
-		return $plan_id;
+		if(isset($plan_id)) {
+			return $plan_id;
+		} else {
+			$jinput =  JFactory::getApplication()->input;
+			$plan_id = $jinput->get('plan_id', 0, 'INT');
+			return $plan_id;
+		}
 	}
 
 	/**

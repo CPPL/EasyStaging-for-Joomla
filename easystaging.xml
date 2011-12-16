@@ -3,14 +3,14 @@
  
 	<name>EasyStaging</name>
 	<!-- The following elements are optional and free of formatting constraints -->
-	<creationDate>12-Nov-2011</creationDate>
+	<creationDate>12-Dec-2011</creationDate>
 	<author>Craig Phillips</author>
 	<authorEmail>support@craigphillips.biz</authorEmail>
 	<authorUrl>http://craigphillips.biz</authorUrl>
 	<copyright>© 2011 Craig Phillips Pty Ltd</copyright>
 	<license>License Info</license>
 	<!--  The version string is recorded in the components table -->
-	<version>0.0.3g (80b87cb)</version>
+	<version>0.5.0 (cfdc0ca)</version>
 	<!-- The description is optional and defaults to the name -->
 	<description>EasyStaging is a simply component that allows you to prepare content on a "staging" version of your website and when you're ready push it out to the live website.</description>
 

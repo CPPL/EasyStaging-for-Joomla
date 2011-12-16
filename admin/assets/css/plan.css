@@ -50,4 +50,6 @@
 }
 #currentStatus {
 	line-height: 1.5em;
+	overflow:scroll;
+	max-height: 250px;
 }

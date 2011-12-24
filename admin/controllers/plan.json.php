@@ -34,7 +34,8 @@ class EasyStagingControllerPlan extends JController
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
 			// $plan_id = JRequest::get('plan_id');
-			if($rsResult = $this->_createRSYNCExclusionFile($plan_id))
+			$rsResult = $this->_createRSYNCExclusionFile($plan_id);
+			if($rsResult['status'])
 			{
 				$fileCreated = $rsResult['fileName'];
 				echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_SUCCEEDED', $fileCreated), 'status' => 1, 'data' => $rsResult));
@@ -48,12 +49,22 @@ class EasyStagingControllerPlan extends JController
 	{
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
-			$rsyncCmd = $this->_getRsyncOptions($plan_id);
-	
-			$rsyncOutput = array();
-			// exec($rsyncCmd, $rsyncOutput);
+			// first we add the rsync options
+			$rsyncCmd = 'rsync '.$this->_getRsyncOptions($plan_id);
+			// then we add the exclusions file name
+			$rsyncCmd.= ' --exclude-from='.$this->_getInputVar('fileName');
+			
+			// add the source
+			$rsyncCmd.= ' '.$this->_loadLocalSiteRecord($plan_id)->site_path; 
+			// add the destination
+			$rsyncCmd.= ' '.$this->_loadRemoteSiteRecord($plan_id)->site_path;
 
-			$rsyncOutput = exec('uptime');
+			// exec the rsync command
+			$rsyncOutput = array();
+			exec($rsyncCmd, $rsyncOutput);
+
+			//$rsyncOutput = exec('uptime');  
+			$rsyncOutput[] = '<br />'.$rsyncCmd;
 			
 			echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_RSYNC_STEP_2_DESC',$plan_id), 'status' => 1, 'data' => $rsyncOutput));
 		}
@@ -170,22 +181,41 @@ class EasyStagingControllerPlan extends JController
 		return array("msg" => JText::_('COM_EASYSTAGING_NO_PLAN_ID_AVAIL'), 'status' => 0);
 	}
 
+	private function _loadLocalSiteRecord($plan_id)
+	{
+		$type = 1; // Local site
+		return $this->_loadSiteRecord($plan_id, $type);
+	}
+	private function _loadRemoteSiteRecord($plan_id)
+	{
+		$type = 2; // Live/Target site
+		return $this->_loadSiteRecord($plan_id, $type);
+	}
+	private function _loadSiteRecord($plan_id, $type)
+	{
+		// Load our site record
+		JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_easystaging/tables');
+		$Sites = JTable::getInstance('Site', 'EasyStagingTable');
+		
+		if($Sites->load(array('plan_id'=>$plan_id, 'type'=>$type)))
+		{
+			return $Sites;
+		}
+	}
+
 	private function _createRSYNCExclusionFile($plan_id)
 	{
 		if(isset($plan_id))
 		{
-			// Load our site record
-			JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_easystaging/tables');
-			$Sites = JTable::getInstance('Site', 'EasyStagingTable');
-			$site  = $Sites->load(array('plan_id'=>$plan_id, 'type'=>'1'));
-			
 			// Build our file path & file handle
-			$pathToExclusionsFile = $this->_excl_file_path().$this->_excl_file_name();
+			$pathToExclusionsFile = $this->_sync_files_path().$this->_excl_file_name();
 			$result = array('fileName' => $this->_excl_file_name());
-			$exclusionFile = fopen($pathToExclusionsFile, 'w');
+			$result['fullPathToExclusionFile'] = $pathToExclusionsFile;
 			
-			// Create the content for our exclusions file
-			$defaultExclusions = <<< EOH
+			if($exclusionFile = @fopen($pathToExclusionsFile, 'w')){
+				
+				// Create the content for our exclusions file
+				$defaultExclusions = <<< EOH
 -tmp/
 -logs/
 -cache/
@@ -211,7 +241,7 @@ EOH;
 		return false;
 	}
 
-	private function _excl_file_path()
+	private function _sync_files_path()
 	{
 		return JPATH_ADMINISTRATOR.'/components/com_easystaging/syncfiles/';
 	}
@@ -252,12 +282,13 @@ EOH;
 			return false;
 		}
 	}
-	
+
 	private function _getRsyncOptions($plan_id)
 	{
 		//place holder, will get from plan record
-		$opts = 'avr';
-		return ' -'.$opts;
+		$SiteRecord = $this->_loadLocalSiteRecord($plan_id);
+		$opts = $SiteRecord->rsync_options;
+		return $opts;
 	}
 	
 	private function _tokenOK()

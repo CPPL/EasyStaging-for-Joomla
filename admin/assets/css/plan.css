@@ -24,6 +24,9 @@
 
 #lastRunStatus {
 	font-weight: bold;
+	height: 20px;
+	padding-left: 25px;
+	padding-top: 5px;
 }
 
 .planUpdatesDiv, #lastRunStatus {
@@ -52,4 +55,13 @@
 	line-height: 1.5em;
 	overflow:scroll;
 	max-height: 250px;
+	padding: 5px 0px 5px 10px;
+}
+.waiting {
+	background: url("../media/spinning.gif") no-repeat;
+}
+
+.es_ajax_error_msg {
+	font-weight:bold;
+	color:red;
 }

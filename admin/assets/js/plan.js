@@ -1,10 +1,33 @@
+if (typeof(com_EasyStaging) === 'undefined') {
+	var com_EasyStaging = {};
+}
+
 window.addEvent('domready', function() {
 	/* ajax replace element text */
-	$('startFile' ).addEvent('click', function (event) { ajaxCheckIn(event); } );
-	$('startDBase').addEvent('click', function (event) { ajaxCheckIn(event); } );
-	$('startAll'  ).addEvent('click', function (event) { ajaxCheckIn(event); } );
+	$('startFile' ).addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );
+	$('startDBase').addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );
+	$('startAll'  ).addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );
+	com_EasyStaging.setUp();
 });
 
+com_EasyStaging.setUp = function ()
+{
+	this.currentStatusScroller = new Fx.Scroll($('currentStatus'));
+	this.table_count = 0;
+	this.tables_proc = 0;
+	this.last_response = 0;
+	this.last_notification = 0;
+	this.lastRunStatus = '';
+	this.requestData = new Object ();
+	token = this.getToken();
+	this.requestData[token] = 1;
+	this.requestData['plan_id'] = this.getID();
+	this.jsonURL = 'index.php?option=com_easystaging&format=json';
+	this.jsonRequestObj = new Request.JSON({
+		url:    'index.php?option=com_easystaging&format=json',
+		method: 'get'
+	})
+}
 /*
 	Button
 	  |
@@ -17,197 +40,343 @@ window.addEvent('domready', function() {
 	  - onComplete -> set Response Message -> Process Result Data ( and if allOK proceed to next task ).  --|
  */
 
-function ajaxCheckIn (e)
+com_EasyStaging.ajaxCheckIn = function (e)
 {
+	this.lockOutBtns();
+	this.last_response = new Date().getTime();
+	this.responseTimer = this.appendTimeSince.periodical(500,this);
+	/* Once we start updates we want it be very visible. */
+	$('currentStatus').setStyle('background','#fffea1');
+
+	this.waiting();
 	// Which button was pressed?
 	var btnPath = e.target.id;
-	// Setup some basic variables that we'll use throughout the process
-	var jsonURL = 'index.php?option=com_easystaging&format=json';
-	var token   = com_es_getToken();
-	// theRequestData is basically unchanged for each step, usuall only the task is updated.
-	var theRequestData = {};
-	theRequestData['task'] = 'plan.hello';
-	theRequestData[token] = 1;
-	theRequestData['plan_id'] = com_es_getID();
-	theRequestData['btnPath'] = btnPath;
-
-	$('lastRunStatus').innerHTML=Joomla.JText._('In progress...');
+	// requestData is basically unchanged for each step, usuall only the task is updated.
+	this.requestData['task'] = 'plan.hello';
+	this.requestData['btnPath'] = btnPath;
+	this.lastRunStatus = Joomla.JText._('COM_EASYSTAGING_JS_CHECK_IN_WITH_SERVER');
 
 	var req = new Request.JSON({
+		url: com_EasyStaging.jsonURL,
 		method: 'get',
-		url: jsonURL,
-		timeout: 1000,
-		data: theRequestData,
-		onRequest:  function() { appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JSON_REQUEST_MADE_PLEASE_WAIT'), false); },
-		onComplete: function(response) { processCheckIn ( response, jsonURL, theRequestData ); },
-		onTimeout:  function() {}
+		data: com_EasyStaging.requestData,
+		onRequest:  function() { com_EasyStaging.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JSON_REQUEST_MADE_PLEASE_WAIT') + '/<strong>', false); },
+		onComplete: function(response) { com_EasyStaging.processCheckIn ( response ); },
 	});
 	req.send();
+	this.updateLastRunStatus();
 }
 
-function processCheckIn ( response, jsonURL, theRequestData )
+com_EasyStaging.processCheckIn  = function ( response )
 {
-	appendResponseMSGToCurrentStatus(response);
+	this.lockOutBtns();
+	this.notWaiting();
+	this.appendTextToCurrentStatus(response.msg);
 	if(response.status != '0') {
-		appendTextToCurrentStatus(response.msg, false);
+		this.appendTextToCurrentStatus(response.msg, false);
 
-		switch(theRequestData.btnPath)
+		switch(this.requestData.btnPath)
 		{
 		case 'startAll':
-		case 'startFile':	rsyncStep01( response, jsonURL, theRequestData );
+		case 'startFile':	
+			$('startFile').value = Joomla.JText._('COM_EASYSTAGING_JS_FILES_COPYING___')
+			this.rsyncStep01( response );
 		break;
 
-		case 'startDBase':	dBaseStep01( response, jsonURL, theRequestData );
+		case 'startDBase':	this.dBaseStep01( response );
 		break;
 		
-		default: appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('ERROR - Unknown Process path.')+'</span>');
+		default: this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_ERROR_UNKNOWN_PROC_PATH')+'</span>');
 		}
 	} else {
-		appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('AJAX Check-in with EasyStaging Server failed.')+'</span>');
+		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_AJAX_CHECK_IN_FAILED')+'</span>');
 	}
 }
 
-function rsyncStep01 ( response, jsonURL, theRequestData )
+com_EasyStaging.rsyncStep01  = function ( response )
 {
-	theRequestData['task'] = 'plan.doRsyncStep01';
+	this.waiting();
+	this.lastRunStatus = Joomla.JText._('COM_EASYSTAGING_JS_FILE_SYNC_IN_PROG');
+	this.updateLastRunStatus();
+	this.requestData['task'] = 'plan.doRsyncStep01';
 	var req = new Request.JSON({
 		method: 'get',
-		url: jsonURL,
-		timeout: 1000,
-		data: theRequestData,
-		onRequest: function() { appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JSON_START_RSYNC_STEP1')); },
-		onComplete: function(response) { processRsyncStep01 ( response, jsonURL, theRequestData ) },
+		url: com_EasyStaging.jsonURL,
+		data: com_EasyStaging.requestData,
+		onRequest: function() { com_EasyStaging.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JSON_START_RSYNC_STEP1') + '</strong>'); },
+		onComplete: function(response) { com_EasyStaging.processRsyncStep01 ( response ) },
 	});
 	req.send();
 }
 
-function processRsyncStep01( response, jsonURL, theRequestData )
+com_EasyStaging.processRsyncStep01 = function ( response )
 {
-	appendTextToCurrentStatus(response.data.msg);
+	this.notWaiting();
+	this.appendTextToCurrentStatus(response.msg);
+
 	if(response.status != '0') {
-		appendTextToCurrentStatus('<em>' + response.data.fileData + '</em>');
-		rsyncStep02( response, jsonURL, theRequestData );
+		this.appendTextToCurrentStatus(response.data.msg);
+		this.appendTextToCurrentStatus('<em>' + response.data.fileData + '</em>');
+		this.requestData['fileName'] = response.data.fullPathToExclusionFile;
+		this.rsyncStep02( response );
 	} else {
-		appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JSON_RSYNC_FAILED_PROCE_TERM')+'</span>');
+		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JSON_RSYNC_FAILED_PROCE_TERM')+'</span>')
+		this.appendTextToCurrentStatus('<em>' + response.data.msg + '</em>');
 	}
 }
 
-function rsyncStep02 ( response, jsonURL, theRequestData )
+com_EasyStaging.rsyncStep02  = function ( response )
 {
-	theRequestData['task'] = 'plan.doRsyncStep02';
+	this.waiting();
+	this.requestData['task'] = 'plan.doRsyncStep02';
 
 	var req = new Request.JSON({
 		method: 'get',
-		url: jsonURL,
-		data: theRequestData,
-		onRequest: function() { appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_STARTING_RSYNC_PROCESS')); },
-		onComplete: function(response) { processRsyncStep02( response, jsonURL, theRequestData ); }
+		url: com_EasyStaging.jsonURL,
+		data: com_EasyStaging.requestData,
+		onRequest: function() { com_EasyStaging.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_STARTING_RSYNC_PROCESS')); },
+		onComplete: function(response) { com_EasyStaging.processRsyncStep02( response ); }
 	});
 
 	req.send();
 }
 
-function processRsyncStep02( response, jsonURL, theRequestData )
+com_EasyStaging.processRsyncStep02 = function ( response )
 {
-	appendTextToCurrentStatus(response.msg);
+	this.notWaiting();
+	this.appendTextToCurrentStatus(response.msg);
 	if(response.status != '0') {
-		appendTextToCurrentStatus('<em>' + response.data + '</em>');
-		appendTextToCurrentStatus(Joomla.JText._('RSync process completed.'));
-		if(theRequestData.btnPath == 'startAll') {
-			dBaseStep01( response, jsonURL, theRequestData );
+		rsyncOutput = response.data.toString().replace(/,/g,"<br />");
+		
+		this.appendTextToCurrentStatus('<em>' + rsyncOutput + '</em>');
+		this.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JS_RSYNC_PROCESS_COMPLETED') + '<br />');
+		if(this.requestData.btnPath == 'startAll') {
+			com_EasyStaging.dBaseStep01( response );
+		} else {
+			this.runFinished();
 		}
 	} else {
-		appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JSON_RSYNC_FAILED_PROCE_TERM')+'</span>');
+		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JSON_RSYNC_FAILED_PROCE_TERM')+'</span>');
 	}
 }
 
-function dBaseStep01 ( response, jsonURL, theRequestData )
+com_EasyStaging.dBaseStep01  = function ( response )
 {
-	theRequestData['task'] = 'plan.doDBaseStep01';
+	this.waiting();
+	this.lastRunStatus = Joomla.JText._('COM_EASYSTAGING_JS_DATABASE_REPLICATION_IN_PROG');
+	this.updateLastRunStatus();
+	this.requestData['task'] = 'plan.doDBaseStep01';
 	var req = new Request.JSON({
 		method: 'get',
-		url: jsonURL,
-		timeout: 1000,
-		data: theRequestData,
-		onRequest: function() { appendTextToCurrentStatus(Joomla.JText._('Starting Database replication.')); },
-		onComplete: function(response) { processDBaseStep01 ( response, jsonURL, theRequestData ) }
+		url: com_EasyStaging.jsonURL,
+		data: com_EasyStaging.requestData,
+		onRequest: function() { com_EasyStaging.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JS_CHECKING_REMOTE_LIVE_DB_CONN') + '</strong>'); com_EasyStaging.updateLastRunStatus(Joomla.JText._('COM_EASYSTAGING_JS_CHECKING_REMOTE_LIVE_DB_CONN'));},
+		onComplete: function(response) { com_EasyStaging.processDBaseStep01 ( response ) }
 	});
 	req.send();
 }
 
-function processDBaseStep01( response, jsonURL, theRequestData )
+com_EasyStaging.processDBaseStep01 = function ( response )
 {
-	appendTextToCurrentStatus(response.msg);
+	this.notWaiting();
 	if(response.status != '0') {
-		appendTextToCurrentStatus('<em>' + response.data.msg + '</em>');
-		dBaseStep02( response.data, jsonURL, theRequestData );
+		this.lastRunStatus = Joomla.JText._('COM_EASYSTAGING_JS_CONNECTED_WITH_REMOT_DB');
+		this.updateLastRunStatus();
+		this.appendTextToCurrentStatus('<em>' + response.msg + '</em><br />');
+		this.dBaseStep02( response );
 	} else {
-		appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('Database replication failed, process cancelled.')+'</span>');
+		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_DATABASE_REPLICATION_FAILE_CAN')+'</span>');
 	}	
 }
 
-function dBaseStep02 ( tableData, jsonURL, theRequestData )
+com_EasyStaging.dBaseStep02  = function ( response )
 {
-	theRequestData['task'] = 'plan.doDBaseTableCopy';
+	this.waiting();
+	this.lastRunStatus = Joomla.JText._('COM_EASYSTAGING_JS_STARTING_TABLE_COP_DESC');
+	this.updateLastRunStatus();
+	this.requestData['task'] = 'plan.doDBaseStep02';
+	var req = new Request.JSON({
+		method: 'get',
+		url: com_EasyStaging.jsonURL,
+		data: com_EasyStaging.requestData,
+		onRequest: function() { com_EasyStaging.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JS_STARTING_DATABASE_REPLICATION') + '</strong>'); },
+		onComplete: function(response) { com_EasyStaging.processDBaseStep02 ( response ) }
+	});
+	req.send();
+}
+
+com_EasyStaging.processDBaseStep02  = function ( response )
+{
+	this.notWaiting();
+	com_es_table_count = response.tablesFound;
+	this.table_count = response.tablesFound;
+	this.lastRunStatus = '' + this.table_count + Joomla.JText._('COM_EASYSTAGING_JS__TABLES_FOUND_');
+	this.updateLastRunStatus();
+	
+	this.appendTextToCurrentStatus(response.msg);
+	if(response.status != '0') {
+		this.appendTextToCurrentStatus('<em>' + response.data.msg + '</em>');
+		this.dBaseStep03( response.data );
+	} else {
+		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_DATABASE_REPLICATION_FAILE_DESC')+'</span>');
+	}	
+}
+
+com_EasyStaging.dBaseStep03  = function ( tableData )
+{
+	this.waiting();
+	this.requestData['task'] = 'plan.doDBaseStep03';
 	
 	rows = tableData.rows;
 	
 	// Process each table individually
 	replicationRequests = {};
 	rows.each(function(row){
-		theRequestData['tableName'] = row.tablename;
+		com_EasyStaging.requestData['tableName'] = row.tablename;
 		replicationRequests[row.tablename] = new Request.JSON ({
 			method: 'get',
-			url: jsonURL,
-			data: theRequestData,
-			onRequest: function() { appendTextToCurrentStatus(Joomla.JText._('Starting copy of table: ') + row.tablename); },
-			onComplete: function(response) { appendTextToCurrentStatus(response.msg); appendTextToCurrentStatus(response.log); appendTextToCurrentStatus(response.data); }
+			url: com_EasyStaging.jsonURL,
+			data: com_EasyStaging.requestData,
+			onRequest: function() { com_EasyStaging.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JS_STARTING_COPY_O_DESC') + row.tablename); },
+			onComplete: function(response) { com_EasyStaging.processDbaseStep03 ( response ); }
 		});
 	});
 
 	var tableCopyQueue = new Request.Queue ({
 		requests: replicationRequests,
 		stopOnFailure: false,
-		onComplete:function() { appendTextToCurrentStatus(Joomla.JText._('--'))}
+		onComplete:function() { com_EasyStaging.appendTextToCurrentStatus(Joomla.JText._('--'))}
 	});
 	
 	Object.each(replicationRequests, function(rrValue, rrKey){rrValue.send();});
 }
 
-function com_es_getID ()
+com_EasyStaging.processDbaseStep03  = function ( response )
 {
-	theID = $('id').value;
-	return theID;
+	this.last_response = new Date().getTime();
+	if(response.status != '0')
+	{
+		this.tables_proc = this.tables_proc + 1;
+		if(this.tables_proc > 1) {
+			this.lastRunStatus = (this.tables_proc + Joomla.JText._('COM_EASYSTAGING_JS_TABLES_PROCESSED'));
+		} else {
+			this.lastRunStatus = (this.tables_proc + Joomla.JText._('COM_EASYSTAGING_JS_TABLE_PROCESSED'));
+		}
+		this.updateLastRunStatus();
+		this.appendTextToCurrentStatus(response.msg);
+		this.appendTextToCurrentStatus('<em>' + response.log);
+		this.appendTextToCurrentStatus(response.data + '</em>');
+		
+		if(this.tables_proc == this.table_count) {
+			this.tables_proc = 0;
+			this.runFinished();
+		}
+	}
 }
-function com_es_getToken()
+
+com_EasyStaging.getID  = function ()
 {
-	return $('esTokenForJSON').name
+	return $('id').value;
 }
-function com_es_getTokenSegment()
+com_EasyStaging.getToken = function ()
 {
-	token = $('esTokenForJSON').name
+	var els = document.getElementsByTagName('input');
+	for (var i = 0; i < els.length; i++) {
+		if ((els[i].type == 'hidden') && (els[i].name.length == 32) && els[i].value == '1') {
+			theToken = els[i].name;
+		}
+	}
+	return theToken;
+}
+com_EasyStaging.getTokenSegment = function ()
+{
+	token = this.getToken();
 	tokenSegment = ('&' + token + '=1'); 
 	return tokenSegment;
 }
 
-function appendResponseMSGToCurrentStatus (response)
+com_EasyStaging.updateLastRunStatus = function (updateText)
 {
-	if(response.status == '1') {
-		appendTextToCurrentStatus( response.msg );		
+	updateText = typeof(updateText) != 'undefined' ? updateText : '';
+	this.setLastRunStatus( Joomla.JText._('COM_EASYSTAGING_JS_IN_PROGRESS') + this.lastRunStatus + ' ' + updateText );
+}
+com_EasyStaging.setLastRunStatus = function (updateText, append)
+{
+	updateText = typeof(updateText) != 'undefined' ? updateText : '';
+	append = typeof(append) != 'undefined' ? append : false;
+	if(append)
+	{
+		$('lastRunStatus').innerHTML = $('lastRunStatus').innerHTML + updateText;
 	} else {
-		appendTextToCurrentStatus( response.msg );
+		$('lastRunStatus').innerHTML = updateText;
 	}
 }
 
-function appendTextToCurrentStatus (text, append)
+com_EasyStaging.appendResponseMSGToCurrentStatus  = function (response, append)
 {
-	/* Once we start updates we want it be very visible. */
-	$('currentStatus').setStyle('background','#fffea1');
-	
+	append = typeof(append) != 'undefined' ? append : true;
+	if(response.status == '1') {
+		this.appendTextToCurrentStatus( response.msg, append );		
+	} else {
+		this.appendTextToCurrentStatus( response.msg, append );
+	}
+}
+
+com_EasyStaging.appendTextToCurrentStatus  = function (text, append)
+{
 	append = typeof(append) != 'undefined' ? append : true;
 	if(append) {
 		$('currentStatus').innerHTML = $('currentStatus').innerHTML + '<br />' + text;
 	} else {
 		$('currentStatus').innerHTML = text;
 	}
+	this.currentStatusScroller.toBottom();
+}
+
+com_EasyStaging.appendTimeSince = function ()
+{
+	theNowDateObj = new Date();
+	theNowMilliseconds = theNowDateObj.getTime();
+	theDiff = theNowMilliseconds - this.last_response;
+	if((theNowMilliseconds - this.last_notification) >= 500)
+	{
+		this.updateLastRunStatus('<br /><em>' + (theDiff/1000).round(1) + ' ' + Joomla.JText._('COM_EASYSTAGING_JS_SECONDS_SINCE_LAS_DESC') + '</em>', true);
+		this.last_notification = theNowMilliseconds;
+	}
+}
+
+com_EasyStaging.waiting = function (el)
+{
+	el = typeof(el) != 'undefined' ? el : 'lastRunStatus';
+	$(el).addClass('waiting');
+}
+
+com_EasyStaging.notWaiting = function (el)
+{
+	el = typeof(el) != 'undefined' ? el : 'lastRunStatus';
+	$(el).removeClass('waiting');
+	nowDateObj = new Date();
+	this.last_response = nowDateObj.getTime();
+	this.last_notification = this.last_response;
+}
+com_EasyStaging.runFinished = function()
+{
+	clearInterval(this.responseTimer);
+	this.setLastRunStatus(Joomla.JText._('COM_EASYSTAGING_JS_PLAN_RUN_COMPLETED'));
+	this.currentStatusScroller.toBottom.delay(500,this.currentStatusScroller);
+	this.notWaiting();
+	this.enableBtns();
+}
+
+com_EasyStaging.lockOutBtns = function()
+{
+	$('startFile').disabled = 1;
+	$('startDBase').disabled = 1;
+	$('startAll').disabled = 1;
+}
+com_EasyStaging.enableBtns = function()
+{
+	$('startFile').disabled = 0;
+	$('startDBase').disabled = 0;
+	$('startAll').disabled = 0;
 }

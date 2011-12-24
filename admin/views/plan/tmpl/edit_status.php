@@ -10,11 +10,12 @@ defined('_JEXEC') or die('Restricted Access');
 		<span id="startAllBtn" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_STATUS_START_ALL_DESC'); ?>"><button id="startAll" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_STATUS_START_ALL_BTN'); ?></button></span>
 	</div>
 	<div id="lastRunStatus" ><?php
-		if($this->item->last_run == "0000-00-00 00:00:00")
+		$last_run = $this->item->last_run;
+		if($last_run == "0000-00-00 00:00:00")
 		{
 			echo JText::_('COM_EASYSTAGING_NOT_RUN_LONG'); 
 		} else {
-			echo JText::sprintf('COM_EASYSTAGING_NOT_RUN', $this->item->last_run);
+			echo JText::sprintf('COM_EASYSTAGING_LAST_RUN',JFactory::getDate($last_run)->format(JText::_('DATE_FORMAT_LC2'),true));
 		}
 	?></div>
 	<div class="planUpdatesDiv adminList" >

@@ -203,6 +203,31 @@ class EasyStagingControllerPlan extends JController
 		echo json_encode($response);
 	}
 
+	function finishRun()
+	{
+		// Check for request forgeries
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
+			// Load our plan record
+			JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_easystaging/tables');
+			$Plan = JTable::getInstance('Plan', 'EasyStagingTable');
+			
+			if($Plan->load(array('id'=>$plan_id)))
+			{
+				// Initialise variables.
+				$date = JFactory::getDate();
+				$Plan->last_run = $date->toMySQL();
+				$Plan->store();
+				$format = JText::_('DATE_FORMAT_LC2');
+				$msg = JText::sprintf('COM_EASYSTAGING_LAST_RUN',$date->format($format,true));
+				$result = array( 'msg' => $msg );
+				echo json_encode( $result );
+			}
+			return;
+		}
+		
+		return false;
+	}
+
 	private function _getRemoteDBTables($db)
 	{
 		$tableList = $db->getTableList();

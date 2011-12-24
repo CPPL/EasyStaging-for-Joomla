@@ -366,6 +366,17 @@ com_EasyStaging.runFinished = function()
 	this.currentStatusScroller.toBottom.delay(500,this.currentStatusScroller);
 	this.notWaiting();
 	this.enableBtns();
+
+	// Finally set the "last run" timestamp for the Plan.
+	this.requestData['task'] = 'plan.finishRun';
+	var req = new Request.JSON({
+		method: 'get',
+		url: com_EasyStaging.jsonURL,
+		data: com_EasyStaging.requestData,
+		onComplete: function(response) { com_EasyStaging.setLastRunStatus(response.msg,false); }
+	});
+	req.send();
+
 }
 
 com_EasyStaging.lockOutBtns = function()

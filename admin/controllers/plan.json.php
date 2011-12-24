@@ -81,8 +81,8 @@ class EasyStagingControllerPlan extends JController
 			
 			if($rDBC) {
 				$msg = JText::_( 'COM_EASYSTAGING_DATABASE_STEP_01_CONNECTED' );
-				$remoteTablesRetreivedOK = $this->_getRemoteDBTables($rDBC);
-				echo json_encode(array('msg' => $msg, 'status' => 1, 'data' => $rDBC));
+				$remoteTablesRetreived = $this->_getRemoteDBTables($rDBC);
+				echo json_encode(array('msg' => $msg, 'status' => 1, 'data' => $remoteTablesRetreived));
 			} else {
 				echo json_encode(array('msg' => JText::_( 'COM_EASYSTAGING_DATABASE_STEP_01_FAILED_TO_CONNECT' ) , 'status' => 0, 'data' => $rDBC->errors));
 			}
@@ -94,7 +94,8 @@ class EasyStagingControllerPlan extends JController
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
 			// Get list of tables we'll be acting on
-			$tableResults = $this->_getTablesForReplication($plan_id);
+			$remoteTableList = $this->_getInputVar('remoteTableList');
+			$tableResults = $this->_getTablesForReplication($plan_id, $remoteTableList);
 			if($tableResults) {
 				$response = array('msg' => JText::_('COM_EASYSTAGING_DATABASE_STEP_02_TABLES_LIST'), 'status' => 1, 'data' => $tableResults, 'tablesFound' => count($tableResults['rows']) );
 				$initialTableResults = $this->_getTablesForInitialReplication($plan_id);
@@ -261,13 +262,26 @@ class EasyStagingControllerPlan extends JController
 		return str_replace($localPrefix, $remotePrefix, $buildTableSQL);
 	}
 	
-	private function _getTablesForReplication($plan_id)
+	private function _getTablesForReplication($plan_id, $remoteTableList)
 	{
 		if(isset($plan_id))
 		{
 			$db = JFactory::getDbo();
-			$db->setQuery("select * from `#__easystaging_tables` where `plan_id` = ".$plan_id." and `action` = '1'");
-			if($tableRows = $db->loadAssocList()) {
+			$db->setQuery("select * from `#__easystaging_tables` where `plan_id` = ".$plan_id." and (`action` = '1' or `action` = '2')");
+			if($localTableRows = $db->loadAssocList()) {
+				$tableRows = array(); // Where we'll store the tables to be copied.
+				// Loop through the table settings and adding them to the $tableRows to be used if their action suites.
+				foreach ($localTableRows as $localTable) {
+					// If this table is set to 'Copy To Live' we add it to our array
+					if($localTable['action'] == 1){
+						$tableRows[] = $localTable;
+					} else { // It's a copy if not exists table
+						if(!in_array($localTable['tablename'], $remoteTableList)) {
+							$tableRows[] = $localTable;
+						}
+					}
+				}
+
 				$tableResults = array();
 				$tableResults['msg'] = JText::sprintf('COM_EASYSTAGING_TABLES_SUCCESSFULLY_RETREIVE_FOR_PLAN', $plan_id, count($tableRows));
 				$tableResults['rows'] = $tableRows;

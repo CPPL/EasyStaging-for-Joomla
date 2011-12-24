@@ -195,6 +195,7 @@ com_EasyStaging.dBaseStep02  = function ( response )
 	this.lastRunStatus = Joomla.JText._('COM_EASYSTAGING_JS_STARTING_TABLE_COP_DESC');
 	this.updateLastRunStatus();
 	this.requestData['task'] = 'plan.doDBaseStep02';
+	this.requestData['remoteTableList'] = response.data;
 	var req = new Request.JSON({
 		method: 'get',
 		url: com_EasyStaging.jsonURL,
@@ -363,7 +364,7 @@ com_EasyStaging.runFinished = function()
 {
 	clearInterval(this.responseTimer);
 	this.setLastRunStatus(Joomla.JText._('COM_EASYSTAGING_JS_PLAN_RUN_COMPLETED'));
-	this.currentStatusScroller.toBottom.delay(500,this.currentStatusScroller);
+	this.currentStatusScroller.toBottom.delay(100,this.currentStatusScroller);
 	this.notWaiting();
 	this.enableBtns();
 
@@ -378,6 +379,7 @@ com_EasyStaging.runFinished = function()
 	req.send();
 
 }
+
 
 com_EasyStaging.lockOutBtns = function()
 {

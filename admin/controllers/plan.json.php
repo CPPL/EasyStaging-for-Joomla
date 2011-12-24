@@ -23,9 +23,9 @@ class EasyStagingControllerPlan extends JController
 	{
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
-			echo json_encode(array('msg' => 'EasyStaging is ready.', 'status' => 1));
+			echo json_encode(array('msg' => JText::_( 'COM_EASYSTAGING__EASYSTAGING_IS_READY' ) , 'status' => 1));
 		} else {
-			echo json_encode(array('msg' => 'Plan ID/token is missing.', 'status' => 0));
+			echo json_encode(array('msg' => JText::_( 'COM_EASYSTAGING_PLAN_ID_TOKE_DESC' ) , 'status' => 0));
 		}
 	}
 	
@@ -39,7 +39,7 @@ class EasyStagingControllerPlan extends JController
 				$fileCreated = $rsResult['fileName'];
 				echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_SUCCEEDED', $fileCreated), 'status' => 1, 'data' => $rsResult));
 			} else {
-				echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_FAILED', $plan_id), 'status' => 0));
+				echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_FAILED', $plan_id), 'status' => 0,  'data' => $rsResult));
 			}
 		}
 	}
@@ -55,7 +55,7 @@ class EasyStagingControllerPlan extends JController
 
 			$rsyncOutput = exec('uptime');
 			
-			echo json_encode(array('msg' => 'RSYNC Step #2 for Plan ID: '.$plan_id, 'status' => 1, 'data' => $rsyncOutput));
+			echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_RSYNC_STEP_2_DESC',$plan_id), 'status' => 1, 'data' => $rsyncOutput));
 		}
 	}
 
@@ -81,7 +81,7 @@ class EasyStagingControllerPlan extends JController
 
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
-			$log = JText::_('Token & plan ID are valid.');
+			$log = JText::_('COM_EASYSTAGING_TOKEN_PLAN_VALID');
 			
 			$jinput =  JFactory::getApplication()->input;
 			$table = $jinput->get('tableName', '');
@@ -158,7 +158,7 @@ class EasyStagingControllerPlan extends JController
 			$db->setQuery("select * from `#__easystaging_tables` where `plan_id` = ".$plan_id." and `action` = '1'");
 			if($tableRows = $db->loadAssocList()) {
 				$tableResults = array();
-				$tableResults['msg'] = JText::sprintf('Tables successfully retreived for Plan ID: %s (found %s tables)', $plan_id, count($tableRows));
+				$tableResults['msg'] = JText::sprintf('COM_EASYSTAGING_TABLES_SUCCESSFULLY_RETREIVE_FOR_PLAN', $plan_id, count($tableRows));
 				$tableResults['rows'] = $tableRows;
 				$tableResults['status'] = count($tableRows);
 				return $tableResults;
@@ -167,7 +167,7 @@ class EasyStagingControllerPlan extends JController
 			}
 		}
 
-		return array("msg" => JText::_('No Plan ID available to retrieve tables.'), 'status' => 0);
+		return array("msg" => JText::_('COM_EASYSTAGING_NO_PLAN_ID_AVAIL'), 'status' => 0);
 	}
 
 	private function _createRSYNCExclusionFile($plan_id)

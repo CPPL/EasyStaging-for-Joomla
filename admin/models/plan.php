@@ -365,7 +365,7 @@ class EasyStagingModelPlan extends JModelAdmin
 	 */
 	private function _getLocalTables($plan_id=0, $action=1)
 	{
-		// Create a new query object.
+		// Create a db object.
 		$db = JFactory::getDBO();
 		$tableList = $db->getTableList();
 		$localTables = array();

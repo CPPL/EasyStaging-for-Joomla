@@ -4,14 +4,14 @@ defined('_JEXEC') or die('Restricted Access');
 
 $localTables = $this->item->localTables;
 $actionChoices = $this->actionChoices;
+$i = 0;
 
-foreach ($localTables as $i => $row)
+foreach ($localTables as $tablename => $row)
 {
 	// Retrieve values & Sanitize data
 	if(array_key_exists('last', $row)){ $last =  $row['last']; } else { $last = '0000-00-00 00:00:00'; }
 	if(array_key_exists('lastresult', $row)) { $lastResult =  $row['lastresult']; } else { $lastResult = 0; }
 	if(array_key_exists('action', $row)) { $actionCurrent = $row['action']; } else { $actionCurrent = '1'; }
-	if(array_key_exists('tablename',$row)) { $tablename = $row['tablename']; } else { JError::raiseError('500',JText::_('COM_EASYSTAGING_ERROR_MISSING_TABLE_NAME'));}
 	$id = $row['id'];
 	
 	// Setup ControlName so that within the tablesettings each table has its own array
@@ -28,9 +28,8 @@ foreach ($localTables as $i => $row)
 	}
 	$actionSelect = JHtml::_('select.genericlist', $actionChoices, $controlName.'[action]', 'class="inputbox"', 'action', 'actionLabel', $actionCurrent, $tableRowId);
 
-
 ?>
-		<tr class="<?php echo "row" . $i % 2; ?>">
+		<tr class="row<?php echo $i++ % 2; ?>">
 			<td><?php echo $tablename; ?>
 			<input type="hidden" name="<?php echo $controlName.'[origAction]'; ?>" value="<?php echo $actionCurrent; ?>">
 			<input type="hidden" name="<?php echo $controlName.'[id]';         ?>" value="<?php echo $id;            ?>"></td>

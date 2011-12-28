@@ -147,7 +147,7 @@ class EasyStagingControllerPlan extends JController
 				
 				// Build our SQL to recreate the table on the remote server.
 				// 1. First we drop the existing table
-				$buildTableSQL.= 'DROP TABLE IF EXISTS '.$db->nameQuote($dbTableName).';';
+				$buildTableSQL.= 'DROP TABLE IF EXISTS '.$dbTableName.';';
 				
 				// 2. Then we create it again, except with a new prefix :D
 				$db->setQuery('SHOW CREATE TABLE '.$dbTableName);

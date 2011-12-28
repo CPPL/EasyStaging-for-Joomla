@@ -169,7 +169,7 @@ class EasyStagingControllerPlan extends JController
 					$num_fields = count($flds);
 					
 					// -- then we implode them into a suitable statement
-					$columnInsertSQL = 'INSERT INTO '.$dbTableName.' ('.implode( ', ' , $flds ).') VALUES ';
+					$columnInsertSQL = 'INSERT INTO '.$this->_changeTablePrefix($dbTableName).' ('.implode( ', ' , $flds ).') VALUES ';
 					
 					$buildTableSQL.= $columnInsertSQL;
 					
@@ -253,10 +253,11 @@ class EasyStagingControllerPlan extends JController
 	private function _getArrayOfFieldNames($tables)
 	{
 		
+		$db = JFactory::getDbo();
 		$fieldNames = array();
 		foreach ($tables as $tableName => $tableFields) {
 			foreach ($tableFields as $aField => $aFieldType) {
-				$fieldNames[] = $aField;
+				$fieldNames[] = $db->nameQuote($aField);
 			}
 		}
 		return $fieldNames;

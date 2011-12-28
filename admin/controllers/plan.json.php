@@ -70,6 +70,9 @@ class EasyStagingControllerPlan extends JController
 		}
 	}
 
+	/**
+	 * Check the connection to the remote database ...
+	 */
 	function doDBaseStep01()
 	{
 		// Check for request forgeries
@@ -89,6 +92,9 @@ class EasyStagingControllerPlan extends JController
 		}
 	}
 
+	/**
+	 * Build and return a json data block with the tables to be copied...
+	 */
 	function doDBaseStep02()
 	{
 		// Check for request forgeries
@@ -105,7 +111,7 @@ class EasyStagingControllerPlan extends JController
 				} else {
 					$response['msg'] = $response['msg'].'<br />'.JText::_('COM_EASYSTAGING_NO_TABLES_FO_DESC');
 				}
-				
+
 			} else {
 				$response = array('msg' => JText::_( 'COM_EASYSTAGING_DATABASE_STEP_02_FAILED' ) , 'status' => 0, 'data' => $tableResults);
 			}
@@ -116,6 +122,9 @@ class EasyStagingControllerPlan extends JController
 		echo json_encode($response);
 	}
 
+	/**
+	 * Build an SQL export file for a named table...
+	 */
 	function doDBaseStep03()
 	{
 		// Setup base variables

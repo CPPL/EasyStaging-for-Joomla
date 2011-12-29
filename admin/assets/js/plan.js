@@ -80,10 +80,10 @@ com_EasyStaging.processCheckIn  = function ( response )
 		case 'startAll':
 		case 'startFile':	
 			$('startFile').value = Joomla.JText._('COM_EASYSTAGING_JS_FILES_COPYING___')
-			this.rsyncStep01( response );
+			this.setupRsync( response );
 		break;
 
-		case 'startDBase':	this.dBaseStep01( response );
+		case 'startDBase':	this.checkDBConnection( response );
 		break;
 		
 		default: this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_ERROR_UNKNOWN_PROC_PATH')+'</span>');
@@ -93,23 +93,23 @@ com_EasyStaging.processCheckIn  = function ( response )
 	}
 }
 
-com_EasyStaging.rsyncStep01  = function ( response )
+com_EasyStaging.setupRsync  = function ( response )
 {
 	this.waiting();
 	this.lastRunStatus = Joomla.JText._('COM_EASYSTAGING_JS_FILE_SYNC_IN_PROG');
 	this.updateLastRunStatus();
-	this.requestData['task'] = 'plan.doRsyncStep01';
+	this.requestData['task'] = 'plan.setupRsync';
 	var req = new Request.JSON({
 		method: 'get',
 		url: com_EasyStaging.jsonURL,
 		data: com_EasyStaging.requestData,
 		onRequest: function() { com_EasyStaging.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JSON_START_RSYNC_STEP1') + '</strong>'); },
-		onComplete: function(response) { com_EasyStaging.processRsyncStep01 ( response ) },
+		onComplete: function(response) { com_EasyStaging.processRsyncSetup ( response ) },
 	});
 	req.send();
 }
 
-com_EasyStaging.processRsyncStep01 = function ( response )
+com_EasyStaging.processRsyncSetup = function ( response )
 {
 	this.notWaiting();
 	this.appendTextToCurrentStatus(response.msg);
@@ -118,30 +118,30 @@ com_EasyStaging.processRsyncStep01 = function ( response )
 		this.appendTextToCurrentStatus(response.data.msg);
 		this.appendTextToCurrentStatus('<em>' + response.data.fileData + '</em>');
 		this.requestData['fileName'] = response.data.fullPathToExclusionFile;
-		this.rsyncStep02( response );
+		this.runRsync( response );
 	} else {
 		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JSON_RSYNC_FAILED_PROCE_TERM')+'</span>')
 		this.appendTextToCurrentStatus('<em>' + response.data.msg + '</em>');
 	}
 }
 
-com_EasyStaging.rsyncStep02  = function ( response )
+com_EasyStaging.runRsync  = function ( response )
 {
 	this.waiting();
-	this.requestData['task'] = 'plan.doRsyncStep02';
+	this.requestData['task'] = 'plan.runRsync';
 
 	var req = new Request.JSON({
 		method: 'get',
 		url: com_EasyStaging.jsonURL,
 		data: com_EasyStaging.requestData,
 		onRequest: function() { com_EasyStaging.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_STARTING_RSYNC_PROCESS')); },
-		onComplete: function(response) { com_EasyStaging.processRsyncStep02( response ); }
+		onComplete: function(response) { com_EasyStaging.processRsyncRun( response ); }
 	});
 
 	req.send();
 }
 
-com_EasyStaging.processRsyncStep02 = function ( response )
+com_EasyStaging.processRsyncRun = function ( response )
 {
 	this.notWaiting();
 	this.appendTextToCurrentStatus(response.msg);
@@ -151,7 +151,7 @@ com_EasyStaging.processRsyncStep02 = function ( response )
 		this.appendTextToCurrentStatus('<em>' + rsyncOutput + '</em>');
 		this.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JS_RSYNC_PROCESS_COMPLETED') + '<br />');
 		if(this.requestData.btnPath == 'startAll') {
-			com_EasyStaging.dBaseStep01( response );
+			com_EasyStaging.checkDBConnection( response );
 		} else {
 			this.runFinished();
 		}
@@ -160,53 +160,53 @@ com_EasyStaging.processRsyncStep02 = function ( response )
 	}
 }
 
-com_EasyStaging.dBaseStep01  = function ( response )
+com_EasyStaging.checkDBConnection  = function ( response )
 {
 	this.waiting();
 	this.lastRunStatus = Joomla.JText._('COM_EASYSTAGING_JS_DATABASE_REPLICATION_IN_PROG');
 	this.updateLastRunStatus();
-	this.requestData['task'] = 'plan.doDBaseStep01';
+	this.requestData['task'] = 'plan.checkDBConnection';
 	var req = new Request.JSON({
 		method: 'get',
 		url: com_EasyStaging.jsonURL,
 		data: com_EasyStaging.requestData,
 		onRequest: function() { com_EasyStaging.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JS_CHECKING_REMOTE_LIVE_DB_CONN') + '</strong>'); com_EasyStaging.updateLastRunStatus(Joomla.JText._('COM_EASYSTAGING_JS_CHECKING_REMOTE_LIVE_DB_CONN'));},
-		onComplete: function(response) { com_EasyStaging.processDBaseStep01 ( response ) }
+		onComplete: function(response) { com_EasyStaging.processCheckDBConnection ( response ) }
 	});
 	req.send();
 }
 
-com_EasyStaging.processDBaseStep01 = function ( response )
+com_EasyStaging.processCheckDBConnection = function ( response )
 {
 	this.notWaiting();
 	if(response.status != '0') {
 		this.lastRunStatus = Joomla.JText._('COM_EASYSTAGING_JS_CONNECTED_WITH_REMOT_DB');
 		this.updateLastRunStatus();
 		this.appendTextToCurrentStatus('<em>' + response.msg + '</em><br />');
-		this.dBaseStep02( response );
+		this.getDBTables( response );
 	} else {
 		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_DATABASE_REPLICATION_FAILE_CAN')+'</span>');
 	}	
 }
 
-com_EasyStaging.dBaseStep02  = function ( response )
+com_EasyStaging.getDBTables  = function ( response )
 {
 	this.waiting();
 	this.lastRunStatus = Joomla.JText._('COM_EASYSTAGING_JS_STARTING_TABLE_COP_DESC');
 	this.updateLastRunStatus();
-	this.requestData['task'] = 'plan.doDBaseStep02';
+	this.requestData['task'] = 'plan.getDBTables';
 	this.requestData['remoteTableList'] = response.data;
 	var req = new Request.JSON({
 		method: 'get',
 		url: com_EasyStaging.jsonURL,
 		data: com_EasyStaging.requestData,
 		onRequest: function() { com_EasyStaging.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JS_STARTING_DATABASE_REPLICATION') + '</strong>'); },
-		onComplete: function(response) { com_EasyStaging.processDBaseStep02 ( response ) }
+		onComplete: function(response) { com_EasyStaging.processGetDBTables ( response ) }
 	});
 	req.send();
 }
 
-com_EasyStaging.processDBaseStep02  = function ( response )
+com_EasyStaging.processGetDBTables  = function ( response )
 {
 	this.notWaiting();
 	com_es_table_count = response.tablesFound;
@@ -217,42 +217,42 @@ com_EasyStaging.processDBaseStep02  = function ( response )
 	this.appendTextToCurrentStatus(response.msg);
 	if(response.status != '0') {
 		this.appendTextToCurrentStatus('<em>' + response.data.msg + '</em>');
-		this.dBaseStep03( response.data );
+		this.createTableExportFiles( response.data );
 	} else {
 		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_DATABASE_REPLICATION_FAILE_DESC')+'</span>');
 	}	
 }
 
-com_EasyStaging.dBaseStep03  = function ( tableData )
+com_EasyStaging.createTableExportFiles  = function ( tableData )
 {
 	this.waiting();
-	this.requestData['task'] = 'plan.doDBaseStep03';
+	this.requestData['task'] = 'plan.createTableExportFile';
 	
 	rows = tableData.rows;
 	
 	// Process each table individually
-	replicationRequests = {};
+	createExportSQLRequests = {};
 	rows.each(function(row){
 		com_EasyStaging.requestData['tableName'] = row.tablename;
-		replicationRequests[row.tablename] = new Request.JSON ({
+		createExportSQLRequests[row.tablename] = new Request.JSON ({
 			method: 'get',
 			url: com_EasyStaging.jsonURL,
 			data: com_EasyStaging.requestData,
 			onRequest: function() { com_EasyStaging.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JS_STARTING_COPY_O_DESC') + row.tablename); },
-			onComplete: function(response) { com_EasyStaging.processDbaseStep03 ( response ); }
+			onComplete: function(response) { com_EasyStaging.processCreateTableExportFiles ( response ); }
 		});
 	});
 
 	var tableCopyQueue = new Request.Queue ({
-		requests: replicationRequests,
+		requests: createExportSQLRequests,
 		stopOnFailure: false,
 		onComplete:function() { com_EasyStaging.appendTextToCurrentStatus(Joomla.JText._('--'))}
 	});
 	
-	Object.each(replicationRequests, function(rrValue, rrKey){rrValue.send();});
+	Object.each(createExportSQLRequests, function(rrValue, rrKey){rrValue.send();});
 }
 
-com_EasyStaging.processDbaseStep03  = function ( response )
+com_EasyStaging.processCreateTableExportFiles  = function ( response )
 {
 	this.last_response = new Date().getTime();
 	if(response.status != '0')

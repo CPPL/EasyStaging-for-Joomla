@@ -29,7 +29,7 @@ class EasyStagingControllerPlan extends JController
 		}
 	}
 	
-	function doRsyncStep01()
+	function setupRsync()
 	{
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
@@ -45,7 +45,7 @@ class EasyStagingControllerPlan extends JController
 		}
 	}
 
-	function doRsyncStep02()
+	function runRsync()
 	{
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
@@ -73,7 +73,7 @@ class EasyStagingControllerPlan extends JController
 	/**
 	 * Check the connection to the remote database ...
 	 */
-	function doDBaseStep01()
+	function checkDBConnection()
 	{
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
@@ -95,7 +95,7 @@ class EasyStagingControllerPlan extends JController
 	/**
 	 * Build and return a json data block with the tables to be copied...
 	 */
-	function doDBaseStep02()
+	function getDBTables()
 	{
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
@@ -125,7 +125,7 @@ class EasyStagingControllerPlan extends JController
 	/**
 	 * Build an SQL export file for a named table...
 	 */
-	function doDBaseStep03()
+	function createTableExportFile()
 	{
 		// Setup base variables
 		$buildTableSQL = '';

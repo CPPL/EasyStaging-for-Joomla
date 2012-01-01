@@ -147,12 +147,12 @@ class EasyStagingControllerPlan extends JController
 				
 				// Build our SQL to recreate the table on the remote server.
 				// 1. First we drop the existing table
-				$buildTableSQL.= 'DROP TABLE IF EXISTS '.$dbTableName.';';
+				$buildTableSQL.= 'DROP TABLE IF EXISTS '.$dbTableName.";\n\n-- End of Statement --\n\n";
 				
 				// 2. Then we create it again, except with a new prefix :D
 				$db->setQuery('SHOW CREATE TABLE '.$dbTableName);
 				$createStatement = $db->loadRow();
-				$buildTableSQL.= "\n\n".$createStatement[1].";\n\n";
+				$buildTableSQL.= str_replace("\r","\n",$createStatement[1]).";\n\n-- End of Statement --\n\n";
 				// Ok a bit of search and replace to upate the prefix.
 				$buildTableSQL = $this->_changeTablePrefix($buildTableSQL);
 				
@@ -184,7 +184,7 @@ class EasyStagingControllerPlan extends JController
 					}
 					$valuesSQL = implode(', ', $valuesSQL);
 
-					$buildTableSQL .= "\n\n".$valuesSQL."\n\n";					
+					$buildTableSQL .= "\n".$valuesSQL."\n";					
 				} else {
 					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_JSON__S_IS_EMPTY_NO_INS_REQ', $table) ;
 				}
@@ -198,9 +198,9 @@ class EasyStagingControllerPlan extends JController
 					$status = fwrite($exportSQLFile, $buildTableSQL);
 					// Time to close off
 					fclose($exportSQLFile);
-					$response = array('msg' => JText::sprintf('COM_EASYSTAGING_SQL_EXPORT_SUCC', $table), 'status' => $status, 'data' => $data, 'log' => $log);
+					$response = array('msg' => JText::sprintf('COM_EASYSTAGING_SQL_EXPORT_SUCC', $table), 'status' => $status, 'data' => $data, 'pathToSQLFile' => $pathToSQLFile, 'log' => $log);
 				} else {
-					$response = array('msg' => JText::_('COM_EASYSTAGING_JSON_FAILED_TO_OPEN_SQL_EXP_FILE'), 'status' => $exportSQLFile, 'data' => error_get_last(), 'log' => $log);
+					$response = array('msg' => JText::_('COM_EASYSTAGING_JSON_FAILED_TO_OPEN_SQL_EXP_FILE'), 'status' => $exportSQLFile, 'data' => error_get_last(), 'pathToSQLFile' => $pathToSQLFile, 'log' => $log);
 				}
 
 			} else {
@@ -211,6 +211,57 @@ class EasyStagingControllerPlan extends JController
 			$response = array('msg' => JText::_( 'COM_EASYSTAGING_PLAN_ID_TOKE_DESC' ) , 'status' => 0, 'data' => array());
 		}
 		echo json_encode($response);
+	}
+
+	function runTableExport()
+	{
+		// Check for request forgeries
+		$response = array();
+		$response['status'] = 0;
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
+			$pathToSQLFile = $this->_getInputVar('pathToSQLFile','');
+			$tableName = $this->_getInputVar('tableName', '');
+			if(($pathToSQLFile != '') && (file_exists($pathToSQLFile))){
+				$response['msg'] = JText::sprintf('COM_EASYSTAGING_JSON_FOUND_SQL_EXPOR_FILE',$tableName);
+				$exportSQLQuery = explode("\n\n-- End of Statement --\n\n", file_get_contents($pathToSQLFile));
+				if(count($exportSQLQuery)) {
+					// Open DB connection.
+					$rs = $this->_loadRemoteSiteRecord($plan_id);
+					$options	= array ('host' => $rs->database_host, 'user' => $rs->database_user, 'password' => $rs->database_password, 'database' => $rs->database_name, 'prefix' => $rs->database_table_prefix);
+					$rDBC = JDatabase::getInstance($options);
+						
+					if($rDBC) {
+						// Run queries from the SQL file.
+						foreach ($exportSQLQuery as $query) {
+							if(!empty($query)) {
+								list($first_word) = explode(' ', trim($query));
+								$rDBC->setQuery($query);
+								if($rDBC->query()) {
+									$response['msg'] .= '<br />'.JText::sprintf('COM_EASYSTAGING_JS_TABLE_EXPORT_QUERY_'.strtoupper($first_word), $tableName, $rs->database_name);
+									$response['status'] = 1;
+								} else {
+									$response['msg'] .= '<br />'.JText::sprintf('COM_EASYSTAGING_JS_TABLE_FAILED_EXPORT_QUERY_'.strtoupper($first_word), $tableName, $rDBC->getErrorMsg());
+								}
+							}
+						}
+
+					}
+					/*
+					 * @todo Confirm result, how? Check a matching number of records? What else? Maybe check the create statement?.
+					 */
+				} else {
+					$response['msg'] = JText::sprintf('COM_EASYSTAGING_JSON_FAILED_TO_READ_SQL_FILE',$tableName,$pathToSQLFile);
+					$response['status'] = 0;
+				}
+			} else {
+				$response['msg'] = JText::sprintf('COM_EASYSTAGING_JSON_COULDNT_FIND_SQL_FILE',$tableName,$pathToSQLFile);
+				$response['status'] = 0;
+			}
+			
+			echo json_encode($response);
+		}
+		
+		return false;
 	}
 
 	function finishRun()

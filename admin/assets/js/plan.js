@@ -18,6 +18,7 @@ com_EasyStaging.setUp = function ()
 	this.last_response = 0;
 	this.last_notification = 0;
 	this.lastRunStatus = '';
+	this.SQLFileLists = new Array();
 	this.requestData = new Object ();
 	token = this.getToken();
 	this.requestData[token] = 1;
@@ -243,10 +244,10 @@ com_EasyStaging.createTableExportFiles  = function ( tableData )
 		});
 	});
 
-	var tableCopyQueue = new Request.Queue ({
+	this.tableCopyQueue = new Request.Queue ({
 		requests: createExportSQLRequests,
 		stopOnFailure: false,
-		onComplete:function() { com_EasyStaging.appendTextToCurrentStatus(Joomla.JText._('--'))}
+		onComplete:function() { com_EasyStaging.appendTextToCurrentStatus('--')}
 	});
 	
 	Object.each(createExportSQLRequests, function(rrValue, rrKey){rrValue.send();});
@@ -255,23 +256,84 @@ com_EasyStaging.createTableExportFiles  = function ( tableData )
 com_EasyStaging.processCreateTableExportFiles  = function ( response )
 {
 	this.last_response = new Date().getTime();
+	this.tables_proc = this.tables_proc + 1;
+
+	if(this.tables_proc > 1) {
+		this.lastRunStatus = (this.tables_proc + Joomla.JText._('COM_EASYSTAGING_JS_TABLES_PROCESSED'));
+	} else {
+		this.lastRunStatus = (this.tables_proc + Joomla.JText._('COM_EASYSTAGING_JS_TABLE_PROCESSED'));
+	}
+	this.updateLastRunStatus();
+	this.appendTextToCurrentStatus(response.msg);
+	this.appendTextToCurrentStatus('<em>' + response.log);
+
+	if(response.status != '0')
+	{
+		this.SQLFileLists.push(response.pathToSQLFile);
+		this.appendTextToCurrentStatus(response.data + '</em>');
+	} else {
+		this.appendTextToCurrentStatus(response.data);
+		this.appendTextToCurrentStatus('<br />' + response.pathToSQLFile + '</em>');
+	}
+
+	if(this.tables_proc == this.table_count) {
+		this.tables_proc = 0;
+		this.appendTextToCurrentStatus('<br /><strong>' + Joomla.JText._('COM_EASYSTAGING_JS_RUNNING_TABLE_SQL_EXPORTS') + '</strong>');
+		this.runTableExports();
+	}
+}
+
+com_EasyStaging.runTableExports = function( )
+{
+	this.requestData['task'] = 'plan.runTableExport';
+	runTableRequests = {};
+	this.SQLFileLists.each(function(path){
+		com_EasyStaging.requestData['pathToSQLFile'] = path;
+		runTableRequests[path] = new Request.JSON ({
+			method: 'get',
+			url: com_EasyStaging.jsonURL,
+			data: com_EasyStaging.requestData,
+			onRequest: function() { com_EasyStaging.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JS_LOADING_SQL_EXPORT_FILE') + path); },
+			onComplete: function(response) { com_EasyStaging.processRunTableExport ( response ); }
+		});
+	})
+
+	this.runTableExportsQueue = new Request.Queue ({
+		requests: runTableRequests,
+		stopOnFailure: false,
+		onComplete:function() { com_EasyStaging.appendTextToCurrentStatus('--')}
+	});
+	
+	Object.each(runTableRequests, function(rteValue, rteKey){rteValue.send();});
+}
+
+com_EasyStaging.processRunTableExport = function ( response )
+{
+	this.last_response = new Date().getTime();
 	if(response.status != '0')
 	{
 		this.tables_proc = this.tables_proc + 1;
 		if(this.tables_proc > 1) {
-			this.lastRunStatus = (this.tables_proc + Joomla.JText._('COM_EASYSTAGING_JS_TABLES_PROCESSED'));
+			this.lastRunStatus = (this.tables_proc + Joomla.JText._('COM_EASYSTAGING_JS_TABLES_EXPORTED'));
 		} else {
-			this.lastRunStatus = (this.tables_proc + Joomla.JText._('COM_EASYSTAGING_JS_TABLE_PROCESSED'));
+			this.lastRunStatus = (this.tables_proc + Joomla.JText._('COM_EASYSTAGING_JS_TABLE_EXPORTED'));
 		}
+
 		this.updateLastRunStatus();
 		this.appendTextToCurrentStatus(response.msg);
-		this.appendTextToCurrentStatus('<em>' + response.log);
-		this.appendTextToCurrentStatus(response.data + '</em>');
-		
+
 		if(this.tables_proc == this.table_count) {
 			this.tables_proc = 0;
 			this.runFinished();
 		}
+	} else {
+		this.runTableExportsQueue.clear();
+		clearInterval(this.responseTimer);
+		this.notWaiting();
+		this.enableBtns();
+		this.lastRunStatus = Joomla.JText._('COM_EASYSTAGING_JS_RUN_ABORTED_TABLE_EXPORT_FAILED');
+		this.updateLastRunStatus();
+		this.appendTextToCurrentStatus(response.msg);
 	}
 }
 

@@ -18,7 +18,7 @@ $listDirn	= '';
 			<div>
 			</div>
 		</div>
-		<h3><?php echo JText::_( 'COM_EASYSTAGING_HOW_IT_WORKS___' ); ?> <a href="javascript:void(0);"><span id="howitworkstoggle" title="How It Works::Click here to expand." class="hasTip"><?php echo JText::_('COM_EASYSTAGING_EXPANDER'); ?></span></a></h3>
+		<h3><?php echo JText::_( 'COM_EASYSTAGING_HOW_IT_WORKS___' ); ?> <a href="javascript:void(0);"><span id="howitworkstoggle" title="<?php echo JText::_( 'COM_EASYSTAGING_PLANS_HOW_IT_WORK_CLICK_HERE_TO_EXPAND' ) ?>" class="hasTip"><?php echo JText::_('COM_EASYSTAGING_EXPANDER'); ?></span></a></h3>
 		<div id="howitworksbody">
 			<?php echo JText::_( 'COM_EASYSTAGING_HOW_IT_WORKS_DESC' ); ?><hr>
 			<div id="howitworksimage1" ><img alt="How to diagram #1" src="<?php echo JURI::base().'components/com_easystaging/assets/media/EasyStaging-How-To-Part-1-sm.png'; ?>" width=240px height=120px></div>

@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS `#__easystaging_plans` (
 
 CREATE TABLE IF NOT EXISTS `#__easystaging_sites` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `plan_id` int(11) NOT NULL,
   `type` tinyint(1) NOT NULL,
   `site_name` varchar(255) NOT NULL DEFAULT '',
   `site_url` varchar(512) NOT NULL DEFAULT '',
@@ -27,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `#__easystaging_sites` (
   `database_password` varchar(255) NOT NULL DEFAULT '',
   `database_host` varchar(255) NOT NULL DEFAULT '',
   `database_table_prefix` varchar(16) NOT NULL DEFAULT '',
-  `rsync_options` varchar(255) NOT NULL,
+  `rsync_options` varchar(255) NOT NULL DEFAULT '-avr',
   `file_exclusions` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;

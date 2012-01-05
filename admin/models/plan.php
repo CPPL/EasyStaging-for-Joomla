@@ -372,8 +372,13 @@ class EasyStagingModelPlan extends JModelAdmin
 		
 		// Run through the table list and add acceptable tables to our array to return.
 		foreach ($tableList as $theTable) {
-			if(!(strpos($theTable, '_easystaging') || strpos($theTable, '_session'))) { // we exclude our own & the session tables - no need to pollute the live site
-				$localTables[$theTable] = array('id' => 0, 'plan_id' => $plan_id,'tablename' => $theTable, 'action' => $action, 'last' => '0000-00-00 00:00:00', 'lastresult' => 0);
+			if(!(strpos($theTable, '_easystaging'))) { // we exclude our own tables - no need to pollute the live site
+				if( strpos($theTable, '_session') && ($action == 1)) { // By default we set the _session table to copy only if it doesn't exist
+					$actionToUse = 2;
+				} else {
+					$actionToUse = $action;
+				}
+				$localTables[$theTable] = array('id' => 0, 'plan_id' => $plan_id,'tablename' => $theTable, 'action' => $actionToUse, 'last' => '0000-00-00 00:00:00', 'lastresult' => 0);
 			}
 		}
 		return $localTables;

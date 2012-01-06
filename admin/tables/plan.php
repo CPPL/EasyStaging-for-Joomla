@@ -59,28 +59,47 @@ class EasyStagingTablePlan extends JTable
 	*/
 	public function bind($array, $ignore='')
 	{
-		// In here we also bind the secondary table information.
-	
-		// For now just call the parent.
+		// Bind the rules.
+		if (isset($array['rules']) && is_array($array['rules'])) {
+			$rules = new JRules($array['rules']);
+			$this->setRules($rules);
+		}
+		// And call the parent.
 		return parent::bind($array, $ignore);
 	}
 
 	/**
-	 * Method to load a row from the database by primary key and bind the fields
-	 * to the JTable instance properties.
-	 *
-	 * @param   mixed    $keys   An optional primary key value to load the row by, or an array of fields to match.  If not
-	 *                           set the instance property value is used.
-	 * @param   boolean  $reset  True to reset the default values before loading the new row.
-	 *
-	 * @return  boolean  True if successful. False if row not found or on error (internal error state set in that case).
-	 *
-	 * @link    http://docs.joomla.org/JTable/load
-	 * @since   11.1
-	 */
-	public function load($keys = null, $reset = true)
+	* Method to compute the default name of the asset.
+	* So we can support actions.
+	*
+	*/
+	protected function _getAssetName()
 	{
-		
-		return parent::load($keys, $reset);
+		$k = $this->_tbl_key;
+		return 'com_easystaging.plan.'.(int) $this->$k;
+	}
+	
+	/**
+	 * Method to return the title to use for the asset table.
+	 *
+	 * @return	string
+	 * @since	1.7
+	 */
+	protected function _getAssetTitle()
+	{
+		return $this->name;
+	}
+	
+	/**
+	 * Get the parent asset id for the record
+	 *
+	 * @return	int
+	 * @since	1.7
+	 */
+	protected function _getAssetParentId()
+	{
+		$asset = JTable::getInstance('Asset');
+		$asset->loadByName('com_easystaging');
+		return $asset->id;
 	}
 }

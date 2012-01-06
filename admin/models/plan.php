@@ -18,6 +18,21 @@ jimport('joomla.application.component.modeladmin');
 class EasyStagingModelPlan extends JModelAdmin
 {
 	/**
+	* Method override to check if you can edit an existing record.
+	*
+	* @param	array	$data	An array of input data.
+	* @param	string	$key	The name of the key for the primary key.
+	*
+	*/
+	protected function allowEdit($data = array(), $key = 'id')
+	{
+		// Check specific edit permission then general edit permission.
+		return JFactory::getUser()->authorise('core.edit', 'com_easystaging.plan.'.
+		((int) isset($data[$key]) ? $data[$key] : 0))
+		or parent::allowEdit($data, $key);
+	}
+
+	/**
 	 * Returns a reference to the a Table object, always creating it.
 	 *
 	 * @param	type	The table type to instantiate

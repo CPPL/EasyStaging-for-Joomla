@@ -24,6 +24,7 @@ class EasyStagingViewPlan extends JView
 	 */
 	function display($tpl = null)
 	{
+		require_once JPATH_COMPONENT.'/helpers/plan.php';
 		// get the Data
 		$form = $this->get('Form');
 		$item = $this->get('Item');
@@ -35,8 +36,9 @@ class EasyStagingViewPlan extends JView
 			return false;
 		}
 		// Assign the Data
-		$this->form = $form;
-		$this->item = $item;
+		$this->form  = $form;
+		$this->item  = $item;
+		$this->canDo = PlanHelper::getActions($this->item->id);
  
 		// Set the toolbar etc
 		$this->addToolBar();
@@ -56,22 +58,28 @@ class EasyStagingViewPlan extends JView
 	private function addToolbar ()
 	{
 		JRequest::setVar('hidemainmenu', true);
+		$canDo	    = $this->canDo;
 		$user		= JFactory::getUser();
+
 		$isNew		= ($this->item->id == 0);
 		$checkedOut	= !($this->item->checked_out == 0 || $this->item->checked_out == $user->get('id'));
 		
-		JToolBarHelper::title($isNew ? JText::_('COM_EASYSTAGING_MANAGER_PLAN_NEW')
-		                             : JText::_('COM_EASYSTAGING_MANAGER_PLAN_EDIT'));
-		JToolBarHelper::apply('plan.apply');
-		JToolBarHelper::save('plan.save');
-			if (!$checkedOut && (count($user->getAuthorisedCategories('com_easystaging', 'core.create')))){
+		if($canDo->get('easystaging.edit') || $canDo->get('easystaging.create')) {
+			JToolBarHelper::title($isNew ? JText::_('COM_EASYSTAGING_MANAGER_PLAN_NEW') : JText::_('COM_EASYSTAGING_MANAGER_PLAN_EDIT'), 'easystaging');
+			JToolBarHelper::apply('plan.apply');
+			JToolBarHelper::save('plan.save');
+		} elseif($canDo->get('easystaging.run')) {
+			JText::_('COM_EASYSTAGING_MANAGER_PLAN_RUN');
+		}
+		                             
+		if (!$checkedOut && ($canDo->get('easystaging.create'))) {
 			JToolBarHelper::save2new('plan.save2new');
 		}
 		JToolBarHelper::cancel('plan.cancel', $isNew ? 'JTOOLBAR_CANCEL' : 'JTOOLBAR_CLOSE');
 		JToolBarHelper::divider();
 		JToolBarHelper::help('COM_EASYSTAGING_HELP_EASYSTAGING_MANAGER',false,'http://seepeoplesoftware.com/products/easystaging/1.0/help/plan.html');
 	}
-	
+
 	/**
 	 * Add the CSS for Plan view.
 	 * @return void
@@ -94,7 +102,7 @@ class EasyStagingViewPlan extends JView
 		$document->addScript(JURI::base(true).'/components/com_easystaging'.$jsFile);
 		$this->_loadJSLanguageKeys($jsFile);
 	}
-	
+
 	private  function _loadJSLanguageKeys($jsFile) {
 		if(isset($jsFile))
 		{
@@ -115,6 +123,7 @@ class EasyStagingViewPlan extends JView
 			}
 		}
 	}
+
 	private function _actionChoices()
 	{
 		$actionChoices = array( );

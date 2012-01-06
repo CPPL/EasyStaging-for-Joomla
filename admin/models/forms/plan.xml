@@ -33,6 +33,24 @@
 				description ="JGLOBAL_FIELD_ID_DESC" size="10" default="0"
 				readonly="true"  />
 		</fieldset>
+		<fieldset>
+			<field
+				name="asset_id"
+				type="hidden"
+				filter="unset" />
+			<field
+				name="rules"
+				type="rules"
+				label="JFIELD_RULES_LABEL"
+				translate_label="false"
+				filter="rules"
+				validate="rules"
+				class="inputbox"
+				component="com_easystaging"
+				section="plan"
+				
+			/>
+		</fieldset>
 		<fieldset name="basic" label="COM_EASYSTAGING_BASIC_ATTRIBUTES_LABEL">
 
 			<field name="checked_out" type="hidden" filter="unset" />

@@ -1,7 +1,9 @@
 CREATE TABLE IF NOT EXISTS `#__easystaging_plans` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL DEFAULT '',
+  `name` varchar(255) NOT NULL,
   `description` text NOT NULL,
+  `asset_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'FK to the #__assets table.',
+  `access` int(10) unsigned NOT NULL DEFAULT '0',
   `published` tinyint(1) NOT NULL,
   `checked_out` int(10) NOT NULL,
   `checked_out_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',

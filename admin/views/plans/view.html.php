@@ -48,13 +48,35 @@ class EasyStagingViewPlans extends JView
 	private function addToolbar ()
 	{
 		JToolBarHelper::title( JText::_( 'COM_EASYSTAGING_EASYSTAGING_MANAGER' ), 'easystaging' );
-		JToolBarHelper::addNew('plan.add');
-		JToolBarHelper::editList('plan.edit');
-		JToolBarHelper::divider();
-		JToolBarHelper::publishList('plans.publish', 'JTOOLBAR_PUBLISH', true);
-		JToolBarHelper::unpublishList('plans.unpublish', 'JTOOLBAR_UNPUBLISH', true);
-		JToolBarHelper::deleteList('','plans.delete');
-		JToolBarHelper::divider();
+
+		require_once JPATH_COMPONENT.'/helpers/plan.php';
+		$canDo	= PlanHelper::getActions();
+		$user	= JFactory::getUser();
+
+		if($canDo->get('easystaging.create')) {
+			JToolBarHelper::addNew('plan.add');
+		}
+		
+		if($canDo->get('easystaging.edit')) { 
+			JToolBarHelper::editList('plan.edit');
+		}
+
+		if($canDo->get('easystaging.edit.state')) {
+			JToolBarHelper::divider();
+			JToolBarHelper::publishList('plans.publish', 'JTOOLBAR_PUBLISH', true);
+			JToolBarHelper::unpublishList('plans.unpublish', 'JTOOLBAR_UNPUBLISH', true);
+		}
+
+		if($canDo->get('easystaging.edit.state')) {
+			JToolBarHelper::deleteList('','plans.delete');
+			JToolBarHelper::divider();
+		}
+
+		if ($canDo->get('core.admin')) {
+			JToolBarHelper::preferences('com_easystaging');
+			JToolBarHelper::divider();
+		}
+
 		JToolBarHelper::help('COM_EASYSTAGING_HELP_EASYSTAGING_MANAGER',false,'http://seepeoplesoftware.com/products/easystaging/1.0/help/plans.html');
 	}
 	

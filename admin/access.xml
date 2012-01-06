@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <access component="com_easystaging">
 	<section name="component">
-		<action name="core.admin" title="JACTION_ADMIN" description="JACTION_ADMIN_COMPONENT_DESC" />
-		<action name="core.manage" title="JACTION_MANAGE" description="JACTION_MANAGE_COMPONENT_DESC" />
-		<action name="core.create" title="JACTION_CREATE" description="JACTION_CREATE_COMPONENT_DESC" />
-		<action name="core.delete" title="JACTION_DELETE" description="JACTION_DELETE_COMPONENT_DESC" />
-		<action name="core.edit" title="JACTION_EDIT" description="JACTION_EDIT_COMPONENT_DESC" />
-		<action name="core.edit.state" title="JACTION_EDITSTATE" description="JACTION_EDITSTATE_COMPONENT_DESC" />
-		<action name="core.edit.own" title="JACTION_EDITOWN" description="JACTION_EDITOWN_COMPONENT_DESC" />
+		<action name="core.admin" title="Administer EasyStaging" description="Allow users in this group to edit EasyStagings configuration options." />
+		<action name="core.manage" title="Access EasyStaging" description="Allow users in this group to access EasyStaging.&lt;br /&gt;(Access is required to run staging plans.)" />
+		<action name="easystaging.create" title="Create a Staging Plan" description="Allows users in this group to Create new Plans." />
+		<action name="easystaging.delete" title="Delete a Staging Plan" description="Allows users in this group to Delete existing Plans." />
+		<action name="easystaging.edit" title="Edit a Staging Plan" description="Allows users in this group to Edit existing Plans." />
+		<action name="easystaging.edit.state" title="Edit a Staging Plan State" description="Allows users in this group to Publish/Unpublish existing Plans." />
+		<action name="easystaging.run" title="Run Plan" description="With this permission a user/group can run this Staging Plan." />
+	</section>
+	<section name="plan">
+		<action name="easystaging.create" title="Create a Staging Plan" description="Allows users in this group to Create new Plans." />
+		<action name="easystaging.delete" title="Delete a Staging Plan" description="Allows users in this group to Delete existing Plans." />
+		<action name="easystaging.edit" title="Edit a Staging Plan" description="Allows users in this group to Edit existing Plans." />
+		<action name="easystaging.edit.state" title="Edit a Staging Plan State" description="Allows users in this group to Publish/Unpublish existing Plans." />
+		<action name="easystaging.run" title="Run Plan" description="With this permission a user/group can run this Staging Plan." />
 	</section>
 </access>

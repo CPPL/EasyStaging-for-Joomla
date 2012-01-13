@@ -10,8 +10,8 @@ foreach ($this->items as $i => &$row)
 	// Row State
 	$checked = JHTML::_( 'grid.id', $i, $row->id );
 	$published = '';
-	$published = JHtml::_('jgrid.published', $row->published, $i, 'plans.', $canDo->get('easystaging.edit.state'), 'cb', $row->publish_up, $row->publish_down);
-	if($canDo->get('easystaging.edit')) {
+	$published = JHtml::_('jgrid.published', $row->published, $i, 'plans.', $canDo->get('core.edit.state'), 'cb', $row->publish_up, $row->publish_down);
+	if($canDo->get('core.edit')) {
 		$plan = '<a href="'.JRoute::_( 'index.php?option=com_easystaging&task=plan.edit&id='. $row->id ).'">'.$row->name.'</a>';
 	} elseif ($canDo->get('easystaging.run')) {
 		$plan = '<a href="'.JRoute::_( 'index.php?option=com_easystaging&task=plan.run&id='. $row->id ).'">'.$row->name.'</a>';

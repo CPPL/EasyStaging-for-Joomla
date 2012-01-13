@@ -69,7 +69,7 @@ class PlanHelper
 		}
 	
 		$actions = array(
-				'core.admin', 'core.manage', 'easystaging.create', 'easystaging.edit', 'easystaging.edit.own', 'easystaging.edit.state', 'easystaging.delete', 'easystaging.run'
+				'core.admin', 'core.manage', 'core.create', 'core.edit', 'core.edit.own', 'core.edit.state', 'core.delete', 'easystaging.run'
 		);
 	
 		foreach ($actions as $action) {

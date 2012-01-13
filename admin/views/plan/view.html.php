@@ -64,7 +64,7 @@ class EasyStagingViewPlan extends JView
 		$isNew		= ($this->item->id == 0);
 		$checkedOut	= !($this->item->checked_out == 0 || $this->item->checked_out == $user->get('id'));
 		
-		if($canDo->get('easystaging.edit') || $canDo->get('easystaging.create')) {
+		if($canDo->get('core.edit') || $canDo->get('core.create')) {
 			JToolBarHelper::title($isNew ? JText::_('COM_EASYSTAGING_MANAGER_PLAN_NEW') : JText::_('COM_EASYSTAGING_MANAGER_PLAN_EDIT'), 'easystaging');
 			JToolBarHelper::apply('plan.apply');
 			JToolBarHelper::save('plan.save');
@@ -72,7 +72,7 @@ class EasyStagingViewPlan extends JView
 			JText::_('COM_EASYSTAGING_MANAGER_PLAN_RUN');
 		}
 		                             
-		if (!$checkedOut && ($canDo->get('easystaging.create'))) {
+		if (!$checkedOut && ($canDo->get('core.create'))) {
 			JToolBarHelper::save2new('plan.save2new');
 		}
 		JToolBarHelper::cancel('plan.cancel', $isNew ? 'JTOOLBAR_CANCEL' : 'JTOOLBAR_CLOSE');
@@ -130,9 +130,9 @@ class EasyStagingViewPlan extends JView
 		$actionChoices[] = array('action' => 0, 'actionLabel' => '-- '.JText::_('COM_EASYSTAGING_TABLE_ACTION0').' --');
 		$actionChoices[] = array('action' => 1, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION1'));
 		$actionChoices[] = array('action' => 2, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION2'));
-		$actionChoices[] = array('action' => 3, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION3'));
+/*		$actionChoices[] = array('action' => 3, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION3'));
 		$actionChoices[] = array('action' => 4, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION4'));
-		$actionChoices[] = array('action' => 5, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION5'));
+		$actionChoices[] = array('action' => 5, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION5')); */
 		return $actionChoices;
 	}
 }

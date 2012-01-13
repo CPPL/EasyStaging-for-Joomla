@@ -53,21 +53,21 @@ class EasyStagingViewPlans extends JView
 		$canDo	= PlanHelper::getActions();
 		$user	= JFactory::getUser();
 
-		if($canDo->get('easystaging.create')) {
+		if($canDo->get('core.create')) {
 			JToolBarHelper::addNew('plan.add');
 		}
 		
-		if($canDo->get('easystaging.edit')) { 
+		if($canDo->get('core.edit')) { 
 			JToolBarHelper::editList('plan.edit');
 		}
 
-		if($canDo->get('easystaging.edit.state')) {
+		if($canDo->get('core.edit.state')) {
 			JToolBarHelper::divider();
 			JToolBarHelper::publishList('plans.publish', 'JTOOLBAR_PUBLISH', true);
 			JToolBarHelper::unpublishList('plans.unpublish', 'JTOOLBAR_UNPUBLISH', true);
 		}
 
-		if($canDo->get('easystaging.edit.state')) {
+		if($canDo->get('core.edit.state')) {
 			JToolBarHelper::deleteList('','plans.delete');
 			JToolBarHelper::divider();
 		}

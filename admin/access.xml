@@ -1,19 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <access component="com_easystaging">
 	<section name="component">
-		<action name="core.admin" title="Administer EasyStaging" description="Allow users in this group to edit EasyStagings configuration options." />
-		<action name="core.manage" title="Access EasyStaging" description="Allow users in this group to access EasyStaging.&lt;br /&gt;(Access is required to run staging plans.)" />
-		<action name="easystaging.create" title="Create a Staging Plan" description="Allows users in this group to Create new Plans." />
-		<action name="easystaging.delete" title="Delete a Staging Plan" description="Allows users in this group to Delete existing Plans." />
-		<action name="easystaging.edit" title="Edit a Staging Plan" description="Allows users in this group to Edit existing Plans." />
-		<action name="easystaging.edit.state" title="Edit a Staging Plan State" description="Allows users in this group to Publish/Unpublish existing Plans." />
-		<action name="easystaging.run" title="Run Plan" description="With this permission a user/group can run this Staging Plan." />
+		<action name="core.admin" title="COM_EASYSTAGING_ACL_ADMINISTER_EASYSTAGING"
+			description="COM_EASYSTAGING_ACL_ALLOW_USERS_I_DESC" />
+		<action name="core.manage" title="COM_EASYSTAGING_ACL_ACCESS_EASYSTAGING"
+			description="COM_EASYSTAGING_ACL_ALLOW_USERS_ACCESS_DESC" />
+		<action name="core.create" title="COM_EASYSTAGING_ACL_CREATE_A_STAGING_PLAN"
+			description="COM_EASYSTAGING_ACL_ALLOWS_USERS_CREATE" />
+		<action name="core.delete" title="COM_EASYSTAGING_ACL_DELETE_A_STAGING_PLAN"
+			description="COM_EASYSTAGING_ACL_ALLOWS_USERS_DELETE" />
+		<action name="core.edit" title="COM_EASYSTAGING_ACL_EDIT_A_STAGING_PLAN"
+			description="COM_EASYSTAGING_ACL_ALLOWS_USERS_EDIT" />
+		<action name="core.edit.state" title="COM_EASYSTAGING_ACL_EDIT_A_STAGING_PLAN_STATE"
+			description="COM_EASYSTAGING_ACL_ALLOWS_USERS_EDIT_STATE" />
+		<action name="easystaging.run" title="COM_EASYSTAGING_ACL_ALLOW_RUN_PLAN"
+			description="COM_EASYSTAGING_ACL_ALLOW_USERS_TO_RUN_PLAN_DESC" />
 	</section>
 	<section name="plan">
-		<action name="easystaging.create" title="Create a Staging Plan" description="Allows users in this group to Create new Plans." />
-		<action name="easystaging.delete" title="Delete a Staging Plan" description="Allows users in this group to Delete existing Plans." />
-		<action name="easystaging.edit" title="Edit a Staging Plan" description="Allows users in this group to Edit existing Plans." />
-		<action name="easystaging.edit.state" title="Edit a Staging Plan State" description="Allows users in this group to Publish/Unpublish existing Plans." />
-		<action name="easystaging.run" title="Run Plan" description="With this permission a user/group can run this Staging Plan." />
+		<action name="core.create" title="COM_EASYSTAGING_ACL_CREATE_A_STAGING_PLAN"
+			description="COM_EASYSTAGING_ACL_ALLOWS_USERS_CREATE" />
+		<action name="core.delete" title="COM_EASYSTAGING_ACL_DELETE_A_STAGING_PLAN"
+			description="COM_EASYSTAGING_ACL_ALLOWS_USERS_DELETE" />
+		<action name="core.edit" title="COM_EASYSTAGING_ACL_EDIT_A_STAGING_PLAN"
+			description="COM_EASYSTAGING_ACL_ALLOWS_USERS_EDIT" />
+		<action name="core.edit.state" title="COM_EASYSTAGING_ACL_EDIT_A_STAGING_PLAN_STATE"
+			description="COM_EASYSTAGING_ACL_ALLOWS_USERS_EDIT_STATE" />
+		<action name="easystaging.run" title="COM_EASYSTAGING_ACL_ALLOW_RUN_PLAN"
+			description="COM_EASYSTAGING_ACL_ALLOW_USERS_TO_RUN_PLAN_DESC" />
 	</section>
 </access>

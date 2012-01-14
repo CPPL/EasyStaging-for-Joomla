@@ -3,14 +3,14 @@
  
 	<name>EasyStaging</name>
 	<!-- The following elements are optional and free of formatting constraints -->
-	<creationDate>13-Jan-2012</creationDate>
+	<creationDate>14-Jan-2012</creationDate>
 	<author>Craig Phillips</author>
 	<authorEmail>support@craigphillips.biz</authorEmail>
 	<authorUrl>http://craigphillips.biz</authorUrl>
 	<copyright>© 2011 Craig Phillips Pty Ltd</copyright>
 	<license>License Info</license>
 	<!--  The version string is recorded in the components table -->
-	<version>1.0.0a2 (a73195d)</version>
+	<version>1.0.0a3 (3d2567d)</version>
 	<!-- The description is optional and defaults to the name -->
 	<description>COM_EASYSTAGING_XML_DESCRIPTION</description>
 
@@ -46,6 +46,7 @@
 			<folder>assets</folder>
 			<folder>controllers</folder>
 			<folder>helpers</folder>
+			<folder>language</folder>
 			<folder>models</folder>
 			<folder>syncfiles</folder>
 			<folder>tables</folder>

@@ -446,12 +446,18 @@ com_EasyStaging.runFinished = function()
 com_EasyStaging.lockOutBtns = function()
 {
 	$('startFile').disabled = 1;
+	$('startFileBtn').addClass('com_easystaging_plan_btn_off');
 	$('startDBase').disabled = 1;
+	$('startDBaseBtn').addClass('com_easystaging_plan_btn_off');
 	$('startAll').disabled = 1;
+	$('startAllBtn').addClass('com_easystaging_plan_btn_off');
 }
 com_EasyStaging.enableBtns = function()
 {
 	$('startFile').disabled = 0;
+	$('startFileBtn').removeClass('com_easystaging_plan_btn_off');
 	$('startDBase').disabled = 0;
+	$('startDBaseBtn').removeClass('com_easystaging_plan_btn_off');
 	$('startAll').disabled = 0;
+	$('startAllBtn').removeClass('com_easystaging_plan_btn_off');
 }

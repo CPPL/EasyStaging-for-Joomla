@@ -18,4 +18,10 @@ jimport('joomla.application.component.controllerform');
  */
 class EasyStagingControllerPlan extends JControllerForm
 {
+	public function __construct($config = array())
+	{
+		parent::__construct($config);
+
+		$this->registerTask('run', 'edit');
+	}
 }

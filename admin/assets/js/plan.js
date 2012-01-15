@@ -10,6 +10,14 @@ window.addEvent('domready', function() {
 	com_EasyStaging.setUp();
 });
 
+Joomla.submitbutton = function(task) {
+	if (task == 'plan.cancel' || document.formvalidator.isValid(document.id('easystaging-form'))) {
+		Joomla.submitform(task, document.getElementById('easystaging-form'));
+	} else {
+		alert(Joomla.JText._('JGLOBAL_VALIDATION_FORM_FAILED'));
+	}
+}
+
 com_EasyStaging.setUp = function ()
 {
 	this.currentStatusScroller = new Fx.Scroll($('currentStatus'));

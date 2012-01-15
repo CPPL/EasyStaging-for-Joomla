@@ -8,16 +8,6 @@ JHtml::_('behavior.formvalidation');
 JHtml::_('behavior.keepalive');
 ?>
 
-<script type="text/javascript">
-	Joomla.submitbutton = function(task) {
-		if (task == 'plan.cancel' || document.formvalidator.isValid(document.id('easystaging-form'))) {
-			Joomla.submitform(task, document.getElementById('easystaging-form'));
-		} else {
-			alert('<?php echo $this->escape(JText::_('JGLOBAL_VALIDATION_FORM_FAILED'));?>');
-		}
-	}
-</script>
-
 <form action="<?php echo JRoute::_('index.php?option=com_easystaging&layout=edit&id='.(int) $this->item->id); ?>"
       method="post" name="adminForm" id="easystaging-form">
 <!-- Main Form Body -->

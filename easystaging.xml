@@ -10,7 +10,7 @@
 	<copyright>© 2011 Craig Phillips Pty Ltd</copyright>
 	<license>License Info</license>
 	<!--  The version string is recorded in the components table -->
-	<version>1.0.0a3 (3d2567d)</version>
+	<version>1.0.0a5 (9fe6e18)</version>
 	<!-- The description is optional and defaults to the name -->
 	<description>COM_EASYSTAGING_XML_DESCRIPTION</description>
 
@@ -27,12 +27,12 @@
 
 	<administration>
 		<!-- Administration Menu Section -->
-		<menu img="components/com_easystaging/assets/media/EasyStaging-16-Icon.png">COM_EASYSTAGING</menu>
+		<menu img="components/com_easystaging/assets/media/EasyStaging-16-Icon.png">COM_EASYSTAGING_XML_NAME</menu>
 		<!-- Administration Main File Copy Section -->
 		<!-- Note the folder attribute: This attribute describes the folder
 			to copy FROM in the package to install therefore files copied
 			in this section are copied from /admin/ in the package -->
-		<languages folder="admin/language">
+		<languages folder="language">
 			<language tag="en-GB">en-GB/en-GB.com_easystaging.ini</language>
 		</languages>
 		<files folder="admin">

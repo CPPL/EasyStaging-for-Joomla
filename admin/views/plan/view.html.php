@@ -24,11 +24,10 @@ class EasyStagingViewPlan extends JView
 	 */
 	function display($tpl = null)
 	{
-		require_once JPATH_COMPONENT.'/helpers/plan.php';
 		// get the Data
 		$form = $this->get('Form');
 		$item = $this->get('Item');
- 
+
 		// Check for errors.
 		if (count($errors = $this->get('Errors'))) 
 		{
@@ -38,15 +37,21 @@ class EasyStagingViewPlan extends JView
 		// Assign the Data
 		$this->form  = $form;
 		$this->item  = $item;
-		$this->canDo = PlanHelper::getActions($this->item->id);
- 
+
+		// Should we be here?
+		require_once JPATH_COMPONENT.'/helpers/plan.php';
+		$this->canDo = PlanHelper::getActions($item->id);
+
+		// Running or Edit/Creating
+		$this->runOnly = $this->_runOnlyMode();
+
 		// Set the toolbar etc
 		$this->addToolBar();
 		$this->addCSSEtc();
 
-		// Create the action choices array
+		// Create the table action choices array
 		$this->assign('actionChoices',$this->_actionChoices());
- 
+
 		// Display the template
 		parent::display($tpl);
 	}
@@ -63,13 +68,13 @@ class EasyStagingViewPlan extends JView
 
 		$isNew		= ($this->item->id == 0);
 		$checkedOut	= !($this->item->checked_out == 0 || $this->item->checked_out == $user->get('id'));
-		
+
 		if($canDo->get('core.edit') || $canDo->get('core.create')) {
 			JToolBarHelper::title($isNew ? JText::_('COM_EASYSTAGING_MANAGER_PLAN_NEW') : JText::_('COM_EASYSTAGING_MANAGER_PLAN_EDIT'), 'easystaging');
 			JToolBarHelper::apply('plan.apply');
 			JToolBarHelper::save('plan.save');
 		} elseif($canDo->get('easystaging.run')) {
-			JText::_('COM_EASYSTAGING_MANAGER_PLAN_RUN');
+			JToolBarHelper::title(JText::_('COM_EASYSTAGING_MANAGER_PLAN_RUN'), 'easystaging');
 		}
 		                             
 		if (!$checkedOut && ($canDo->get('core.create'))) {
@@ -101,6 +106,23 @@ class EasyStagingViewPlan extends JView
 		$jsFile = '/assets/js/plan.js';
 		$document->addScript(JURI::base(true).'/components/com_easystaging'.$jsFile);
 		$this->_loadJSLanguageKeys($jsFile);
+	}
+
+	private function _runOnlyMode() {
+		if(!($this->canDo->get('core.edit') || $this->canDo->get('core.create')) && $this->canDo->get('easystaging.run'))
+		{
+			// They can run but not hide, I mean create/edit plans - better limit the access to form elements.
+			$this->form->setFieldAttribute('name','class','readonly');
+			$this->form->setFieldAttribute('name','readonly','true');
+			$this->form->setFieldAttribute('description','class','readonly');
+			$this->form->setFieldAttribute('description','disabled','true');
+			$this->form->setFieldAttribute('published','class','readonly');
+			$this->form->setFieldAttribute('published','readonly','true');
+			// Finally return true for run only mode
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private  function _loadJSLanguageKeys($jsFile) {

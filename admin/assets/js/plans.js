@@ -13,7 +13,7 @@ window.addEvent('domready', function(){
             bordersAndMargins = 22;
             
             if(hiwp.getSize().y == (origHeight+bordersAndMargins)){
-            	targetHeight = 625;
+            	targetHeight = 635;
             	this.innerHTML = '^';
             } else {
             	targetHeight = origHeight;

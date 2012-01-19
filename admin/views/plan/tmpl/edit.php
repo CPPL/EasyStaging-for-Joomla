@@ -5,7 +5,7 @@ defined('_JEXEC') or die('Restricted access');
 JHtml::_('behavior.tooltip');
 JHtml::_('behavior.formvalidation');
 JHtml::_('behavior.keepalive');
-if(!$this->canDo->get('core.edit')) { return JError::raiseWarning(404, JText::_('JERROR_ALERTNOAUTHOR')); }
+if(!$this->canDo->get('core.edit')) { return JError::raiseWarning(404, JText::_('JERROR_ALERTNOAUTHOR'));$app =& JFactory::getApplication(); $app->redirect('index.php?option=com_easystaging'); }
 ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_easystaging&layout=edit&id='.(int) $this->item->id); ?>"

@@ -5,6 +5,7 @@ defined('_JEXEC') or die('Restricted access');
 JHtml::_('behavior.tooltip');
 JHtml::_('behavior.formvalidation');
 JHtml::_('behavior.keepalive');
+if(!$this->canDo->get('easystaging.run')) { return JError::raiseWarning(404, JText::_('COM_EASYSTAGING_RUN_NOAUTH'));$app =& JFactory::getApplication(); $app->redirect('index.php?option=com_easystaging'); }
 ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_easystaging&layout=run&id='.(int) $this->item->id); ?>"

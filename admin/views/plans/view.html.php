@@ -20,7 +20,8 @@ class EasyStagingViewPlans extends JView
 {
 	function display($tpl = null)
 	{
-		// JHtml::addIncludePath(JPATH_COMPONENT.'/helpers/html');
+		require_once JPATH_COMPONENT.'/helpers/plan.php';
+
 		JHtml::_('behavior.framework', true);
 		JHtml::_('behavior.tooltip');
 		JHtml::_('behavior.multiselect');
@@ -49,7 +50,6 @@ class EasyStagingViewPlans extends JView
 	{
 		JToolBarHelper::title( JText::_( 'COM_EASYSTAGING_EASYSTAGING_MANAGER' ), 'easystaging' );
 
-		require_once JPATH_COMPONENT.'/helpers/plan.php';
 		$canDo	= PlanHelper::getActions();
 		$user	= JFactory::getUser();
 
@@ -88,7 +88,9 @@ class EasyStagingViewPlans extends JView
 		// First add CSS to the document
 		$document->addStyleSheet('/administrator/components/com_easystaging/assets/css/plans.css');
 		
-		// Then add JS to the document ‚ - make sure all JS comes after CSS
-		$document->addScript('/administrator/components/com_easystaging/assets/js/plans.js');
+		// Then add JS to the document‚ - make sure all JS comes after CSS
+		$jsFile = '/assets/js/plans.js';
+		$document->addScript(JURI::base(true).'/components/com_easystaging'.$jsFile);
+		PlanHelper::loadJSLanguageKeys($jsFile);
 	}
 }

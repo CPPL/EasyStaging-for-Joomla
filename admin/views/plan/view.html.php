@@ -24,6 +24,7 @@ class EasyStagingViewPlan extends JView
 	 */
 	function display($tpl = null)
 	{
+		require_once JPATH_COMPONENT.'/helpers/plan.php';
 		// get the Data
 		$form = $this->get('Form');
 		$item = $this->get('Item');
@@ -39,7 +40,6 @@ class EasyStagingViewPlan extends JView
 		$this->item  = $item;
 
 		// Should we be here?
-		require_once JPATH_COMPONENT.'/helpers/plan.php';
 		$this->canDo = PlanHelper::getActions($item->id);
 
 		// Running or Edit/Creating
@@ -105,7 +105,7 @@ class EasyStagingViewPlan extends JView
 		// Then add JS to the document‚ - make sure all JS comes after CSS
 		$jsFile = '/assets/js/plan.js';
 		$document->addScript(JURI::base(true).'/components/com_easystaging'.$jsFile);
-		$this->_loadJSLanguageKeys($jsFile);
+		PlanHelper::loadJSLanguageKeys($jsFile);
 	}
 
 	private function _runOnlyMode() {

@@ -18,6 +18,13 @@ jimport( 'joomla.database.table' );
 class EasyStagingControllerPlan extends JController
 {
 	protected $plan_id;
+	
+	function __construct($config)
+	{
+		
+		require_once JPATH_COMPONENT.'/helpers/plan.php';
+		parent::__construct($config);
+	}
 
 	function hello()
 	{
@@ -284,6 +291,21 @@ class EasyStagingControllerPlan extends JController
 				$format = JText::_('DATE_FORMAT_LC2');
 				$msg = JText::sprintf('COM_EASYSTAGING_LAST_RUN',$date->format($format,true));
 				$result = array( 'msg' => $msg );
+				// Archive our work
+				$zipArchiveName = $this->_sync_files_path() . '/' . $this->_get_run_directory() . '.zip';
+				$folder = $this->_sync_files_path() . '/' . $this->_get_run_directory();
+				$files_to_be_zipped = PlanHelper::directoryToArray($folder);
+				if(PlanHelper::createZip($files_to_be_zipped, $zipArchiveName, $this->_sync_files_path()))
+				{
+					$result['cleanupMsg'] = JText::sprintf('COM_EASYSTAGING_PLAN_JSON_COMPRESSED_FILES', count($files_to_be_zipped), $zipArchiveName);
+				} else {
+					$result['cleanupMsg'] = JText::_('COM_EASYSTAGING_PLAN_JSON_UNABLE_TO_ZIP_ERROR');
+				}
+
+				// Clean up our work
+				PlanHelper::remove_this_directory($folder);
+				
+				// Reply to user
 				echo json_encode( $result );
 			}
 			return;

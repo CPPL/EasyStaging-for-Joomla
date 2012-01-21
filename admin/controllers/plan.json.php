@@ -24,6 +24,9 @@ class EasyStagingControllerPlan extends JController
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
 			echo json_encode(array('msg' => JText::_( 'COM_EASYSTAGING__EASYSTAGING_IS_READY' ) , 'status' => 1));
+			// It's alllll good...
+			$runTicket = $plan_id . '-' . date("YmdHi");
+			$runTicketDirectory = $this->_get_run_directory($runTicket);
 		} else {
 			echo json_encode(array('msg' => JText::_( 'COM_EASYSTAGING_PLAN_ID_TOKE_DESC' ) , 'status' => 0));
 		}
@@ -191,7 +194,7 @@ class EasyStagingControllerPlan extends JController
 
 				// 6. Save the export SQL to file for the next request to execute.
 				// Build our file path & file handle
-				$pathToSQLFile = $this->_sync_files_path().$this->_export_file_name($table);
+				$pathToSQLFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_export_file_name($table);
 				$data = $pathToSQLFile;
 				if($exportSQLFile = @fopen($pathToSQLFile, 'w')) {
 					// Attempt to write the file
@@ -403,8 +406,8 @@ class EasyStagingControllerPlan extends JController
 		if(isset($plan_id))
 		{
 			// Build our file path & file handle
-			$pathToExclusionsFile = $this->_sync_files_path().$this->_excl_file_name();
-			$result = array('fileName' => $this->_excl_file_name());
+			$pathToExclusionsFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_excl_file_name();
+			$result = array('fileName' =>  $this->_get_run_directory() . '/' . $this->_excl_file_name());
 			$result['fullPathToExclusionFile'] = $pathToExclusionsFile;
 			
 			if($exclusionFile = @fopen($pathToExclusionsFile, 'w')){
@@ -441,7 +444,33 @@ EOH;
 
 	private function _sync_files_path()
 	{
-		return JPATH_ADMINISTRATOR.'/components/com_easystaging/syncfiles/';
+		return JPATH_ADMINISTRATOR . '/components/com_easystaging/syncfiles/';
+	}
+	private function _get_run_directory($runDirectory = NULL)
+	{
+		// Get location files from this run will be saved in to.
+		if($runDirectory == NULL) {
+			$runDirectory = $this->_getInputVar('runTicket') ;
+		}
+
+		$runDirectoryPath = JPATH_ADMINISTRATOR . '/components/com_easystaging/syncfiles/' . $runDirectory;
+ 
+		if($runDirectory) {
+			if(!file_exists($runDirectoryPath)) {
+				if(mkdir($runDirectoryPath, 0777, true)){
+					return $runDirectory;
+				} else {
+					$result['status'] = 0;
+					$result['msg'] = JText::sprintf('COM_EASYSTAGING_PLAN_JSON_UNABLE_TO_CREAT_RUN_DIR', $runDirectoryPath);
+				}
+			} else {
+				return $runDirectory;
+			}
+		} else {
+			$result['status'] = 0;
+			$result['msg'] = JText::_('COM_EASYSTAGING_PLAN_JSON_NO_VALID_RUN_TICKET');
+		}
+		return $result;
 	}
 	private function _excl_file_name()
 	{

@@ -30,10 +30,19 @@ class EasyStagingControllerPlan extends JController
 	{
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
-			echo json_encode(array('msg' => JText::_( 'COM_EASYSTAGING__EASYSTAGING_IS_READY' ) , 'status' => 1));
 			// It's alllll good...
 			$runTicket = $plan_id . '-' . date("YmdHi");
 			$runTicketDirectory = $this->_get_run_directory($runTicket);
+			if(is_array($runTicketDirectory)) {
+				echo json_encode($runTicketDirectory);
+			} else {
+				$msg = JText::_( 'COM_EASYSTAGING__EASYSTAGING_IS_READY' );
+				if($this->_writeToLog($msg, $runTicket)) {
+					echo json_encode(array('msg' => $msg, 'status' => 1, 'runTicket' => $runTicket));
+				} else {
+					echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_UNABLE_TO_LOG', __FUNCTION__), 'status' => 0));
+				}
+			}
 		} else {
 			echo json_encode(array('msg' => JText::_( 'COM_EASYSTAGING_PLAN_ID_TOKE_DESC' ) , 'status' => 0));
 		}
@@ -48,7 +57,12 @@ class EasyStagingControllerPlan extends JController
 			if($rsResult['status'])
 			{
 				$fileCreated = $rsResult['fileName'];
-				echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_SUCCEEDED', $fileCreated), 'status' => 1, 'data' => $rsResult));
+				$msg = JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_SUCCEEDED', $fileCreated);
+				if($this->_writeToLog($msg)) {
+					echo json_encode(array('msg' => $msg, 'status' => 1, 'data' => $rsResult));
+				} else {
+					echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_UNABLE_TO_LOG', __FUNCTION__), 'status' => 0));
+				}
 			} else {
 				echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_FAILED', $plan_id), 'status' => 0,  'data' => $rsResult));
 			}
@@ -75,8 +89,12 @@ class EasyStagingControllerPlan extends JController
 
 			//$rsyncOutput = exec('uptime');  
 			$rsyncOutput[] = '<br />'.$rsyncCmd;
-			
-			echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_RSYNC_STEP_2_DESC',$plan_id), 'status' => 1, 'data' => $rsyncOutput));
+			$msg = JText::sprintf('COM_EASYSTAGING_RSYNC_RUN_DESC',$plan_id);
+			if($this->_writeToLog($msg . "\n" . print_r($rsyncOutput,true))) {
+				echo json_encode(array('msg' => $msg, 'status' => 1, 'data' => $rsyncOutput));
+			} else {
+				echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_UNABLE_TO_LOG', __FUNCTION__), 'status' => 0));
+			}
 		}
 	}
 
@@ -95,7 +113,11 @@ class EasyStagingControllerPlan extends JController
 			if($rDBC) {
 				$msg = JText::_( 'COM_EASYSTAGING_DATABASE_STEP_01_CONNECTED' );
 				$remoteTablesRetreived = $this->_getRemoteDBTables($rDBC);
-				echo json_encode(array('msg' => $msg, 'status' => 1, 'data' => $remoteTablesRetreived));
+				if($this->_writeToLog($msg . "\n" . print_r($remoteTablesRetreived,true))) {
+					echo json_encode(array('msg' => $msg, 'status' => 1, 'data' => $remoteTablesRetreived));
+				} else {
+					echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_UNABLE_TO_LOG', __FUNCTION__), 'status' => 0));
+				}
 			} else {
 				echo json_encode(array('msg' => JText::_( 'COM_EASYSTAGING_DATABASE_STEP_01_FAILED_TO_CONNECT' ) , 'status' => 0, 'data' => $rDBC->errors));
 			}
@@ -116,10 +138,12 @@ class EasyStagingControllerPlan extends JController
 				$response = array('msg' => JText::_('COM_EASYSTAGING_DATABASE_STEP_02_TABLES_LIST'), 'status' => 1, 'data' => $tableResults, 'tablesFound' => count($tableResults['rows']) );
 				$initialTableResults = $this->_getTablesForInitialReplication($plan_id);
 				if($initialTableResults['status'] != '0') {
-					$response['msg'] = $response['msg'].'<br />'.JText::sprintf('COM_EASYSTAGING_FOUND_TABLES_FO_DESC',count($initialTableResults['rows']));
+					$msg = $response['msg'] . "\n" . JText::sprintf('COM_EASYSTAGING_FOUND_TABLES_FO_DESC',count($initialTableResults['rows']));
+					$msg .= print_r($initialTableResults['rows'], true);
+					$response['msg'] = $response['msg'] . '<br />' . JText::sprintf('COM_EASYSTAGING_FOUND_TABLES_FO_DESC',count($initialTableResults['rows']));
 					$response['initialCopyTables'] = $initialTableResults['rows'];
 				} else {
-					$response['msg'] = $response['msg'].'<br />'.JText::_('COM_EASYSTAGING_NO_TABLES_FO_DESC');
+					$response['msg'] = $response['msg'] . '<br />' . JText::_('COM_EASYSTAGING_NO_TABLES_FO_DESC');
 				}
 
 			} else {
@@ -128,7 +152,8 @@ class EasyStagingControllerPlan extends JController
 		} else {
 			$response = array('msg' => JText::_( 'COM_EASYSTAGING_PLAN_ID_TOKE_DESC' ) , 'status' => 0);
 		}
-
+		// Log it...
+		$this->_writeToLog($msg);
 		echo json_encode($response);
 	}
 
@@ -149,6 +174,7 @@ class EasyStagingControllerPlan extends JController
 			
 			$jinput =  JFactory::getApplication()->input;
 			$table = $jinput->get('tableName', '');
+			$buildTableSQL = '';
 			
 			if($table != '') {
 				// OK were, going to need access to the database
@@ -208,7 +234,8 @@ class EasyStagingControllerPlan extends JController
 					$status = fwrite($exportSQLFile, $buildTableSQL);
 					// Time to close off
 					fclose($exportSQLFile);
-					$response = array('msg' => JText::sprintf('COM_EASYSTAGING_SQL_EXPORT_SUCC', $table), 'status' => $status, 'data' => $data, 'pathToSQLFile' => $pathToSQLFile, 'log' => $log);
+					$msg = JText::sprintf('COM_EASYSTAGING_SQL_EXPORT_SUCC', $table);
+					$response = array('msg' => $msg, 'status' => $status, 'data' => $data, 'pathToSQLFile' => $pathToSQLFile, 'log' => $log);
 				} else {
 					$response = array('msg' => JText::_('COM_EASYSTAGING_JSON_FAILED_TO_OPEN_SQL_EXP_FILE'), 'status' => $exportSQLFile, 'data' => error_get_last(), 'pathToSQLFile' => $pathToSQLFile, 'log' => $log);
 				}
@@ -221,6 +248,8 @@ class EasyStagingControllerPlan extends JController
 			$response = array('msg' => JText::_( 'COM_EASYSTAGING_PLAN_ID_TOKE_DESC' ) , 'status' => 0, 'data' => array());
 		}
 		echo json_encode($response);
+		// Log it...
+		$this->_writeToLog($response['msg']);
 	}
 
 	function runTableExport()
@@ -271,6 +300,9 @@ class EasyStagingControllerPlan extends JController
 			echo json_encode($response);
 		}
 		
+		// Log it...
+		$this->_writeToLog($response['msg']);
+
 		return false;
 	}
 
@@ -291,6 +323,9 @@ class EasyStagingControllerPlan extends JController
 				$format = JText::_('DATE_FORMAT_LC2');
 				$msg = JText::sprintf('COM_EASYSTAGING_LAST_RUN',$date->format($format,true));
 				$result = array( 'msg' => $msg );
+				// Log it...
+				$this->_writeToLog($response['msg']);
+
 				// Archive our work
 				$zipArchiveName = $this->_sync_files_path() . '/' . $this->_get_run_directory() . '.zip';
 				$folder = $this->_sync_files_path() . '/' . $this->_get_run_directory();
@@ -461,6 +496,20 @@ EOH;
 			// Return to Maine, where the moose, deer, eagles and loons roam.
 			return $result;
 		}
+		return false;
+	}
+
+	private function _writeToLog($logLine, $runTicket = NULL)
+	{
+		if($runTicket == NULL) { $runTicket = $this->_getInputVar('runTicket'); } // first call for a plan run may need to supply a ticket otherwise retrieve from request values.
+		$logFileName = 'es-log-plan-' . $this->_plan_id() . '-run-' . $runTicket . '.txt';
+		$fullPathToLogFile = JPATH_ADMINISTRATOR . '/components/com_easystaging/syncfiles/' . $runTicket . '/' . $logFileName;
+
+		if($logFile = fopen($fullPathToLogFile, 'ab')) { // 'ab' has 'b' for windows :D
+			$logWriteResult = fwrite($logFile, $logLine . "\n");
+			return $logWriteResult;
+		}
+
 		return false;
 	}
 

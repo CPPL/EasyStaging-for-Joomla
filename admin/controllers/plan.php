@@ -53,7 +53,7 @@ class EasyStagingControllerPlan extends JControllerForm
 
 		// Access check.
 		if (!$this->allowRun(array($key => $recordId), $key)) {
-			$this->setError(JText::_('You do not have permission to run this staging plan.'));
+			$this->setError(JText::_('COM_EASYSTAGING_PLAN_YOU_DO_NOT_HAVE_PERM'));
 			$this->setMessage($this->getError(), 'error');
 
 			return false;

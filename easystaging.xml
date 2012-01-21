@@ -3,14 +3,14 @@
  
 	<name>EasyStaging</name>
 	<!-- The following elements are optional and free of formatting constraints -->
-	<creationDate>14-Jan-2012</creationDate>
+	<creationDate>19-Jan-2012</creationDate>
 	<author>Craig Phillips</author>
 	<authorEmail>support@craigphillips.biz</authorEmail>
 	<authorUrl>http://craigphillips.biz</authorUrl>
 	<copyright>© 2011 Craig Phillips Pty Ltd</copyright>
 	<license>License Info</license>
 	<!--  The version string is recorded in the components table -->
-	<version>1.0.0a5 (9fe6e18)</version>
+	<version>1.0.0b1 (51b07d3)</version>
 	<!-- The description is optional and defaults to the name -->
 	<description>COM_EASYSTAGING_XML_DESCRIPTION</description>
 

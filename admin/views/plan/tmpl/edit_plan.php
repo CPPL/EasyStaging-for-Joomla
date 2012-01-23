@@ -29,17 +29,23 @@
 	<?php echo JHtml::_('sliders.panel',JText::_('COM_EASYSTAGING_BASIC_ATTRIBUTES_LABEL'), 'basic-options'); ?>
 		<fieldset class="panelform">
 			<ul class="adminformlist">
-				<li><?php echo $this->form->getLabel('created_by'); ?> <?php echo $this->form->getInput('created_by'); ?></li>
+				<li><?php	echo $this->form->getLabel('created_by');
+							echo $this->form->getInput('created_by');   ?></li>
 
-				<li><?php echo $this->form->getLabel('created'); ?> <?php echo $this->form->getInput('created'); ?></li>
+				<li><?php	echo $this->form->getLabel('created');
+							echo $this->form->getInput('created');      ?></li>
 
-				<li><?php echo $this->form->getLabel('publish_up'); ?> <?php echo $this->form->getInput('publish_up'); ?></li>
+				<li><?php 	echo $this->form->getLabel('publish_up');
+							echo $this->form->getInput('publish_up');   ?></li>
 
-				<li><?php echo $this->form->getLabel('publish_down'); ?> <?php echo $this->form->getInput('publish_down'); ?></li>
+				<li><?php	echo $this->form->getLabel('publish_down');
+							echo $this->form->getInput('publish_down'); ?></li>
 
 				<?php if ($this->item->modified_by) : ?>
-					<li><?php echo $this->form->getLabel('modified_by'); ?> <?php echo $this->form->getInput('modified_by'); ?></li>
-					<li><?php echo $this->form->getLabel('modified'); ?> <?php echo $this->form->getInput('modified'); ?></li>
+				<li><?php	echo $this->form->getLabel('modified_by');
+							echo $this->form->getInput('modified_by'); ?></li>
+				<li><?php	echo $this->form->getLabel('modified');
+							echo $this->form->getInput('modified');    ?></li>
 				<?php endif; ?>
 			</ul>
 		</fieldset>

@@ -118,6 +118,14 @@ class EasyStagingViewPlan extends JView
 			$this->form->setFieldAttribute('description','disabled','true');
 			$this->form->setFieldAttribute('published','class','readonly');
 			$this->form->setFieldAttribute('published','readonly','true');
+			$this->form->setFieldAttribute('publish_up','class','readonly');
+			$this->form->setFieldAttribute('publish_up','readonly','true');
+			$this->form->setFieldAttribute('publish_up','format','%Y-%m-%d %H:%M:%S');
+			$this->form->setFieldAttribute('publish_up','filter','user_utc');
+			$this->form->setFieldAttribute('publish_down','class','readonly');
+			$this->form->setFieldAttribute('publish_down','readonly','true');
+			$this->form->setFieldAttribute('publish_down','format','%Y-%m-%d %H:%M:%S');
+			$this->form->setFieldAttribute('publish_down','filter','user_utc');
 			// Finally return true for run only mode
 			return true;
 		} else {

@@ -25,17 +25,18 @@ class EasyStagingControllerPlan extends JControllerForm
 
 	public function run($key = null, $urlVar = null)
 	{
+		$jinput = JFactory::getApplication()->input;
 		// Initialise variables.
 		$app		= JFactory::getApplication();
 		$model		= $this->getModel();
 		$table		= $model->getTable();
-		$cid		= JRequest::getVar('cid', array(), 'post', 'array');
+		$cid		= $jinput->post('cid', array(), 'array');
 		$context	= "$this->option.run.$this->context";
 		$append		= '';
 
 		
 		// Set the run view
-		JRequest::setVar('layout', 'Run');
+		$jinput->set('layout', 'Run');
 
 		// Determine the name of the primary key for the data.
 		if (empty($key)) {
@@ -48,7 +49,7 @@ class EasyStagingControllerPlan extends JControllerForm
 		}
 
 		// Get the previous record id (if any) and the current record id.
-		$recordId	= (int) (count($cid) ? $cid[0] : JRequest::getInt($urlVar));
+		$recordId	= (int) (count($cid) ? $cid[0] : $jinput->get($urlVar, NULL, 'INT'));
 		$checkin	= property_exists($table, 'checked_out');
 
 		// Access check.
@@ -80,10 +81,16 @@ class EasyStagingControllerPlan extends JControllerForm
 
 	public function cancel($key = null)
 	{
+		/*
+		 * @TODO remove the JRequest::checkToken() once JInput is upto speed
+		 */
 		JRequest::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+
+		$jinput = JFactory::getApplication()->input;
+
 		// If we're canceling a plan_run view
-		$layout     = JRequest::getVar('layout');
-		$task       = JRequest::getVar('task');
+		$layout     = $jinput->get('layout');
+		$task       = $jinput->get('task');
 
 		if(($task == 'cancel') && ($layout == 'run')) {
 			// Initialise variables.
@@ -97,7 +104,7 @@ class EasyStagingControllerPlan extends JControllerForm
 				$key = $table->getKeyName();
 			}
 		
-			$recordId	= JRequest::getInt($key);
+			$recordId	= $jinput->get($key, NULL, 'INT');
 		
 			// Attempt to check-in the current record.
 			if ($recordId) {

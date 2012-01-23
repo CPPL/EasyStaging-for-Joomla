@@ -52,7 +52,6 @@ class EasyStagingControllerPlan extends JController
 	{
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
-			// $plan_id = JRequest::get('plan_id');
 			$rsResult = $this->_createRSYNCExclusionFile($plan_id);
 			if($rsResult['status'])
 			{
@@ -602,7 +601,7 @@ EOH;
 	private function _tokenOK()
 	{
 		// Check for request forgeries
-		if (!JRequest::checkToken('request')) {
+		if (!JRequest::checkToken('request')) { // We are stuck with this until JInput catches up.
 			$response = array(
 						'status' => '0',
 						'msg' => JText::_('JINVALID_TOKEN')

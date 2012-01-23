@@ -62,7 +62,8 @@ class EasyStagingViewPlan extends JView
 	 */
 	private function addToolbar ()
 	{
-		JRequest::setVar('hidemainmenu', true);
+		$jinput = JFactory::getApplication()->input;
+		$jinput->set('hidemainmenu', true);
 		$canDo	    = $this->canDo;
 		$user		= JFactory::getUser();
 

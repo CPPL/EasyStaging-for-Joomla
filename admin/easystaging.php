@@ -20,7 +20,9 @@ jimport('joomla.application.component.controller');
 
 $controller = JController::getInstance('EasyStaging');
 
-$controller->execute(JRequest::getCmd('task'));
+$jinput = JFactory::getApplication()->input;
+
+$controller->execute($jinput->get('task'));
  
 // Redirect if set by the controller
 $controller->redirect();

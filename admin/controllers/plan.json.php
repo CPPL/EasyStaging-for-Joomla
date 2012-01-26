@@ -323,7 +323,7 @@ class EasyStagingControllerPlan extends JController
 				$msg = JText::sprintf('COM_EASYSTAGING_LAST_RUN',$date->format($format,true));
 				$result = array( 'msg' => $msg );
 				// Log it...
-				$this->_writeToLog($response['msg']);
+				$this->_writeToLog($result['msg']);
 
 				// Archive our work
 				$zipArchiveName = $this->_sync_files_path() . '/' . $this->_get_run_directory() . '.zip';

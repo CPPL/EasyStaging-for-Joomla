@@ -78,9 +78,9 @@ class EasyStagingControllerPlan extends JController
 			$rsyncCmd.= ' --exclude-from='.$this->_getInputVar('fileName');
 			
 			// add the source
-			$rsyncCmd.= ' '.$this->_loadLocalSiteRecord($plan_id)->site_path; 
+			$rsyncCmd.= ' ' . PlanHelper::getLocalSite($plan_id)->site_path; 
 			// add the destination
-			$rsyncCmd.= ' '.$this->_loadRemoteSiteRecord($plan_id)->site_path;
+			$rsyncCmd.= ' ' . PlanHelper::getRemoteSite($plan_id)->site_path;
 
 			// exec the rsync command
 			$rsyncOutput = array();
@@ -105,7 +105,7 @@ class EasyStagingControllerPlan extends JController
 		// Check for request forgeries
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
 			// Get the remote site details
-			$rs = $this->_loadRemoteSiteRecord($plan_id);
+			$rs = PlanHelper::getRemoteSite($plan_id);
 			$options	= array ('host' => $rs->database_host, 'user' => $rs->database_user, 'password' => $rs->database_password, 'database' => $rs->database_name, 'prefix' => $rs->database_table_prefix);
 			$rDBC = JDatabase::getInstance($options);
 			
@@ -264,7 +264,7 @@ class EasyStagingControllerPlan extends JController
 				$exportSQLQuery = explode("\n\n-- End of Statement --\n\n", file_get_contents($pathToSQLFile));
 				if(count($exportSQLQuery)) {
 					// Open DB connection.
-					$rs = $this->_loadRemoteSiteRecord($plan_id);
+					$rs = PlanHelper::getRemoteSite($plan_id);
 					$options	= array ('host' => $rs->database_host, 'user' => $rs->database_user, 'password' => $rs->database_password, 'database' => $rs->database_name, 'prefix' => $rs->database_table_prefix);
 					$rDBC = JDatabase::getInstance($options);
 						
@@ -375,9 +375,9 @@ class EasyStagingControllerPlan extends JController
 
 	private function _changeTablePrefix($buildTableSQL)
 	{
-		$localSite = $this->_loadLocalSiteRecord($this->_plan_id());
+		$localSite = PlanHelper::getLocalSite($this->_plan_id());
 		$localPrefix = $localSite->database_table_prefix;
-		$remoteSite = $this->_loadRemoteSiteRecord($this->_plan_id());
+		$remoteSite = PlanHelper::getRemoteSite($this->_plan_id());
 		$remotePrefix = $remoteSite->database_table_prefix;
 		return str_replace($localPrefix, $remotePrefix, $buildTableSQL);
 	}
@@ -439,28 +439,6 @@ class EasyStagingControllerPlan extends JController
 		return array("msg" => JText::_('COM_EASYSTAGING_NO_PLAN_ID_AVAIL'), 'status' => 0);
 	}
 
-	private function _loadLocalSiteRecord($plan_id)
-	{
-		$type = 1; // Local site
-		return $this->_loadSiteRecord($plan_id, $type);
-	}
-	private function _loadRemoteSiteRecord($plan_id)
-	{
-		$type = 2; // Live/Target site
-		return $this->_loadSiteRecord($plan_id, $type);
-	}
-	private function _loadSiteRecord($plan_id, $type)
-	{
-		// Load our site record
-		JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_easystaging/tables');
-		$Sites = JTable::getInstance('Site', 'EasyStagingTable');
-		
-		if($Sites->load(array('plan_id'=>$plan_id, 'type'=>$type)))
-		{
-			return $Sites;
-		}
-	}
-
 	private function _createRSYNCExclusionFile($plan_id)
 	{
 		if(isset($plan_id))
@@ -481,7 +459,8 @@ class EasyStagingControllerPlan extends JController
 
 EOH;
 				// Get local site record
-				$Sites = $this->_loadLocalSiteRecord($plan_id);
+				$Sites = PlanHelper::getLocalSite($plan_id);
+
 				// Combine the default exclusions with those in the local site record
 				$allExclusions = $defaultExclusions.$this->_checkExclusionField($Sites->file_exclusions);
 				$result['fileData'] = $allExclusions;
@@ -597,7 +576,7 @@ EOH;
 	private function _getRsyncOptions($plan_id)
 	{
 		//place holder, will get from plan record
-		$SiteRecord = $this->_loadLocalSiteRecord($plan_id);
+		$SiteRecord = PlanHelper::getLocalSite($plan_id);
 		$opts = $SiteRecord->rsync_options;
 		return $opts;
 	}

@@ -106,7 +106,7 @@ class EasyStagingModelPlan extends JModelAdmin
 				$localSite = $this->_getDefaultValuesFromLocal()->getProperties();
 				$localSite['site_url'] = JURI::root();
 				$localSite['site_path'] = JPATH_BASE;
-				$localSite['rsync_options'] = '-avr';
+				$localSite['rsync_options'] = '-avr --delete';
 				// In the odd event that a plan exists but has NO local site data we'll let the user know.
 				if(count($this->_forms) && !($plan_id == 0)) // As getItem() gets called twice (first in getForm) we only need to tell the user once the form exists.
 				{

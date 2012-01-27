@@ -452,10 +452,13 @@ class EasyStagingControllerPlan extends JController
 				
 				// Create the content for our exclusions file
 				$defaultExclusions = <<< EOH
--tmp/
--logs/
--cache/
--configuration.php
+- /tmp/
+- /logs/
+- /cache/
+- /administrator/cache/
+- com_easystaging/
+- /configuration.php
+- /.htaccess
 
 EOH;
 				// Get local site record

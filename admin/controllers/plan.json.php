@@ -390,13 +390,17 @@ class EasyStagingControllerPlan extends JController
 			$db->setQuery("select * from `#__easystaging_tables` where `plan_id` = ".$plan_id." and (`action` = '1' or `action` = '2')");
 			if($localTableRows = $db->loadAssocList()) {
 				$tableRows = array(); // Where we'll store the tables to be copied.
+				$localPrefix = PlanHelper::getLocalSite($plan_id)->database_table_prefix;   // Get the local & remote prefix for use in the loop
+				$remotePrefix = PlanHelper::getRemoteSite($plan_id)->database_table_prefix; // Get the local & remote prefix for use in the loop
 				// Loop through the table settings and adding them to the $tableRows to be used if their action suites.
 				foreach ($localTableRows as $localTable) {
 					// If this table is set to 'Copy To Live' we add it to our array
 					if($localTable['action'] == 1){
 						$tableRows[] = $localTable;
 					} else { // It's a copy if not exists table
-						if(!in_array($localTable['tablename'], $remoteTableList)) {
+						// Swap out the local table prefix with the remote, so we can get a match
+						$itsRemoteTableName = str_replace($localPrefix, $remotePrefix, $localTable['tablename']);
+						if(!in_array($itsRemoteTableName, $remoteTableList)) {
 							$tableRows[] = $localTable;
 						}
 					}

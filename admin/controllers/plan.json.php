@@ -564,10 +564,10 @@ EOH;
 		if(isset($file_exclusions) && ($file_exclusions != ''))
 		{
 			$result = array();
-			$file_exclusions = explode("\n", str_replace("\r\n", "\n", $file_exclusions)); // Just in case, we convert all \n\r before exploding
+			$file_exclusions = explode("\n", str_replace("\r\n", "\n", $file_exclusions)); // Just in case, we convert all \r\n before exploding
 			foreach ($file_exclusions as $fe_line) {
 				$fe_line = trim($fe_line);
-				if($fe_line[0] != "-") $fe_line = '-'.$fe_line;
+				if($fe_line[0] != "-") $fe_line = '- '.$fe_line;
 				$result[] = $fe_line;
 			}
 			return implode("\n", $result);

@@ -29,7 +29,7 @@ class EasyStagingControllerPlan extends JController
 	function hello()
 	{
 		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
 			// It's alllll good...
 			$runTicket = $plan_id . '-' . date("YmdHi");
 			$runTicketDirectory = $this->_get_run_directory($runTicket);
@@ -51,7 +51,7 @@ class EasyStagingControllerPlan extends JController
 	function setupRsync()
 	{
 		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
 			$rsResult = $this->_createRSYNCExclusionFile($plan_id);
 			if($rsResult['status'])
 			{
@@ -71,7 +71,7 @@ class EasyStagingControllerPlan extends JController
 	function runRsync()
 	{
 		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
 			// first we add the rsync options
 			$rsyncCmd = 'rsync '.$this->_getRsyncOptions($plan_id);
 			// then we add the exclusions file name
@@ -103,7 +103,7 @@ class EasyStagingControllerPlan extends JController
 	function checkDBConnection()
 	{
 		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
 			// Get the remote site details
 			$rs = PlanHelper::getRemoteSite($plan_id);
 			$options	= array ('host' => $rs->database_host, 'user' => $rs->database_user, 'password' => $rs->database_password, 'database' => $rs->database_name, 'prefix' => $rs->database_table_prefix);
@@ -129,7 +129,7 @@ class EasyStagingControllerPlan extends JController
 	function getDBTables()
 	{
 		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
 			// Get list of tables we'll be acting on
 			$remoteTableList = $this->_getInputVar('remoteTableList');
 			$tableResults = $this->_getTablesForReplication($plan_id, $remoteTableList);
@@ -168,7 +168,7 @@ class EasyStagingControllerPlan extends JController
 		$status = 0;
 
 		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
 			$log = JText::_('COM_EASYSTAGING_TOKEN_PLAN_VALID');
 			
 			$jinput =  JFactory::getApplication()->input;
@@ -256,7 +256,7 @@ class EasyStagingControllerPlan extends JController
 		// Check for request forgeries
 		$response = array();
 		$response['status'] = 0;
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
 			$pathToSQLFile = $this->_getInputVar('pathToSQLFile','');
 			$tableName = $this->_getInputVar('tableName', '');
 			if(($pathToSQLFile != '') && (file_exists($pathToSQLFile))){
@@ -308,7 +308,7 @@ class EasyStagingControllerPlan extends JController
 	function finishRun()
 	{
 		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id())) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
 			// Load our plan record
 			JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_easystaging/tables');
 			$Plan = JTable::getInstance('Plan', 'EasyStagingTable');
@@ -597,5 +597,12 @@ EOH;
 		}
 
 		return true;
+	}
+
+	private function _areWeAllowed($plan_id)
+	{
+		// Should we be here?
+		$canDo = PlanHelper::getActions($plan_id);
+		return $canDo->get('easystaging.run');
 	}
 }

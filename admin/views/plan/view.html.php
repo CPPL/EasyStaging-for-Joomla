@@ -134,27 +134,6 @@ class EasyStagingViewPlan extends JView
 		}
 	}
 
-	private  function _loadJSLanguageKeys($jsFile) {
-		if(isset($jsFile))
-		{
-			$jsFile = JPATH_COMPONENT_ADMINISTRATOR.$jsFile;
-		} else {
-			return false;
-		}
-		
-		if($jsContents = file_get_contents($jsFile))
-		{
-			$languageKeys = array();
-			preg_match_all('/Joomla\.JText\..*\)?/', $jsContents, $languageKeys);
-			$languageKeys = $languageKeys[0];
-			foreach ($languageKeys as $lkey) {
-				$lkeyArray = explode('\'', $lkey);
-				$this_lkey = $lkeyArray[1];
-				JText::script($this_lkey);
-			}
-		}
-	}
-
 	private function _actionChoices()
 	{
 		$actionChoices = array( );

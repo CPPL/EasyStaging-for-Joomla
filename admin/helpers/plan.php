@@ -90,12 +90,10 @@ class PlanHelper
 		if($jsContents = file_get_contents($jsFile))
 		{
 			$languageKeys = array();
-			preg_match_all('/Joomla\.JText\..*\)?/', $jsContents, $languageKeys);
-			$languageKeys = $languageKeys[0];
+			preg_match_all('/Joomla\.JText\._\(\'(.*?)\'\)\)?/', $jsContents, $languageKeys);
+			$languageKeys = $languageKeys[1];
 			foreach ($languageKeys as $lkey) {
-				$lkeyArray = explode('\'', $lkey);
-				$this_lkey = $lkeyArray[1];
-				JText::script($this_lkey);
+				JText::script($lkey);
 			}
 		}
 	}

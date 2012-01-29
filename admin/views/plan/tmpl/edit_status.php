@@ -11,7 +11,8 @@ defined('_JEXEC') or die('Restricted Access');
 	</div>
 	<div id="lastRunStatus" ><?php
 		$last_run = $this->item->last_run;
-		if($last_run == "0000-00-00 00:00:00")
+		$not_run_yet = ($last_run == "0000-00-00 00:00:00" || empty($last_run));
+		if($not_run_yet)
 		{
 			echo JText::_('COM_EASYSTAGING_NOT_RUN_LONG'); 
 		} else {
@@ -20,7 +21,7 @@ defined('_JEXEC') or die('Restricted Access');
 	?></div>
 	<div class="planUpdatesDiv adminList" >
 		<div id="currentStatus" >
-			<?php echo JText::_('COM_EASYSTAGING_JSON_DIV_STATUS'); ?>
+			<?php echo ($not_run_yet && empty($this->item->id)) ? JText::_('COM_EASYSTAGING_JSON_DIV_STATUS_NOT_READY') : JText::_('COM_EASYSTAGING_JSON_DIV_STATUS'); ?>
 		</div>
 	</div>
 </div>

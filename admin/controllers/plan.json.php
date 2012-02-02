@@ -178,7 +178,8 @@ class EasyStagingControllerPlan extends JController
 				// OK were, going to need access to the database
 				$db = JFactory::getDbo();
 				$dbTableName = $db->nameQuote($table);
-				
+				$hasAFilter = $this->_filterTable($table);
+
 				// Build our SQL to recreate the table on the remote server.
 				// 1. First we drop the existing table
 				$buildTableSQL.= 'DROP TABLE IF EXISTS '.$dbTableName.";\n\n-- End of Statement --\n\n";
@@ -189,9 +190,22 @@ class EasyStagingControllerPlan extends JController
 				$buildTableSQL.= str_replace("\r","\n",$createStatement[1]).";\n\n-- End of Statement --\n\n";
 				// Ok a bit of search and replace to upate the prefix.
 				$buildTableSQL = $this->_changeTablePrefix($buildTableSQL);
-				
+
 				// 3. Next we try and get the records in the table (after all no point in creating an insert statement if there are no records :D
+				$dbq = $db->getQuery(true);
+				$dbq->select('*');
+				$dbq->from($table);
+
 				$q = 'SELECT * FROM '.$dbTableName;
+				if($hasAFilter)
+				{
+					$fieldToCompare = key($hasAFilter);
+					$valueToAvoid = $hasAFilter[$fieldToCompare]; 
+					$condition = $db->nameQuote($fieldToCompare) . 'NOT LIKE \'%' . $valueToAvoid . '%\'';
+					$dbq->where($condition);
+
+					$q .= ' WHERE ' . $condition;
+				}
 				$db->setQuery($q);
 				if(($records = $db->loadRowList()) != null)
 				{
@@ -210,11 +224,13 @@ class EasyStagingControllerPlan extends JController
 					// 5. Now we can process the rows into INSERT values
 					$valuesSQL = array();
 					foreach ($records as $row) {
+						// Process each row for slashes, new lines.
 						foreach ($row as $field => $value) {
 							$row[$field] = addslashes($value);
 							$row[$field] = str_replace("\n","\\n",$row[$field]);
 						}
-						$valuesSQL[] = "('". implode('\', \'', $row) ."')"; 
+						// Finally add the processed & imploded row to our values array.
+						$valuesSQL[] = "('". implode('\', \'', $row) ."')";
 					}
 					$valuesSQL = implode(', ', $valuesSQL);
 
@@ -345,6 +361,25 @@ class EasyStagingControllerPlan extends JController
 		}
 
 		return false;
+	}
+
+	/**
+	 * Looks for table name in our hard-coded filters array.
+	 * @param string $tablename
+	 * @return array if filter exists | false if not
+	 */
+	private function _filterTable($tablename)
+	{
+		$localPrefix = PlanHelper::getLocalSite($this->_plan_id())->database_table_prefix; // we don't want to remove the underscore
+		$filters = array($localPrefix . 'assets' => array('name' => 'com_easystaging%'),
+					$localPrefix . 'extensions' => array('element' => 'com_easystaging'),
+					$localPrefix . 'menu' => array('alias' => 'easystaging')
+		);
+		if(array_key_exists($tablename, $filters)){
+			return $filters[$tablename];
+		} else {
+			return false;
+		}
 	}
 
 	private function _getRemoteDBTables($db)

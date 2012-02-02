@@ -198,8 +198,8 @@ class EasyStagingControllerPlan extends JController
 					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_CREATING_INSERT_STATEMEN_DESC',count($records));
 					// 4. Then we build the list of field/column names that we'll insert data into
 					// -- first we get the columns
-					$tables = $db->getTableFields($table);
-					$flds = $this->_getArrayOfFieldNames($tables);
+					$tableFields = $db->getTableFields($table);
+					$flds = $this->_getArrayOfFieldNames($tableFields);
 					$num_fields = count($flds);
 
 					// -- then we implode them into a suitable statement

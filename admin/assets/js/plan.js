@@ -469,7 +469,6 @@ com_EasyStaging.runFinished = function ()
 	clearInterval(this.responseTimer);
 	this.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JS_PLAN_RUN_COMPLETED') + '</strong><br />',true);
 
-	this.lastRunStatus.push(Joomla.JText._('COM_EASYSTAGING_JS_PLAN_RUN_COMPLETED'));
 	this.setLastRunStatus();
 	this.currentStatusScroller.toBottom.delay(100,this.currentStatusScroller);
 	this.notWaiting();
@@ -482,6 +481,7 @@ com_EasyStaging.runFinished = function ()
 		url: com_EasyStaging.jsonURL,
 		data: com_EasyStaging.requestData,
 		onComplete: function (response) {
+						com_EasyStaging.lastRunStatus.push(Joomla.JText._('COM_EASYSTAGING_JS_PLAN_RUN_COMPLETED'));
 						com_EasyStaging.lastRunStatus.push(response.msg);
 						com_EasyStaging.setLastRunStatus();
 						com_EasyStaging.appendTextToCurrentStatus(response.cleanupMsg, true);

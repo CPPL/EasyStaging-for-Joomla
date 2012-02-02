@@ -191,22 +191,19 @@ class EasyStagingControllerPlan extends JController
 				// Ok a bit of search and replace to upate the prefix.
 				$buildTableSQL = $this->_changeTablePrefix($buildTableSQL);
 
-				// 3. Next we try and get the records in the table (after all no point in creating an insert statement if there are no records :D
-				$dbq = $db->getQuery(true);
-				$dbq->select('*');
-				$dbq->from($table);
+				// 3. Next we try and get the records in the table (after all no point in creating an insert statement if there are no records :D )
+				$dbq = $db->getQuery(true); // Get a new JDatabaseQuery object
+				$dbq->select('*');          // Set our select, in this case all fields
+				$dbq->from($table);         // Set our table from which we're getting data
 
-				$q = 'SELECT * FROM '.$dbTableName;
-				if($hasAFilter)
+				if($hasAFilter)             // If our table has an exclusion filter we need to add a 'where' element to our query. 
 				{
 					$fieldToCompare = key($hasAFilter);
 					$valueToAvoid = $hasAFilter[$fieldToCompare]; 
 					$condition = $db->nameQuote($fieldToCompare) . 'NOT LIKE \'%' . $valueToAvoid . '%\'';
 					$dbq->where($condition);
-
-					$q .= ' WHERE ' . $condition;
 				}
-				$db->setQuery($q);
+				$db->setQuery($dbq);
 				if(($records = $db->loadRowList()) != null)
 				{
 					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_CREATING_INSERT_STATEMEN_DESC',count($records));
@@ -223,6 +220,7 @@ class EasyStagingControllerPlan extends JController
 
 					// 5. Now we can process the rows into INSERT values
 					$valuesSQL = array();
+
 					foreach ($records as $row) {
 						// Process each row for slashes, new lines.
 						foreach ($row as $field => $value) {

@@ -48,30 +48,33 @@ com_EasyStaging.setUp = function ()
 
 com_EasyStaging.ajaxCheckIn = function (e)
 {
-	this.lockOutBtns();
-	this.last_response = new Date().getTime();
-	this.responseTimer = this.appendTimeSince.periodical(500,this);
-	/* Once we start updates we want it be very visible. */
-	$('currentStatus').setStyle('background','#fffea1');
+	if(confirm(Joomla.JText._('COM_EASYSTAGING_JS_PLAN_ABOUT_TO_RUN_WARNING')))
+	{
+		this.lockOutBtns();
+		this.last_response = new Date().getTime();
+		this.responseTimer = this.appendTimeSince.periodical(500,this);
+		/* Once we start updates we want it be very visible. */
+		$('currentStatus').setStyle('background','#fffea1');
 
-	this.waiting();
-	// Which button was pressed?
-	var btnPath = e.target.id;
-	// requestData is basically unchanged for each step, usuall only the task is updated.
-	this.requestData.task = 'plan.hello';
-	this.requestData.btnPath = btnPath;
-	this.runStage = Joomla.JText._('COM_EASYSTAGING_JS_IN_PROGRESS');
-	this.lastRunStatus.push(Joomla.JText._('COM_EASYSTAGING_JSON_REQUEST_MADE_PLEASE_WAIT'));
+		this.waiting();
+		// Which button was pressed?
+		var btnPath = e.target.id;
+		// requestData is basically unchanged for each step, usuall only the task is updated.
+		this.requestData.task = 'plan.hello';
+		this.requestData.btnPath = btnPath;
+		this.runStage = Joomla.JText._('COM_EASYSTAGING_JS_IN_PROGRESS');
+		this.lastRunStatus.push(Joomla.JText._('COM_EASYSTAGING_JSON_REQUEST_MADE_PLEASE_WAIT'));
 
-	var req = new Request.JSON({
-		url: com_EasyStaging.jsonURL,
-		method: 'get',
-		data: com_EasyStaging.requestData,
-		onRequest:  function () { com_EasyStaging.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JSON_REQUEST_MADE_PLEASE_WAIT') + '/<strong>', false); },
-		onComplete: function (response) { com_EasyStaging.processCheckIn ( response ); }
-	});
-	req.send();
-	this.setLastRunStatus();
+		var req = new Request.JSON({
+			url: com_EasyStaging.jsonURL,
+			method: 'get',
+			data: com_EasyStaging.requestData,
+			onRequest:  function () { com_EasyStaging.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JSON_REQUEST_MADE_PLEASE_WAIT') + '/<strong>', false); },
+			onComplete: function (response) { com_EasyStaging.processCheckIn ( response ); }
+		});
+		req.send();
+		this.setLastRunStatus();
+	}
 };
 
 com_EasyStaging.processCheckIn  = function ( response )

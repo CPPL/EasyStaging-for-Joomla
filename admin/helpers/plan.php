@@ -10,6 +10,8 @@ defined('_JEXEC') or die;
 class PlanHelper
 {
 	public static $extension = 'com_easystaging';
+	public static $base_assett = 'plan';
+	private static $ext_actions = array('easystaging.run');
 
 	/**
 	 * Gets the local site record for the plan.
@@ -56,21 +58,20 @@ class PlanHelper
 	*
 	* @return	JObject
 	*/
-	public static function getActions($plan_id = 0)
+	public static function getActions($id = 0)
 	{
 		$user	= JFactory::getUser();
 		$result	= new JObject;
 	
-		if (empty($plan_id)) {
+		if (empty($id)) {
 			$assetName = self::$extension;
 		}
 		else {
-			$assetName = self::$extension . '.plan.' . (int) $plan_id;
+			$assetName = self::$extension . '.' . self::$base_assett . '.' . (int) $id;
 		}
 	
-		$actions = array(
-				'core.admin', 'core.manage', 'core.create', 'core.edit', 'core.edit.own', 'core.edit.state', 'core.delete', 'easystaging.run'
-		);
+		$actions = array_merge( array( 'core.admin', 'core.manage', 'core.create', 'core.edit', 'core.edit.own', 'core.edit.state', 'core.delete' ),
+								self::$ext_actions );
 	
 		foreach ($actions as $action) {
 			$result->set($action,	$user->authorise($action, $assetName));
@@ -82,7 +83,7 @@ class PlanHelper
 	public  static function loadJSLanguageKeys($jsFile) {
 		if(isset($jsFile))
 		{
-			$jsFile = JPATH_COMPONENT_ADMINISTRATOR.$jsFile;
+			$jsFile = JPATH_SITE . $jsFile;
 		} else {
 			return false;
 		}

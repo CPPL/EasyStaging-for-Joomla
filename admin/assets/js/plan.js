@@ -102,6 +102,7 @@ com_EasyStaging.processCheckIn  = function ( response )
 		}
 	} else {
 		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_AJAX_CHECK_IN_FAILED')+'</span>');
+		this.runFinished(false);
 	}
 };
 
@@ -136,7 +137,7 @@ com_EasyStaging.processRsyncSetup = function ( response )
 	} else {
 		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JSON_RSYNC_FAILED_PROCE_TERM')+'</span>');
 		this.appendTextToCurrentStatus('<em>' + response.data.msg + '</em>');
-		this.runFinished();
+		this.runFinished(false);
 	}
 };
 
@@ -175,6 +176,7 @@ com_EasyStaging.processRsyncRun = function ( response )
 		}
 	} else {
 		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JSON_RSYNC_FAILED_PROCE_TERM')+'</span>');
+		this.runFinished(false);
 	}
 };
 
@@ -208,6 +210,7 @@ com_EasyStaging.processCheckDBConnection = function ( response )
 		this.getDBTables( response );
 	} else {
 		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_DATABASE_REPLICATION_FAILE_CAN')+'</span>');
+		this.runFinished(false);
 	}	
 };
 
@@ -464,8 +467,9 @@ com_EasyStaging.notWaiting = function (el)
 	this.currentStatusScroller.toBottom();
 };
 
-com_EasyStaging.runFinished = function ()
+com_EasyStaging.runFinished = function (successfullRun)
 {
+	successfullRun = typeof(successfullRun) !== 'undefined' ? successfullRun : true;
 	clearInterval(this.responseTimer);
 	this.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JS_PLAN_RUN_COMPLETED') + '</strong><br />',true);
 

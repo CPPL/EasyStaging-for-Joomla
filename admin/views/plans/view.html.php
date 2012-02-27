@@ -90,7 +90,7 @@ class EasyStagingViewPlans extends JView
 		
 		// Then add JS to the document‚ - make sure all JS comes after CSS
 		$jsFile = '/administrator/components/com_easystaging/assets/js/plans.js';
-		$document->addScript(JURI::base(true).'/administrator/components/com_easystaging'.$jsFile);
+		$document->addScript($jsFile);
 		PlanHelper::loadJSLanguageKeys($jsFile);
 	}
 }

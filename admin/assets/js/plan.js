@@ -473,6 +473,7 @@ com_EasyStaging.runFinished = function (successfullRun)
 {
 	successfullRun = typeof(successfullRun) !== 'undefined' ? successfullRun : true;
 	clearInterval(this.responseTimer);
+	if(successfullRun)
 	this.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JS_PLAN_RUN_COMPLETED') + '</strong><br />',true);
 
 	this.setLastRunStatus();

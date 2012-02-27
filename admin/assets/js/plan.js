@@ -82,7 +82,7 @@ com_EasyStaging.processCheckIn  = function ( response )
 	this.lockOutBtns();
 	this.notWaiting();
 	this.appendTextToCurrentStatus(response.msg);
-	if(response.status !== '0') {
+	if(response.status !== 0) {
 		this.appendTextToCurrentStatus(response.msg, false);
 		// Get our ticket
 		this.requestData.runTicket = response.runTicket;
@@ -128,7 +128,7 @@ com_EasyStaging.processRsyncSetup = function ( response )
 	this.notWaiting();
 	this.appendTextToCurrentStatus(response.msg);
 
-	if(response.status !== '0') {
+	if(response.status !== 0) {
 		this.appendTextToCurrentStatus(response.data.msg);
 		this.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JSON_RSYNC_EXCLUDED') + '</strong><em>' + response.data.fileData + '</em>');
 		this.requestData.fileName = response.data.fullPathToExclusionFile;
@@ -162,7 +162,7 @@ com_EasyStaging.processRsyncRun = function ( response )
 	this.notWaiting();
 	this.appendTextToCurrentStatus(response.msg);
 	delete this.requestData.fileName;
-	if(response.status !== '0') {
+	if(response.status !== 0) {
 		var rsyncOutput = response.data.toString().replace(/,/g,"<br />");
 		
 		this.runStage = Joomla.JText._('COM_EASYSTAGING_JS_RSYNC_PROCESS_COMPLETED');
@@ -201,7 +201,7 @@ com_EasyStaging.checkDBConnection  = function ( response )
 com_EasyStaging.processCheckDBConnection = function ( response )
 {
 	this.notWaiting();
-	if(response.status !== '0') {
+	if(response.status !== 0) {
 		this.lastRunStatus.push(Joomla.JText._('COM_EASYSTAGING_JS_CONNECTED_WITH_REMOT_DB'));
 		this.setLastRunStatus();
 		this.appendTextToCurrentStatus('<em>' + response.msg + '</em><br />');
@@ -239,7 +239,7 @@ com_EasyStaging.processGetDBTables  = function ( response )
 	this.setLastRunStatus();
 	
 	this.appendTextToCurrentStatus(response.msg);
-	if(response.status !== '0') {
+	if(response.status !== 0) {
 		this.appendTextToCurrentStatus('<em>' + response.data.msg + '</em>');
 		this.createTableExportFiles( response.data );
 	} else {
@@ -291,7 +291,7 @@ com_EasyStaging.processCreateTableExportFiles  = function ( response )
 	this.appendTextToCurrentStatus(response.msg);
 	this.appendTextToCurrentStatus('<em>' + response.log);
 
-	if(response.status !== '0')
+	if(response.status !== 0)
 	{
 		this.SQLFileLists.push(response.pathToSQLFile);
 		this.appendTextToCurrentStatus(response.data + '</em>');
@@ -335,7 +335,7 @@ com_EasyStaging.runTableExports = function ( )
 com_EasyStaging.processRunTableExport = function ( response )
 {
 	this.last_response = new Date().getTime();
-	if(response.status !== '0')
+	if(response.status !== 0)
 	{
 		this.tables_proc = this.tables_proc + 1;
 		if(this.tables_proc > 1) {

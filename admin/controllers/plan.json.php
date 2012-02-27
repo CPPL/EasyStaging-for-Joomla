@@ -485,11 +485,12 @@ class EasyStagingControllerPlan extends JController
 
 				// Create the content for our exclusions file
 				$defaultExclusions = <<< EOH
+- com_easystaging/
+- /administrator/language/en-GB/en-GB.com_easystaging.ini
 - /tmp/
 - /logs/
 - /cache/
 - /administrator/cache/
-- com_easystaging/
 - /configuration.php
 - /.htaccess
 

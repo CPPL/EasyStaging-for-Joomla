@@ -209,6 +209,8 @@ com_EasyStaging.processCheckDBConnection = function ( response )
 		this.appendTextToCurrentStatus('<em>' + response.msg + '</em><br />');
 		this.getDBTables( response );
 	} else {
+		this.appendResponseMSGToCurrentStatus(response, true);
+		this.appendTextToCurrentStatus(response.data, true);
 		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_DATABASE_REPLICATION_FAILE_CAN')+'</span>');
 		this.runFinished(false);
 	}	

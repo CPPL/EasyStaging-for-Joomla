@@ -106,9 +106,10 @@ class EasyStagingControllerPlan extends JController
 			// Get the remote site details
 			$rs = PlanHelper::getRemoteSite($plan_id);
 			$options	= array ('host' => $rs->database_host, 'user' => $rs->database_user, 'password' => $rs->database_password, 'database' => $rs->database_name, 'prefix' => $rs->database_table_prefix);
+
 			$rDBC = JDatabase::getInstance($options);
 
-			if($rDBC) {
+			if($rDBC->getErrorNum() == 0) {
 				$msg = JText::_( 'COM_EASYSTAGING_DATABASE_STEP_01_CONNECTED' );
 				$remoteTablesRetreived = $this->_getRemoteDBTables($rDBC);
 				if($this->_writeToLog($msg . "\n" . print_r($remoteTablesRetreived,true))) {
@@ -117,7 +118,7 @@ class EasyStagingControllerPlan extends JController
 					echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_UNABLE_TO_LOG', __FUNCTION__), 'status' => 0));
 				}
 			} else {
-				echo json_encode(array('msg' => JText::_( 'COM_EASYSTAGING_DATABASE_STEP_01_FAILED_TO_CONNECT' ) , 'status' => 0, 'data' => $rDBC->errors));
+				echo json_encode(array('msg' => JText::_( 'COM_EASYSTAGING_DATABASE_STEP_01_FAILED_TO_CONNECT' ) , 'status' => 0, 'data' => $rDBC->getErrorMsg(true)));
 			}
 		}
 	}

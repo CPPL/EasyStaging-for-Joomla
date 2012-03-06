@@ -248,9 +248,9 @@ class EasyStagingControllerPlan extends JController
 					// Time to close off
 					fclose($exportSQLFile);
 					$msg = JText::sprintf('COM_EASYSTAGING_SQL_EXPORT_SUCC', $table);
-					$response = array('msg' => $msg, 'status' => $status, 'data' => $data, 'pathToSQLFile' => $pathToSQLFile, 'log' => $log);
+					$response = array('msg' => $msg, 'status' => $status, 'data' => $data, 'tableName' => $table, 'pathToSQLFile' => $pathToSQLFile, 'log' => $log);
 				} else {
-					$response = array('msg' => JText::_('COM_EASYSTAGING_JSON_FAILED_TO_OPEN_SQL_EXP_FILE'), 'status' => $exportSQLFile, 'data' => error_get_last(), 'pathToSQLFile' => $pathToSQLFile, 'log' => $log);
+					$response = array('msg' => JText::_('COM_EASYSTAGING_JSON_FAILED_TO_OPEN_SQL_EXP_FILE'), 'status' => $exportSQLFile, 'data' => error_get_last(), 'tableName' => $table, 'pathToSQLFile' => $pathToSQLFile, 'log' => $log);
 				}
 
 			} else {

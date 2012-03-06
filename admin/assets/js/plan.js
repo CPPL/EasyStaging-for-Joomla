@@ -298,9 +298,9 @@ com_EasyStaging.processCreateTableExportFiles  = function ( response )
 
 	if(response.status !== 0)
 	{
-		this.SQLFileLists.push(response.pathToSQLFile);
+		this.SQLFileLists.push([response.pathToSQLFile, response.tableName]);
 		this.appendTextToCurrentStatus(response.data + '</em>');
-	} else {
+	} else { // we don't abort as other tables may work...
 		this.appendTextToCurrentStatus(response.data);
 		this.appendTextToCurrentStatus('<br />' + response.pathToSQLFile + '</em>');
 	}
@@ -317,13 +317,15 @@ com_EasyStaging.runTableExports = function ( )
 	this.runStage = Joomla.JText._('COM_EASYSTAGING_JS_RUNNING_TABLE_SQL_EXPORTS');
 	this.requestData.task = 'plan.runTableExport';
 	var runTableRequests = {};
-	this.SQLFileLists.each(function (path){
-		com_EasyStaging.requestData.pathToSQLFile = path;
+	this.SQLFileLists.each(function (fileDataArray){
+		path = fileDataArray[0];
+		com_EasyStaging.requestData.tableName = fileDataArray[1];
+		com_EasyStaging.requestData.pathToSQLFile = fileDataArray[0];
 		runTableRequests[path] = new Request.JSON ({
 			method: 'get',
 			url: com_EasyStaging.jsonURL,
 			data: com_EasyStaging.requestData,
-			onRequest: function () { com_EasyStaging.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JS_LOADING_SQL_EXPORT_FILE') + path); },
+			onRequest: function () { com_EasyStaging.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JS_LOADING_SQL_EXPORT_FILE') + fileDataArray[0]); },
 			onComplete: function (response) { com_EasyStaging.processRunTableExport ( response ); }
 		});
 	});

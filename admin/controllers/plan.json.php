@@ -152,7 +152,7 @@ class EasyStagingControllerPlan extends JController
 			$response = array('msg' => JText::_( 'COM_EASYSTAGING_PLAN_ID_TOKE_DESC' ) , 'status' => 0);
 		}
 		// Log it...
-		$this->_writeToLog($msg);
+		$this->_writeToLog($response['msg']);
 		echo json_encode($response);
 	}
 

@@ -110,6 +110,12 @@ class EasyStagingControllerPlan extends JController
 			$rDBC = JDatabase::getInstance($options);
 
 			if($rDBC->getErrorNum() == 0) {
+				$q = "SHOW VARIABLES LIKE 'max_allowed_packet'";
+				$rDBC->setQuery($q);
+				$qr = $rDBC->loadRow();
+				$max_ps = $qr[1] * 0.95; // use slightly less than actual max to avoid the CSUA doublebyte issue...
+				$session =& JFactory::getSession();
+				$session->set('com_easystaging_max_ps', $max_ps);
 				$msg = JText::_( 'COM_EASYSTAGING_DATABASE_STEP_01_CONNECTED' );
 				$remoteTablesRetreived = $this->_getRemoteDBTables($rDBC);
 				if($this->_writeToLog($msg . "\n" . print_r($remoteTablesRetreived,true))) {
@@ -217,9 +223,15 @@ class EasyStagingControllerPlan extends JController
 					// -- then we implode them into a suitable statement
 					$columnInsertSQL = 'INSERT INTO '.$this->_changeTablePrefix($dbTableName).' ('.implode( ', ' , $flds ).') VALUES ';
 
-					$buildTableSQL.= $columnInsertSQL;
+					// - keeping it intact for later user if the table is too big.
 
 					// 5. Now we can process the rows into INSERT values
+					// -- first we need to retreive the max_packet value from our session so we can figure out how many rows we can fit in to each chunk
+					$session =& JFactory::getSession();
+					$max_ps = $session->get('com_easystaging_max_ps');
+					// -- and we initialise our counter
+					$sizeOfSQLBlock = strlen($columnInsertSQL);
+					// -- then create an empty array ready for our values
 					$valuesSQL = array();
 
 					foreach ($records as $row) {
@@ -228,12 +240,23 @@ class EasyStagingControllerPlan extends JController
 							$row[$field] = addslashes($value);
 							$row[$field] = str_replace("\n","\\n",$row[$field]);
 						}
-						// Finally add the processed & imploded row to our values array.
-						$valuesSQL[] = "('". implode('\', \'', $row) ."')";
-					}
-					$valuesSQL = implode(', ', $valuesSQL);
+						// Convert our row to a suitable values string
+						$rowAsValues  = "('". implode('\', \'', $row) ."')";
+						// First up we check to see if this row will put our SQL block size over our max_packet value on the remote server
+						$rowSize = strlen($rowAsValues);
 
-					$buildTableSQL .= "\n".$valuesSQL."\n";
+						if($max_ps < ($sizeOfSQLBlock += $rowSize)) {
+							$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n";;
+							$valuesSQL = array();
+							$sizeOfSQLBlock = strlen($columnInsertSQL);
+						}
+						// We can add the processed & imploded row to our values array.
+						$valuesSQL[] = $rowAsValues;
+					}
+					
+					if(count($valuesSQL)){ // We have some left over rows we need to add.
+						$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n";;						
+					}
 				} else {
 					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_JSON__S_IS_EMPTY_NO_INS_REQ', $table) ;
 				}
@@ -273,6 +296,7 @@ class EasyStagingControllerPlan extends JController
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
 			$pathToSQLFile = $this->_getInputVar('pathToSQLFile','');
 			$tableName = $this->_getInputVar('tableName', '');
+			// Make sure our file exists
 			if(($pathToSQLFile != '') && (file_exists($pathToSQLFile))){
 				$response['msg'] = JText::sprintf('COM_EASYSTAGING_JSON_FOUND_SQL_EXPOR_FILE',$tableName);
 				$exportSQLQuery = explode("\n\n-- End of Statement --\n\n", file_get_contents($pathToSQLFile));

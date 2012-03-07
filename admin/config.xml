@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
 
+	<fieldset name="settings"
+		label="Settings"
+		description="These are global operation settings for EasyStaging Plans."
+	>
+
+		<field name="max_allowed_packet"
+			type="text"
+			default="1000"
+			label="Max Data per Step"
+			description="The maximum amount of data (in Kb) that should be in any single SQL export step. (A table bigger than this will be processed in several steps.)" />
+	</fieldset>
+
 	<fieldset name="permissions"
 		label="JCONFIG_PERMISSIONS_LABEL"
 		description="JCONFIG_PERMISSIONS_DESC"

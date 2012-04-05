@@ -31,7 +31,7 @@ class EasyStagingViewPlans extends JView
 		$this->addCSSEtc();
 
 		// Get data from the model
-		$items =& $this->get( 'Items');
+		$items = $this->get( 'Items');
 		$pagination = $this->get('Pagination');
 		
 		if (count($errors = $this->get('Errors'))) 
@@ -83,7 +83,7 @@ class EasyStagingViewPlans extends JView
 	private function addCSSEtc ()
 	{
 		// Get the document object
-		$document = &JFactory::getDocument();
+		$document = JFactory::getDocument();
 		
 		// First add CSS to the document
 		$document->addStyleSheet('/administrator/components/com_easystaging/assets/css/plans.css');

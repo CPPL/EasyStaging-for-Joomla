@@ -93,7 +93,7 @@ class EasyStagingViewPlan extends JView
 	private function addCSSEtc ()
 	{
 		// Get the document object
-		$document = &JFactory::getDocument();
+		$document = JFactory::getDocument();
 		
 		// First add CSS to the document
 		$document->addStyleSheet('/administrator/components/com_easystaging/assets/css/plan.css');

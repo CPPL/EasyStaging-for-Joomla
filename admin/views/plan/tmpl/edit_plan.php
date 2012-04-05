@@ -1,3 +1,6 @@
+<?php
+defined('_JEXEC') or die;
+?>
 <!-- Main Form Body -->
 <div class="width-60 fltlft">
 <fieldset class="adminform">

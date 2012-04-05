@@ -69,6 +69,68 @@ class EasyStagingTablePlan extends JTable
 	}
 
 	/**
+	 * Method to delete a row from the database table by primary key value.
+	 *
+	 * @param   mixed  $pk  An optional primary key value to delete.  If not set the instance property value is used.
+	 *
+	 * @return  boolean  True on success.
+	 *
+	 * @link	http://docs.joomla.org/JTable/delete
+	 * @since   11.1
+	 */
+	public function delete($pk = null)
+	{
+		// We call the parent version first to look after the `plan` records
+		if(parent::delete($pk))
+		{
+			// Initialise variables.
+			$k = $this->_tbl_key;
+			$pk = (is_null($pk)) ? $this->$k : $pk;
+
+			// If no primary key is given, return false.
+			if ($pk === null)
+			{
+				$e = new JException(JText::_('JLIB_DATABASE_ERROR_NULL_PRIMARY_KEY'));
+				$this->setError($e);
+				return false;
+			}
+
+			// Delete the Plans `table` records by primary key.
+			$query = $this->_db->getQuery(true);
+			$query->delete();
+			$query->from('#__easystaging_tables');
+			$query->where('plan_id = ' . $this->_db->quote($pk));
+			$this->_db->setQuery($query);
+
+			// Check for a database error.
+			if (!$this->_db->query())
+			{
+				$e = new JException(JText::sprintf('JLIB_DATABASE_ERROR_DELETE_FAILED', get_class($this), $this->_db->getErrorMsg()));
+				$this->setError($e);
+				return false;
+			}
+
+			// Delete the Plans `site` records by primary key.
+			$query = $this->_db->getQuery(true);
+			$query->delete();
+			$query->from('#__easystaging_sites');
+			$query->where('plan_id = ' . $this->_db->quote($pk));
+			$this->_db->setQuery($query);
+			
+			// Check for a database error.
+			if (!$this->_db->query())
+			{
+				$e = new JException(JText::sprintf('JLIB_DATABASE_ERROR_DELETE_FAILED', get_class($this), $this->_db->getErrorMsg()));
+				$this->setError($e);
+				return false;
+			}
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+	/**
 	* Method to compute the default name of the asset.
 	* So we can support actions.
 	*

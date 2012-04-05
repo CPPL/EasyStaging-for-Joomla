@@ -17,8 +17,6 @@
 			description="COM_EASYSTAGING_ACL_ALLOW_USERS_TO_RUN_PLAN_DESC" />
 	</section>
 	<section name="plan">
-		<action name="core.create" title="COM_EASYSTAGING_ACL_CREATE_A_STAGING_PLAN"
-			description="COM_EASYSTAGING_ACL_ALLOWS_USERS_CREATE" />
 		<action name="core.delete" title="COM_EASYSTAGING_ACL_DELETE_A_STAGING_PLAN"
 			description="COM_EASYSTAGING_ACL_ALLOWS_USERS_DELETE" />
 		<action name="core.edit" title="COM_EASYSTAGING_ACL_EDIT_A_STAGING_PLAN"

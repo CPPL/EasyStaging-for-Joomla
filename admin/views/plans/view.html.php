@@ -67,7 +67,7 @@ class EasyStagingViewPlans extends JView
 			JToolBarHelper::unpublishList('plans.unpublish', 'JTOOLBAR_UNPUBLISH', true);
 		}
 
-		if($canDo->get('core.edit.state')) {
+		if($canDo->get('core.delete')) {
 			JToolBarHelper::deleteList('','plans.delete');
 			JToolBarHelper::divider();
 		}

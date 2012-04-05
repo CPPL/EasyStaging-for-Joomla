@@ -31,7 +31,7 @@ if(!$this->canDo->get('core.edit')) { return JError::raiseWarning(404, JText::_(
 	<div class="clr"></div>
 
 <!-- Permissions UI -->
-		<div class="width-100 fltlft">
+	<div class="width-100 fltlft">
 		<div class="clr"></div>
 	<?php if ($this->canDo->get('core.admin')): ?>
 		<div class="width-100 fltlft">

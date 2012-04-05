@@ -370,12 +370,11 @@ class EasyStagingControllerPlan extends JController
 				if(PlanHelper::createZip($files_to_be_zipped, $zipArchiveName, $this->_sync_files_path()))
 				{
 					$result['cleanupMsg'] = JText::sprintf('COM_EASYSTAGING_PLAN_JSON_COMPRESSED_FILES', count($files_to_be_zipped), $zipArchiveName);
+					// Clean up our work
+					PlanHelper::remove_this_directory($folder);
 				} else {
 					$result['cleanupMsg'] = JText::_('COM_EASYSTAGING_PLAN_JSON_UNABLE_TO_ZIP_ERROR');
 				}
-
-				// Clean up our work
-				PlanHelper::remove_this_directory($folder);
 
 				// Reply to user
 				echo json_encode( $result );

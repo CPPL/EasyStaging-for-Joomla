@@ -32,7 +32,7 @@
 	</media>
 	<administration>
 		<!-- Administration Menu Section -->
-		<menu img="components/com_easystaging/assets/media/EasyStaging-16-Icon.png">COM_EASYSTAGING_XML_NAME</menu>
+		<menu img="../media/com_easystaging/images/EasyStaging-16-Icon.png">COM_EASYSTAGING_XML_NAME</menu>
 		<!-- Administration Main File Copy Section -->
 		<files folder="admin">
 			<!-- Admin Main File Copy Section -->
@@ -42,7 +42,6 @@
 			<filename>easystaging.php</filename>
 			<filename>index.html</filename>
 			<!-- Folders section -->
-			<folder>assets</folder>
 			<folder>controllers</folder>
 			<folder>helpers</folder>
 			<folder>language</folder>

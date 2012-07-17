@@ -31,7 +31,7 @@ class EasyStagingViewPlans extends JView
 		$this->addCSSEtc();
 
 		// Get data from the model
-		$items =& $this->get( 'Items');
+		$items = $this->get( 'Items');
 		$pagination = $this->get('Pagination');
 		
 		if (count($errors = $this->get('Errors'))) 
@@ -67,7 +67,7 @@ class EasyStagingViewPlans extends JView
 			JToolBarHelper::unpublishList('plans.unpublish', 'JTOOLBAR_UNPUBLISH', true);
 		}
 
-		if($canDo->get('core.edit.state')) {
+		if($canDo->get('core.delete')) {
 			JToolBarHelper::deleteList('','plans.delete');
 			JToolBarHelper::divider();
 		}
@@ -83,14 +83,14 @@ class EasyStagingViewPlans extends JView
 	private function addCSSEtc ()
 	{
 		// Get the document object
-		$document = &JFactory::getDocument();
+		$document = JFactory::getDocument();
 		
 		// First add CSS to the document
 		$document->addStyleSheet('/administrator/components/com_easystaging/assets/css/plans.css');
 		
 		// Then add JS to the document‚ - make sure all JS comes after CSS
-		$jsFile = '/assets/js/plans.js';
-		$document->addScript(JURI::base(true).'/components/com_easystaging'.$jsFile);
+		$jsFile = '/administrator/components/com_easystaging/assets/js/plans.js';
+		$document->addScript($jsFile);
 		PlanHelper::loadJSLanguageKeys($jsFile);
 	}
 }

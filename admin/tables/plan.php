@@ -32,7 +32,7 @@ class EasyStagingTablePlan extends JTable
 	public function store($updateNulls = false)
 	{
 		// Initialise variables.
-		$date = JFactory::getDate()->toMySQL();
+		$date = JFactory::getDate()->toSql();
 		$uid  = JFactory::getUser()->get('id');
 
 		if ($this->id) {
@@ -61,7 +61,7 @@ class EasyStagingTablePlan extends JTable
 	{
 		// Bind the rules.
 		if (isset($array['rules']) && is_array($array['rules'])) {
-			$rules = new JRules($array['rules']);
+			$rules = new JAccessRules($array['rules']);
 			$this->setRules($rules);
 		}
 		// And call the parent.

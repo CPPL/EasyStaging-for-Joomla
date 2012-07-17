@@ -184,7 +184,7 @@ class EasyStagingControllerPlan extends JController
 			if($table != '') {
 				// OK were, going to need access to the database
 				$db = JFactory::getDbo();
-				$dbTableName = $db->nameQuote($table);
+				$dbTableName = $db->quoteName($table);
 				$hasAFilter = $this->_filterTable($table);
 
 				// Build our SQL to recreate the table on the remote server.
@@ -207,7 +207,7 @@ class EasyStagingControllerPlan extends JController
 				{
 					$fieldToCompare = key($hasAFilter);
 					$valueToAvoid = $hasAFilter[$fieldToCompare]; 
-					$condition = $db->nameQuote($fieldToCompare) . 'NOT LIKE \'%' . $valueToAvoid . '%\'';
+					$condition = $db->quoteName($fieldToCompare) . 'NOT LIKE \'%' . $valueToAvoid . '%\'';
 					$dbq->where($condition);
 				}
 				$db->setQuery($dbq);
@@ -216,7 +216,7 @@ class EasyStagingControllerPlan extends JController
 					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_CREATING_INSERT_STATEMEN_DESC',count($records));
 					// 4. Then we build the list of field/column names that we'll insert data into
 					// -- first we get the columns
-					$tableFields = $db->getTableFields($table);
+					$tableFields = $db->getTableColumns($table);
 					$flds = $this->_getArrayOfFieldNames($tableFields);
 					$num_fields = count($flds);
 
@@ -355,7 +355,7 @@ class EasyStagingControllerPlan extends JController
 			{
 				// Initialise variables.
 				$date = JFactory::getDate();
-				$Plan->last_run = $date->toMySQL();
+				$Plan->last_run = $date->toSql();
 				$Plan->store();
 				$format = JText::_('DATE_FORMAT_LC2');
 				$msg = JText::sprintf('COM_EASYSTAGING_LAST_RUN',$date->format($format,true));
@@ -423,7 +423,7 @@ class EasyStagingControllerPlan extends JController
 		$fieldNames = array();
 		foreach ($tables as $tableName => $tableFields) {
 			foreach ($tableFields as $aField => $aFieldType) {
-				$fieldNames[] = $db->nameQuote($aField);
+				$fieldNames[] = $db->quoteName($aField);
 			}
 		}
 		return $fieldNames;

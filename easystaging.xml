@@ -24,17 +24,16 @@
 			<file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
 		</sql>
 	</uninstall>
-
+	<media destination="com_easystaging" folder="media">
+		<file>index.html</file>
+		<folder>css</folder>
+		<folder>images</folder>
+		<folder>js</folder>
+	</media>
 	<administration>
 		<!-- Administration Menu Section -->
 		<menu img="components/com_easystaging/assets/media/EasyStaging-16-Icon.png">COM_EASYSTAGING_XML_NAME</menu>
 		<!-- Administration Main File Copy Section -->
-		<!-- Note the folder attribute: This attribute describes the folder
-			to copy FROM in the package to install therefore files copied
-			in this section are copied from /admin/ in the package -->
-		<languages folder="language">
-			<language tag="en-GB">en-GB/en-GB.com_easystaging.ini</language>
-		</languages>
 		<files folder="admin">
 			<!-- Admin Main File Copy Section -->
 			<filename>config.xml</filename>

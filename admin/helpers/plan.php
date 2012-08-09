@@ -27,17 +27,17 @@ class PlanHelper
 		return self::_loadRemoteSiteRecord($plan_id);
 	}
 
-	private function _loadLocalSiteRecord($plan_id)
+	private static function _loadLocalSiteRecord($plan_id)
 	{
 		$type = 1; // Local site
 		return self::_loadSiteRecord($plan_id, $type);
 	}
-	private function _loadRemoteSiteRecord($plan_id)
+	private static function _loadRemoteSiteRecord($plan_id)
 	{
 		$type = 2; // Live/Target site
 		return self::_loadSiteRecord($plan_id, $type);
 	}
-	private function _loadSiteRecord($plan_id, $type)
+	private static function _loadSiteRecord($plan_id, $type)
 	{
 		// Load our site record
 		JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_easystaging/tables');

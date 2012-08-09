@@ -114,7 +114,7 @@ class EasyStagingControllerPlan extends JController
 				$rDBC->setQuery($q);
 				$qr = $rDBC->loadRow();
 				$max_ps = $qr[1] * 0.95; // use slightly less than actual max to avoid the CSUA doublebyte issue...
-				$session =& JFactory::getSession();
+				$session = JFactory::getSession();
 				$session->set('com_easystaging_max_ps', $max_ps);
 				$msg = JText::_( 'COM_EASYSTAGING_DATABASE_STEP_01_CONNECTED' );
 				$remoteTablesRetreived = $this->_getRemoteDBTables($rDBC);
@@ -227,7 +227,7 @@ class EasyStagingControllerPlan extends JController
 
 					// 5. Now we can process the rows into INSERT values
 					// -- first we need to retreive the max_packet value from our session so we can figure out how many rows we can fit in to each chunk
-					$session =& JFactory::getSession();
+					$session = JFactory::getSession();
 					$max_ps = $session->get('com_easystaging_max_ps');
 					// -- and we initialise our counter
 					$sizeOfSQLBlock = strlen($columnInsertSQL);

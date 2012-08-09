@@ -257,6 +257,8 @@ com_EasyStaging.createTableExportFiles  = function ( tableData )
 	this.waiting();
 	this.requestData.task = 'plan.createTableExportFile';
 	this.runStage = Joomla.JText._('COM_EASYSTAGING_JS_STARTING_COPY_O_DESC');
+	// Make sure our file list is empty, just in case the user clicks the button a second time in the same plan.
+	this.SQLFileLists.length = 0;
 	
 	var rows = tableData.rows;
 	

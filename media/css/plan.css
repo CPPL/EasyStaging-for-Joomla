@@ -62,7 +62,7 @@
 	line-height: 1.5em;
 	overflow:scroll;
 	max-height: 250px;
-	padding: 5px 0px 5px 10px;
+	padding: 5px 0px 50px 10px;
 }
 .waiting {
 	background: url("../images/spinning.gif") no-repeat;

@@ -188,6 +188,13 @@ class EasyStagingControllerPlan extends JController
 				$hasAFilter = $this->_filterTable($table);
 
 				// Build our SQL to recreate the table on the remote server.
+				// Disable keys and Lock our table before replacing it and then unlock and enable keys after.
+				$startSQL = "LOCK TABLES `$table` WRITE;\n" .
+				"\n\n-- End of Statement --\n\n" .
+				"ALTER TABLE `$table` DISABLE KEYS;\n" .
+				"\n\n-- End of Statement --\n\n";
+				$buildTableSQL = $this->_changeTablePrefix($startSQL);
+
 				// 1. First we drop the existing table
 				$buildTableSQL.= 'DROP TABLE IF EXISTS '.$dbTableName.";\n\n-- End of Statement --\n\n";
 
@@ -213,18 +220,6 @@ class EasyStagingControllerPlan extends JController
 				$db->setQuery($dbq);
 				if(($records = $db->loadRowList()) != null)
 				{
-					// Disable keys and Lock our table before inserting the data and then unlock and enable keys after.
-					$startSQLInsert = "LOCK TABLES `$table` WRITE;\n" .
-									  "\n\n-- End of Statement --\n\n" .
-									  "ALTER TABLE `$table` DISABLE KEYS;\n" .
-									  "\n\n-- End of Statement --\n\n";
-					$startSQLInsert = $this->_changeTablePrefix($startSQLInsert);
-					$endofSQLInsert = "ALTER TABLE `$table` ENABLE KEYS;\n" .
-									  "\n\n-- End of Statement --\n\n" .
-									  "UNLOCK TABLES;".
-									  "\n\n-- End of Statement --\n\n";
-					$endofSQLInsert = $this->_changeTablePrefix($endofSQLInsert);
-
 					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_CREATING_INSERT_STATEMEN_DESC',count($records));
 					// 4. Then we build the list of field/column names that we'll insert data into
 					// -- first we get the columns
@@ -232,11 +227,8 @@ class EasyStagingControllerPlan extends JController
 					$flds = $this->_getArrayOfFieldNames($tableFields);
 					$num_fields = count($flds);
 
-					// Ok, we got some records to insert so lets lock the table and disable key updates to make it run smoothly
-					$columnInsertSQL = $startSQLInsert;
-
 					// -- then we implode them into a suitable statement
-					$columnInsertSQL .= 'INSERT INTO '.$this->_changeTablePrefix($dbTableName).' ('.implode( ', ' , $flds ).') VALUES ';
+					$columnInsertSQL = 'INSERT INTO '.$this->_changeTablePrefix($dbTableName).' ('.implode( ', ' , $flds ).') VALUES ';
 
 					// - keeping it intact for later user if the table is too big.
 
@@ -261,7 +253,7 @@ class EasyStagingControllerPlan extends JController
 						$rowSize = strlen($rowAsValues);
 
 						if($max_ps < ($sizeOfSQLBlock += $rowSize)) {
-							$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n$endofSQLInsert";
+							$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n";
 							$valuesSQL = array();
 							$sizeOfSQLBlock = strlen($columnInsertSQL);
 						}
@@ -270,12 +262,20 @@ class EasyStagingControllerPlan extends JController
 					}
 					
 					if(count($valuesSQL)){ // We have some left over rows we need to add.
-						$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n$endofSQLInsert";
+						$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n";
 					}
 				} else {
 					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_JSON__S_IS_EMPTY_NO_INS_REQ', $table) ;
 				}
 
+				// Time to unlock and restore keys to their enabled state
+				$endofSQL = "ALTER TABLE `$table` ENABLE KEYS;\n" .
+				"\n\n-- End of Statement --\n\n" .
+				"UNLOCK TABLES;".
+				"\n\n-- End of Statement --\n\n";
+				$endofSQL = $this->_changeTablePrefix($endofSQL);
+
+				$buildTableSQL .= $endofSQL;
 				// 6. Save the export SQL to file for the next request to execute.
 				// Build our file path & file handle
 				$pathToSQLFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_export_file_name($table);

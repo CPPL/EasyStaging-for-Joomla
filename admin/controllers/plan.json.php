@@ -203,16 +203,28 @@ class EasyStagingControllerPlan extends JController
 				$dbq->select('*');          // Set our select, in this case all fields
 				$dbq->from($table);         // Set our table from which we're getting data
 
-				if($hasAFilter)             // If our table has an exclusion filter we need to add a 'where' element to our query. 
+				if($hasAFilter)             // If our table has an exclusion filter we need to add a 'where' element to our query.
 				{
 					$fieldToCompare = key($hasAFilter);
-					$valueToAvoid = $hasAFilter[$fieldToCompare]; 
+					$valueToAvoid = $hasAFilter[$fieldToCompare];
 					$condition = $db->quoteName($fieldToCompare) . 'NOT LIKE \'%' . $valueToAvoid . '%\'';
 					$dbq->where($condition);
 				}
 				$db->setQuery($dbq);
 				if(($records = $db->loadRowList()) != null)
 				{
+					// Disable keys and Lock our table before inserting the data and then unlock and enable keys after.
+					$startSQLInsert = "LOCK TABLES `$table` WRITE;\n" .
+									  "\n\n-- End of Statement --\n\n" .
+									  "ALTER TABLE `$table` DISABLE KEYS;\n" .
+									  "\n\n-- End of Statement --\n\n";
+					$startSQLInsert = $this->_changeTablePrefix($startSQLInsert);
+					$endofSQLInsert = "ALTER TABLE `$table` ENABLE KEYS;\n" .
+									  "\n\n-- End of Statement --\n\n" .
+									  "UNLOCK TABLES;".
+									  "\n\n-- End of Statement --\n\n";
+					$endofSQLInsert = $this->_changeTablePrefix($endofSQLInsert);
+
 					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_CREATING_INSERT_STATEMEN_DESC',count($records));
 					// 4. Then we build the list of field/column names that we'll insert data into
 					// -- first we get the columns
@@ -220,8 +232,11 @@ class EasyStagingControllerPlan extends JController
 					$flds = $this->_getArrayOfFieldNames($tableFields);
 					$num_fields = count($flds);
 
+					// Ok, we got some records to insert so lets lock the table and disable key updates to make it run smoothly
+					$columnInsertSQL = $startSQLInsert;
+
 					// -- then we implode them into a suitable statement
-					$columnInsertSQL = 'INSERT INTO '.$this->_changeTablePrefix($dbTableName).' ('.implode( ', ' , $flds ).') VALUES ';
+					$columnInsertSQL .= 'INSERT INTO '.$this->_changeTablePrefix($dbTableName).' ('.implode( ', ' , $flds ).') VALUES ';
 
 					// - keeping it intact for later user if the table is too big.
 
@@ -246,7 +261,7 @@ class EasyStagingControllerPlan extends JController
 						$rowSize = strlen($rowAsValues);
 
 						if($max_ps < ($sizeOfSQLBlock += $rowSize)) {
-							$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n";;
+							$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n$endofSQLInsert";
 							$valuesSQL = array();
 							$sizeOfSQLBlock = strlen($columnInsertSQL);
 						}
@@ -255,7 +270,7 @@ class EasyStagingControllerPlan extends JController
 					}
 					
 					if(count($valuesSQL)){ // We have some left over rows we need to add.
-						$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n";;						
+						$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n$endofSQLInsert";
 					}
 				} else {
 					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_JSON__S_IS_EMPTY_NO_INS_REQ', $table) ;

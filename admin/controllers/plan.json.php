@@ -179,7 +179,21 @@ class EasyStagingControllerPlan extends JController
 
 			$jinput =  JFactory::getApplication()->input;
 			$table = $jinput->get('tableName', '');
-			$buildTableSQL = '';
+			// For each table we need to treat it like a database dump so that forgein keys etc don't cause issues
+			$buildTableSQL = 'SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT' .
+							"\n\n-- End of Statement --\n\n" .
+							'SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS' .
+							"\n\n-- End of Statement --\n\n" .
+							'SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION' .
+							"\n\n-- End of Statement --\n\n" .
+							'SET NAMES utf8' .
+							"\n\n-- End of Statement --\n\n" .
+							'SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0' .
+							"\n\n-- End of Statement --\n\n" .
+							'SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE=\'NO_AUTO_VALUE_ON_ZERO\'' .
+							"\n\n-- End of Statement --\n\n" .
+							'SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0' .
+							"\n\n-- End of Statement --\n\n";
 
 			if($table != '') {
 				// OK were, going to need access to the database
@@ -193,7 +207,7 @@ class EasyStagingControllerPlan extends JController
 				"\n\n-- End of Statement --\n\n" .
 				"ALTER TABLE `$table` DISABLE KEYS;\n" .
 				"\n\n-- End of Statement --\n\n";
-				$buildTableSQL = $this->_changeTablePrefix($startSQL);
+				$buildTableSQL .= $this->_changeTablePrefix($startSQL);
 
 				// 1. First we drop the existing table
 				$buildTableSQL.= 'DROP TABLE IF EXISTS '.$dbTableName.";\n\n-- End of Statement --\n\n";
@@ -270,9 +284,21 @@ class EasyStagingControllerPlan extends JController
 
 				// Time to unlock and restore keys to their enabled state
 				$endofSQL = "ALTER TABLE `$table` ENABLE KEYS;\n" .
-				"\n\n-- End of Statement --\n\n" .
-				"UNLOCK TABLES;".
-				"\n\n-- End of Statement --\n\n";
+							"\n\n-- End of Statement --\n\n" .
+							"UNLOCK TABLES;" .
+							"\n\n-- End of Statement --\n\n" .
+							'SET SQL_NOTES=@OLD_SQL_NOTES' .
+							"\n\n-- End of Statement --\n\n" .
+							'SET SQL_MODE=@OLD_SQL_MODE' .
+							"\n\n-- End of Statement --\n\n" .
+							'SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS' .
+							"\n\n-- End of Statement --\n\n" .
+							'SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT' .
+							"\n\n-- End of Statement --\n\n" .
+							'SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS' .
+							"\n\n-- End of Statement --\n\n" .
+							'SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION' .
+							"\n\n-- End of Statement --\n\n";
 				$endofSQL = $this->_changeTablePrefix($endofSQL);
 
 				$buildTableSQL .= $endofSQL;
@@ -309,6 +335,7 @@ class EasyStagingControllerPlan extends JController
 		$response = array();
 		$response['status'] = 0;
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
+			$finishing = false;
 			$pathToSQLFile = $this->_getInputVar('pathToSQLFile','');
 			$tableName = $this->_getInputVar('tableName', '');
 			// Make sure our file exists
@@ -322,20 +349,27 @@ class EasyStagingControllerPlan extends JController
 					$rDBC = JDatabase::getInstance($options);
 
 					if($rDBC) {
+						$last_word = '';
 						// Run queries from the SQL file.
 						foreach ($exportSQLQuery as $query) {
 							if(!empty($query)) {
 								list($first_word) = explode(' ', trim($query));
 								$rDBC->setQuery($query);
 								if($rDBC->query()) {
-									$response['msg'] .= '<br />'.JText::sprintf('COM_EASYSTAGING_JS_TABLE_EXPORT_QUERY_'.strtoupper($first_word), $tableName, $rs->database_name);
-									$response['status'] = 1;
+									if(($first_word == 'SET' && $last_word == 'UNLOCK') || ($first_word == 'SET' && $finishing)) {
+										$first_word = 'UNSET';
+										$finishing = true;
+									}
+									if(($first_word == 'SET' && $last_word != 'SET') || ($first_word == 'UNSET' && $last_word != 'UNSET') || ($first_word != 'SET' && $first_word != 'UNSET')) {
+										$response['msg'] .= '<br />'.JText::sprintf('COM_EASYSTAGING_JS_TABLE_EXPORT_QUERY_'.strtoupper($first_word), $tableName, $rs->database_name);
+										$response['status'] = 1;
+									}
+									$last_word = $first_word;
 								} else {
 									$response['msg'] .= '<br />'.JText::sprintf('COM_EASYSTAGING_JS_TABLE_FAILED_EXPORT_QUERY_'.strtoupper($first_word), $tableName, $rDBC->getErrorMsg());
 								}
 							}
 						}
-
 					}
 					/*
 					 * @todo Confirm result, how? Check a matching number of records? What else? Maybe check the create statement?.

@@ -436,7 +436,7 @@ class EasyStagingControllerPlan extends JController
 		return str_replace($localPrefix, $remotePrefix, $buildTableSQL);
 	}
 
-	private function _getTablesForReplication($plan_id, $remoteTableList)
+	private function _getTablesForReplication($plan_id, $remoteTableList = array())
 	{
 		if(isset($plan_id))
 		{

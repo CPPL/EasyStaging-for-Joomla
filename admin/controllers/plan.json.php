@@ -416,15 +416,13 @@ class EasyStagingControllerPlan extends JController
 	 * @param array $tables
 	 * @return single list of field names
 	 */
-	private function _getArrayOfFieldNames($tables)
+	private function _getArrayOfFieldNames($tableFields)
 	{
 
 		$db = JFactory::getDbo();
 		$fieldNames = array();
-		foreach ($tables as $tableName => $tableFields) {
-			foreach ($tableFields as $aField => $aFieldType) {
-				$fieldNames[] = $db->quoteName($aField);
-			}
+		foreach ($tableFields as $aField => $aFieldType) {
+			$fieldNames[] = $db->quoteName($aField);
 		}
 		return $fieldNames;
 	}

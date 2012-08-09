@@ -456,7 +456,7 @@ class EasyStagingControllerPlan extends JController
 					} else { // It's a copy if not exists table
 						// Swap out the local table prefix with the remote, so we can get a match
 						$itsRemoteTableName = str_replace($localPrefix, $remotePrefix, $localTable['tablename']);
-						if(!in_array($itsRemoteTableName, $remoteTableList)) {
+						if(empty($remoteTableList) || !in_array($itsRemoteTableName, $remoteTableList)) {
 							$tableRows[] = $localTable;
 						}
 					}

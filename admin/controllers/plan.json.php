@@ -427,13 +427,13 @@ class EasyStagingControllerPlan extends JController
 		return $fieldNames;
 	}
 
-	private function _changeTablePrefix($buildTableSQL)
+	private function _changeTablePrefix($sql)
 	{
 		$localSite = PlanHelper::getLocalSite($this->_plan_id());
 		$localPrefix = $localSite->database_table_prefix;
 		$remoteSite = PlanHelper::getRemoteSite($this->_plan_id());
 		$remotePrefix = $remoteSite->database_table_prefix;
-		return str_replace($localPrefix, $remotePrefix, $buildTableSQL);
+		return str_replace($localPrefix, $remotePrefix, $sql);
 	}
 
 	private function _getTablesForReplication($plan_id, $remoteTableList = array())

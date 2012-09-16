@@ -83,11 +83,18 @@ class EasyStagingControllerPlan extends JController
 			$rsyncCmd.= ' ' . PlanHelper::getRemoteSite($plan_id)->site_path;
 
 			// exec the rsync command
+			$rsyncResult = '';
 			$rsyncOutput = array();
-			exec($rsyncCmd, $rsyncOutput);
-
+			exec($rsyncCmd, $rsyncOutput, $rsyncResult);
+			// check the result
+			if($rsyncResult == 0) {
+				$msg = JText::sprintf('COM_EASYSTAGING_RSYNC_RUN_STATUS_OK', $plan_id)."\n";
+			} else {
+				$msg = JText::sprintf('COM_EASYSTAGING_RSYNC_RUN_STATUS_FAILED', $rsyncResult, $plan_id)."\n";
+			}
+			// write it all to the log and returned json
 			$rsyncOutput[] = '<br />'.$rsyncCmd;
-			$msg = JText::sprintf('COM_EASYSTAGING_RSYNC_RUN_DESC',$plan_id);
+			$msg .= JText::sprintf('COM_EASYSTAGING_RSYNC_RUN_DESC',$plan_id);
 			if($this->_writeToLog($msg . "\n" . print_r($rsyncOutput,true))) {
 				echo json_encode(array('msg' => $msg, 'status' => 1, 'data' => $rsyncOutput));
 			} else {

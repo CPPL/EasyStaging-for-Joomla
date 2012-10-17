@@ -576,7 +576,7 @@ EOH;
 				$Sites = PlanHelper::getLocalSite($plan_id);
 
 				// Combine the default exclusions with those in the local site record
-				$allExclusions = $defaultExclusions.$this->_checkExclusionField($Sites->file_exclusions);
+				$allExclusions = $defaultExclusions.trim($this->_checkExclusionField($Sites->file_exclusions));
 				$result['fileData'] = $allExclusions;
 
 				// Attempt to write the file

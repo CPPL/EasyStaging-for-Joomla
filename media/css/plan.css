@@ -25,12 +25,17 @@
 #lastRunStatus {
 	font-weight: bold;
 	height: 20px;
-	padding-left: 25px;
-	padding-top: 5px;
+	padding-left: 10px;
 }
 
+#planControls {
+	width:60%;
+	float:left;
+}
 .planUpdatesDiv, #lastRunStatus {
-	margin: 0px 0px 34px 34px;
+	width:60%;
+	position: relative;
+	clear:both;
 }
 
 #startFileBtn {
@@ -58,6 +63,36 @@
 	background-position-y: -32px;
 }
 
+#rsyncErrors {
+	width:40%;
+	overflow:scroll;
+	max-height:140px;
+	background-color:#eeeeee;
+	display:none;
+}
+
+#rsyncErrors h3 {
+	margin-left:10px;
+	color:#ff0000;
+}
+
+.cppl_es_error_list {
+	float:left;
+	clear:both;
+	list-style:none;
+}
+.cppl_es_error_list li {
+	margin: 5px;
+}
+.cppl_es_rsync_error_code {
+	font-weight:bold;
+}
+.cppl_es_rsync_error_msg {
+	margin-left: 15px;
+	display: block;
+	margin-top: -12px;
+}
+
 #currentStatus {
 	line-height: 1.5em;
 	overflow:scroll;
@@ -65,7 +100,7 @@
 	padding: 5px 0px 50px 10px;
 }
 .waiting {
-	background: url("../images/spinning.gif") no-repeat;
+	background: url("../images/spinning.gif") no-repeat 50% 0%;
 }
 
 .es_ajax_error_msg {

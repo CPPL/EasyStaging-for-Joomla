@@ -14,12 +14,12 @@
 			/>
 			<field
 				name="description"
-				type="textarea"
 				label="COM_EASYSTAGING_PLAN_DESCRIPTION_LABEL" description="COM_EASYSTAGING_PLAN_DESCRIPTION_DESC"
 				class="inputbox"
 				default=""
+				type="editor"
 				filter="safehtml"
-			/>
+				buttons="true" />
 			<field
 				name="published"
 				type="list"

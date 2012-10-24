@@ -22,6 +22,7 @@ defined('_JEXEC') or die('Restricted Access');
 			echo JText::sprintf('COM_EASYSTAGING_LAST_RUN',JFactory::getDate($last_run)->format(JText::_('DATE_FORMAT_LC2'),true));
 		}
 	?></div>
+	<div style="clear:left;"></div>
 	<div class="planUpdatesDiv adminList" >
 		<div id="currentStatus" >
 			<?php echo ($not_run_yet && empty($this->item->id)) ? JText::_('COM_EASYSTAGING_JSON_DIV_STATUS_NOT_READY') : JText::_('COM_EASYSTAGING_JSON_DIV_STATUS'); ?>

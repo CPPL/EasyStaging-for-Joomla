@@ -39,12 +39,14 @@ class EasyStagingControllerPlan extends JControllerForm
 		$jinput->set('layout', 'Run');
 
 		// Determine the name of the primary key for the data.
-		if (empty($key)) {
+		if (empty($key))
+		{
 			$key = $table->getKeyName();
 		}
 
 		// To avoid data collisions the urlVar may be different from the primary key.
-		if (empty($urlVar)) {
+		if (empty($urlVar))
+		{
 			$urlVar = $key;
 		}
 
@@ -53,7 +55,8 @@ class EasyStagingControllerPlan extends JControllerForm
 		$checkin	= property_exists($table, 'checked_out');
 
 		// Access check.
-		if (!$this->allowRun(array($key => $recordId), $key)) {
+		if (!$this->allowRun(array($key => $recordId), $key))
+		{
 			$this->setError(JText::_('COM_EASYSTAGING_PLAN_YOU_DO_NOT_HAVE_PERM'));
 			$this->setMessage($this->getError(), 'error');
 
@@ -61,7 +64,8 @@ class EasyStagingControllerPlan extends JControllerForm
 		}
 
 		// Attempt to check-out the plan to run and redirect.
-		if ($checkin && !$model->checkout($recordId)) {
+		if ($checkin && !$model->checkout($recordId))
+		{
 			// Check-out failed, bounce out as we shouldn't run a plan that may be changing.
 			$this->setError(JText::sprintf('JLIB_APPLICATION_ERROR_CHECKOUT_FAILED', $model->getError()));
 			$this->setMessage($this->getError(), 'error');
@@ -92,7 +96,8 @@ class EasyStagingControllerPlan extends JControllerForm
 		$layout     = $jinput->get('layout');
 		$task       = $jinput->get('task');
 
-		if(($task == 'cancel') && ($layout == 'run')) {
+		if (($task == 'cancel') && ($layout == 'run'))
+		{
 			// Initialise variables.
 			$app		= JFactory::getApplication();
 			$model		= $this->getModel();
@@ -100,16 +105,19 @@ class EasyStagingControllerPlan extends JControllerForm
 			$checkin	= property_exists($table, 'checked_out');
 			$context	= "$this->option.run.$this->context";
 		
-			if (empty($key)) {
+			if (empty($key))
+			{
 				$key = $table->getKeyName();
 			}
 		
 			$recordId	= $jinput->get($key, NULL, 'INT');
 		
 			// Attempt to check-in the current record.
-			if ($recordId) {
+			if ($recordId)
+			{
 				// Check we are holding the id in the edit list.
-				if (!$this->checkEditId($context, $recordId)) {
+				if (!$this->checkEditId($context, $recordId))
+				{
 					// Somehow the person just went to the form - we don't allow that.
 					$this->setError(JText::sprintf('JLIB_APPLICATION_ERROR_UNHELD_ID', $recordId));
 					$this->setMessage($this->getError(), 'error');
@@ -118,8 +126,10 @@ class EasyStagingControllerPlan extends JControllerForm
 					return false;
 				}
 		
-				if ($checkin) {
-					if ($model->checkin($recordId) === false) {
+				if ($checkin)
+				{
+					if ($model->checkin($recordId) === false)
+					{
 						// Check-in failed, go back to the record and display a notice.
 						$this->setError(JText::sprintf('JLIB_APPLICATION_ERROR_CHECKIN_FAILED', $model->getError()));
 						$this->setMessage($this->getError(), 'error');
@@ -136,7 +146,9 @@ class EasyStagingControllerPlan extends JControllerForm
 			$this->setRedirect(JRoute::_('index.php?option='.$this->option.'&view='.$this->view_list.$this->getRedirectToListAppend(), false));
 		
 			return true;
-		} else {
+		}
+		else
+		{
 			return parent::cancel($key);
 		}
 	}

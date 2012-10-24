@@ -1,17 +1,17 @@
 <?php
 /**
  * Plan Editor View for EasyStaging Component
- * 
+ *
  * @link		http://seepeoplesoftware.com
  * @license		GNU/GPL
  * @copyright	Craig Phillips Pty Ltd
  */
- 
+
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die();
- 
+
 jimport( 'joomla.application.component.view' );
- 
+
 /**
  * EasyStaging Plan Editor View
  *
@@ -30,7 +30,7 @@ class EasyStagingViewPlan extends JView
 		$item = $this->get('Item');
 
 		// Check for errors.
-		if (count($errors = $this->get('Errors'))) 
+		if (count($errors = $this->get('Errors')))
 		{
 			JError::raiseError(500, implode('<br />', $errors));
 			return false;
@@ -70,15 +70,19 @@ class EasyStagingViewPlan extends JView
 		$isNew		= ($this->item->id == 0);
 		$checkedOut	= !($this->item->checked_out == 0 || $this->item->checked_out == $user->get('id'));
 
-		if($canDo->get('core.edit') || $canDo->get('core.create')) {
+		if ($canDo->get('core.edit') || $canDo->get('core.create'))
+		{
 			JToolBarHelper::title($isNew ? JText::_('COM_EASYSTAGING_MANAGER_PLAN_NEW') : JText::_('COM_EASYSTAGING_MANAGER_PLAN_EDIT'), 'easystaging');
 			JToolBarHelper::apply('plan.apply');
 			JToolBarHelper::save('plan.save');
-		} elseif($canDo->get('easystaging.run')) {
+		}
+		elseif ($canDo->get('easystaging.run'))
+		{
 			JToolBarHelper::title(JText::_('COM_EASYSTAGING_MANAGER_PLAN_RUN'), 'easystaging');
 		}
-		                             
-		if (!$checkedOut && ($canDo->get('core.create'))) {
+
+		if (!$checkedOut && ($canDo->get('core.create')))
+		{
 			JToolBarHelper::save2new('plan.save2new');
 		}
 		JToolBarHelper::cancel('plan.cancel', $isNew ? 'JTOOLBAR_CANCEL' : 'JTOOLBAR_CLOSE');
@@ -110,7 +114,7 @@ class EasyStagingViewPlan extends JView
 	}
 
 	private function _runOnlyMode() {
-		if(!($this->canDo->get('core.edit') || $this->canDo->get('core.create')) && $this->canDo->get('easystaging.run'))
+		if (!($this->canDo->get('core.edit') || $this->canDo->get('core.create')) && $this->canDo->get('easystaging.run'))
 		{
 			// They can run but not hide, I mean create/edit plans - better limit the access to form elements.
 			$this->form->setFieldAttribute('name','class','readonly');
@@ -129,7 +133,9 @@ class EasyStagingViewPlan extends JView
 			$this->form->setFieldAttribute('publish_down','filter','user_utc');
 			// Finally return true for run only mode
 			return true;
-		} else {
+		}
+		else
+		{
 			return false;
 		}
 	}

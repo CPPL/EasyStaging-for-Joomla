@@ -9,9 +9,30 @@ $i = 0;
 foreach ($localTables as $tablename => $row)
 {
 	// Retrieve values & Sanitize data
-	if(array_key_exists('last', $row)){ $last =  $row['last']; } else { $last = '0000-00-00 00:00:00'; }
-	if(array_key_exists('lastresult', $row)) { $lastResult =  $row['lastresult']; } else { $lastResult = 0; }
-	if(array_key_exists('action', $row)) { $actionCurrent = $row['action']; } else { $actionCurrent = '1'; }
+	if (array_key_exists('last', $row))
+	{
+		$last =  $row['last'];
+	}
+	else
+	{
+		$last = '0000-00-00 00:00:00';
+	}
+	if (array_key_exists('lastresult', $row))
+	{
+		$lastResult =  $row['lastresult'];
+	}
+	else
+	{
+		$lastResult = 0;
+	}
+	if (array_key_exists('action', $row))
+	{
+		$actionCurrent = $row['action'];
+	}
+	else
+	{
+		$actionCurrent = '1';
+	}
 	$id = $row['id'];
 	
 	// Setup ControlName so that within the tablesettings each table has its own array
@@ -19,9 +40,12 @@ foreach ($localTables as $tablename => $row)
 	$tableRowId = 'tableSettings_'.$tablename.'_'.$id;
 	
 	$lastActionResult = '';
-	if($last == '0000-00-00 00:00:00') {
+	if ($last == '0000-00-00 00:00:00')
+	{
 		$lastActionResult = JText::_('COM_EASYSTAGING_TABLE_NO_LAST_ACTION_RESULT');
-	} else {
+	}
+	else
+	{
 		$last = strtotime( $last );
 		$lastResult = ($lastResult ? JText::_('COM_EASYSTAGING_TABLE_LAST_RESULT_SUCCESS') : JText::_('COM_EASYSTAGING_TABLE_LAST_RESULT_FAIL')); 
 		$lastActionResult = JText::sprintf('COM_EASYSTAGING_TABLE_LAST_ACTION_RESULT',$last,$lastResult);

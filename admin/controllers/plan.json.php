@@ -29,21 +29,30 @@ class EasyStagingControllerPlan extends JController
 	function hello()
 	{
 		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id))
+		{
 			// It's alllll good...
-			$runTicket = $plan_id . '-' . date("YmdHi");
+			$runTicket = $plan_id . '-' . date('YmdHi');
 			$runTicketDirectory = $this->_get_run_directory($runTicket);
-			if(is_array($runTicketDirectory)) {
+			if (is_array($runTicketDirectory))
+			{
 				echo json_encode($runTicketDirectory);
-			} else {
+			}
+			else
+			{
 				$msg = JText::_( 'COM_EASYSTAGING__EASYSTAGING_IS_READY' );
-				if($this->_writeToLog($msg, $runTicket)) {
+				if ($this->_writeToLog($msg, $runTicket))
+				{
 					echo json_encode(array('msg' => $msg, 'status' => 1, 'runTicket' => $runTicket));
-				} else {
+				}
+				else
+				{
 					echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_UNABLE_TO_LOG', __FUNCTION__), 'status' => 0));
 				}
 			}
-		} else {
+		}
+		else
+		{
 			echo json_encode(array('msg' => JText::_( 'COM_EASYSTAGING_PLAN_ID_TOKE_DESC' ) , 'status' => 0));
 		}
 	}
@@ -51,18 +60,24 @@ class EasyStagingControllerPlan extends JController
 	function setupRsync()
 	{
 		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id))
+		{
 			$rsResult = $this->_createRSYNCExclusionFile($plan_id);
-			if($rsResult['status'])
+			if ($rsResult['status'])
 			{
 				$fileCreated = $rsResult['fileName'];
 				$msg = JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_SUCCEEDED', $fileCreated);
-				if($this->_writeToLog($msg)) {
+				if ($this->_writeToLog($msg))
+				{
 					echo json_encode(array('msg' => $msg, 'status' => 1, 'data' => $rsResult));
-				} else {
+				}
+				else
+				{
 					echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_UNABLE_TO_LOG', __FUNCTION__), 'status' => 0));
 				}
-			} else {
+			}
+			else
+			{
 				echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_FAILED', $plan_id), 'status' => 0,  'data' => $rsResult));
 			}
 		}
@@ -71,7 +86,8 @@ class EasyStagingControllerPlan extends JController
 	function runRsync()
 	{
 		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id))
+		{
 			// first we add the rsync options
 			$rsyncCmd = 'rsync '.$this->_getRsyncOptions($plan_id);
 			// then we add the exclusions file name
@@ -87,17 +103,23 @@ class EasyStagingControllerPlan extends JController
 			$rsyncOutput = array();
 			exec($rsyncCmd, $rsyncOutput, $rsyncResult);
 			// check the result
-			if($rsyncResult == 0) {
+			if ($rsyncResult == 0)
+			{
 				$msg = JText::sprintf('COM_EASYSTAGING_RSYNC_RUN_STATUS_OK', $plan_id)."\n";
-			} else {
+			}
+			else
+			{
 				$msg = JText::sprintf('COM_EASYSTAGING_RSYNC_RUN_STATUS_FAILED', $rsyncResult, $plan_id)."\n";
 			}
 			// write it all to the log and returned json
 			$rsyncOutput[] = '<br />'.$rsyncCmd;
 			$msg .= JText::sprintf('COM_EASYSTAGING_RSYNC_RUN_DESC',$plan_id);
-			if($this->_writeToLog($msg . "\n" . print_r($rsyncOutput,true))) {
+			if ($this->_writeToLog($msg . "\n" . print_r($rsyncOutput,true)))
+			{
 				echo json_encode(array('msg' => $msg, 'status' => 1, 'data' => $rsyncOutput));
-			} else {
+			}
+			else
+			{
 				echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_UNABLE_TO_LOG', __FUNCTION__), 'status' => 0));
 			}
 		}
@@ -109,14 +131,22 @@ class EasyStagingControllerPlan extends JController
 	function checkDBConnection()
 	{
 		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id))
+		{
 			// Get the remote site details
 			$rs = PlanHelper::getRemoteSite($plan_id);
-			$options	= array ('host' => $rs->database_host, 'user' => $rs->database_user, 'password' => $rs->database_password, 'database' => $rs->database_name, 'prefix' => $rs->database_table_prefix);
+			$options = array(
+				'host'		=> $rs->database_host,
+				'user'		=> $rs->database_user,
+				'password'	=> $rs->database_password,
+				'database'	=> $rs->database_name,
+				'prefix'	=> $rs->database_table_prefix,
+			);
 
 			$rDBC = JDatabase::getInstance($options);
 
-			if($rDBC->getErrorNum() == 0) {
+			if ($rDBC->getErrorNum() == 0)
+			{
 				$q = "SHOW VARIABLES LIKE 'max_allowed_packet'";
 				$rDBC->setQuery($q);
 				$qr = $rDBC->loadRow();
@@ -125,12 +155,17 @@ class EasyStagingControllerPlan extends JController
 				$session->set('com_easystaging_max_ps', $max_ps);
 				$msg = JText::_( 'COM_EASYSTAGING_DATABASE_STEP_01_CONNECTED' );
 				$remoteTablesRetreived = $this->_getRemoteDBTables($rDBC);
-				if($this->_writeToLog($msg . "\n" . print_r($remoteTablesRetreived,true))) {
+				if ($this->_writeToLog($msg . "\n" . print_r($remoteTablesRetreived,true)))
+				{
 					echo json_encode(array('msg' => $msg, 'status' => 1, 'data' => $remoteTablesRetreived));
-				} else {
+				}
+				else
+				{
 					echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_UNABLE_TO_LOG', __FUNCTION__), 'status' => 0));
 				}
-			} else {
+			}
+			else
+			{
 				echo json_encode(array('msg' => JText::_( 'COM_EASYSTAGING_DATABASE_STEP_01_FAILED_TO_CONNECT' ) , 'status' => 0, 'data' => $rDBC->getErrorMsg(true)));
 			}
 		}
@@ -142,27 +177,48 @@ class EasyStagingControllerPlan extends JController
 	function getDBTables()
 	{
 		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id))
+		{
 			// Get list of tables we'll be acting on
 			$remoteTableList = $this->_getInputVar('remoteTableList');
 			$tableResults = $this->_getTablesForReplication($plan_id, $remoteTableList);
-			if($tableResults) {
-				$response = array('msg' => JText::_('COM_EASYSTAGING_DATABASE_STEP_02_TABLES_LIST'), 'status' => 1, 'data' => $tableResults, 'tablesFound' => count($tableResults['rows']) );
+			if ($tableResults)
+			{
+				$response = array(
+					'msg'			=> JText::_('COM_EASYSTAGING_DATABASE_STEP_02_TABLES_LIST'),
+					'status'		=> 1,
+					'data'			=> $tableResults,
+					'tablesFound'	=> count($tableResults['rows']),
+				);
 				$initialTableResults = $this->_getTablesForInitialReplication($plan_id);
-				if($initialTableResults['status'] != '0') {
+				if ($initialTableResults['status'] != '0')
+				{
 					$msg = $response['msg'] . "\n" . JText::sprintf('COM_EASYSTAGING_FOUND_TABLES_FO_DESC',count($initialTableResults['rows']));
 					$msg .= print_r($initialTableResults['rows'], true);
 					$response['msg'] = $response['msg'] . '<br />' . JText::sprintf('COM_EASYSTAGING_FOUND_TABLES_FO_DESC',count($initialTableResults['rows']));
 					$response['initialCopyTables'] = $initialTableResults['rows'];
-				} else {
+				}
+				else
+				{
 					$response['msg'] = $response['msg'] . '<br />' . JText::_('COM_EASYSTAGING_NO_TABLES_FO_DESC');
 				}
 
-			} else {
-				$response = array('msg' => JText::_( 'COM_EASYSTAGING_DATABASE_STEP_02_FAILED' ) , 'status' => 0, 'data' => $tableResults);
 			}
-		} else {
-			$response = array('msg' => JText::_( 'COM_EASYSTAGING_PLAN_ID_TOKE_DESC' ) , 'status' => 0);
+			else
+			{
+				$response = array(
+					'msg'		=> JText::_( 'COM_EASYSTAGING_DATABASE_STEP_02_FAILED' ),
+					'status'	=> 0,
+					'data'		=> $tableResults,
+				);
+			}
+		}
+		else
+		{
+			$response = array(
+				'msg' => JText::_( 'COM_EASYSTAGING_PLAN_ID_TOKE_DESC' ),
+				'status' => 0,
+			);
 		}
 		// Log it...
 		$this->_writeToLog($response['msg']);
@@ -181,7 +237,8 @@ class EasyStagingControllerPlan extends JController
 		$status = 0;
 
 		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id))
+		{
 			$log = JText::_('COM_EASYSTAGING_TOKEN_PLAN_VALID');
 
 			$jinput =  JFactory::getApplication()->input;
@@ -202,7 +259,8 @@ class EasyStagingControllerPlan extends JController
 							'SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0' .
 							"\n\n-- End of Statement --\n\n";
 
-			if($table != '') {
+			if ($table != '')
+			{
 				// OK were, going to need access to the database
 				$db = JFactory::getDbo();
 				$dbTableName = $db->quoteName($table);
@@ -231,7 +289,7 @@ class EasyStagingControllerPlan extends JController
 				$dbq->select('*');          // Set our select, in this case all fields
 				$dbq->from($table);         // Set our table from which we're getting data
 
-				if($hasAFilter)             // If our table has an exclusion filter we need to add a 'where' element to our query.
+				if ($hasAFilter)             // If our table has an exclusion filter we need to add a 'where' element to our query.
 				{
 					$fieldToCompare = key($hasAFilter);
 					$valueToAvoid = $hasAFilter[$fieldToCompare];
@@ -239,7 +297,7 @@ class EasyStagingControllerPlan extends JController
 					$dbq->where($condition);
 				}
 				$db->setQuery($dbq);
-				if(($records = $db->loadRowList()) != null)
+				if (($records = $db->loadRowList()) != null)
 				{
 					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_CREATING_INSERT_STATEMEN_DESC',count($records));
 					// 4. Then we build the list of field/column names that we'll insert data into
@@ -262,9 +320,11 @@ class EasyStagingControllerPlan extends JController
 					// -- then create an empty array ready for our values
 					$valuesSQL = array();
 
-					foreach ($records as $row) {
+					foreach ($records as $row)
+					{
 						// Process each row for slashes, new lines.
-						foreach ($row as $field => $value) {
+						foreach ($row as $field => $value)
+						{
 							$row[$field] = addslashes($value);
 							$row[$field] = str_replace("\n","\\n",$row[$field]);
 						}
@@ -273,7 +333,8 @@ class EasyStagingControllerPlan extends JController
 						// First up we check to see if this row will put our SQL block size over our max_packet value on the remote server
 						$rowSize = strlen($rowAsValues);
 
-						if($max_ps < ($sizeOfSQLBlock += $rowSize)) {
+						if ($max_ps < ($sizeOfSQLBlock += $rowSize))
+						{
 							$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n";
 							$valuesSQL = array();
 							$sizeOfSQLBlock = strlen($columnInsertSQL);
@@ -282,10 +343,14 @@ class EasyStagingControllerPlan extends JController
 						$valuesSQL[] = $rowAsValues;
 					}
 					
-					if(count($valuesSQL)){ // We have some left over rows we need to add.
+					// We have some left over rows we need to add.
+					if (count($valuesSQL))
+					{
 						$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n";
 					}
-				} else {
+				}
+				else
+				{
 					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_JSON__S_IS_EMPTY_NO_INS_REQ', $table) ;
 				}
 
@@ -313,22 +378,47 @@ class EasyStagingControllerPlan extends JController
 				// Build our file path & file handle
 				$pathToSQLFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_export_file_name($table);
 				$data = $pathToSQLFile;
-				if($exportSQLFile = @fopen($pathToSQLFile, 'w')) {
+				if ($exportSQLFile = @fopen($pathToSQLFile, 'w'))
+				{
 					// Attempt to write the file
 					$status = fwrite($exportSQLFile, $buildTableSQL);
 					// Time to close off
 					fclose($exportSQLFile);
 					$msg = JText::sprintf('COM_EASYSTAGING_SQL_EXPORT_SUCC', $table);
-					$response = array('msg' => $msg, 'status' => $status, 'data' => $data, 'tableName' => $table, 'pathToSQLFile' => $pathToSQLFile, 'log' => $log);
-				} else {
-					$response = array('msg' => JText::_('COM_EASYSTAGING_JSON_FAILED_TO_OPEN_SQL_EXP_FILE'), 'status' => $exportSQLFile, 'data' => error_get_last(), 'tableName' => $table, 'pathToSQLFile' => $pathToSQLFile, 'log' => $log);
+					$response = array(
+						'msg'			=> $msg,
+						'status'		=> $status,
+						'data' 			=> $data,
+						'tableName' 	=> $table,
+						'pathToSQLFile'	=> $pathToSQLFile,
+						'log'			=> $log,
+					);
+				}
+				else
+				{
+					$response = array(
+						'msg'			=> JText::_('COM_EASYSTAGING_JSON_FAILED_TO_OPEN_SQL_EXP_FILE'),
+						'status'		=> $exportSQLFile,
+						'data'			=> error_get_last(),
+						'tableName'		=> $table,
+						'pathToSQLFile'	=> $pathToSQLFile,
+						'log'			=> $log,
+					);
 				}
 
-			} else {
-				// If we got here things didn't go well ;)
-				$response = array('msg' => JText::_('COM_EASYSTAGING_TABLE_COPY_FAILED'), 'status' => 0,  'data' => $return, 'log' => $log);
 			}
-		} else {
+			else
+			{
+				// If we got here things didn't go well ;)
+				$response = array(
+					'msg'		=> JText::_('COM_EASYSTAGING_TABLE_COPY_FAILED'),
+					'status'	=> 0,
+					'data'		=> $return,
+					'log'		=> $log);
+			}
+		}
+		else
+		{
 			$response = array('msg' => JText::_( 'COM_EASYSTAGING_PLAN_ID_TOKE_DESC' ) , 'status' => 0, 'data' => array());
 		}
 		echo json_encode($response);
@@ -341,38 +431,56 @@ class EasyStagingControllerPlan extends JController
 		// Check for request forgeries
 		$response = array();
 		$response['status'] = 0;
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id))
+		{
 			$finishing = false;
 			$pathToSQLFile = $this->_getInputVar('pathToSQLFile','');
 			$tableName = $this->_getInputVar('tableName', '');
 			// Make sure our file exists
-			if(($pathToSQLFile != '') && (file_exists($pathToSQLFile))){
+			if (($pathToSQLFile != '') && (file_exists($pathToSQLFile)))
+			{
 				$response['msg'] = JText::sprintf('COM_EASYSTAGING_JSON_FOUND_SQL_EXPOR_FILE',$tableName);
 				$exportSQLQuery = explode("\n\n-- End of Statement --\n\n", file_get_contents($pathToSQLFile));
-				if(count($exportSQLQuery)) {
+				if (count($exportSQLQuery))
+				{
 					// Open DB connection.
 					$rs = PlanHelper::getRemoteSite($plan_id);
-					$options	= array ('host' => $rs->database_host, 'user' => $rs->database_user, 'password' => $rs->database_password, 'database' => $rs->database_name, 'prefix' => $rs->database_table_prefix);
+					$options	= array(
+						'host'		=> $rs->database_host,
+						'user'		=> $rs->database_user,
+						'password'	=> $rs->database_password,
+						'database' => $rs->database_name,
+						'prefix' => $rs->database_table_prefix,
+					);
+
 					$rDBC = JDatabase::getInstance($options);
 
-					if($rDBC) {
+					if ($rDBC)
+					{
 						$last_word = '';
 						// Run queries from the SQL file.
-						foreach ($exportSQLQuery as $query) {
-							if(!empty($query)) {
+						foreach ($exportSQLQuery as $query)
+						{
+							if (!empty($query))
+							{
 								list($first_word) = explode(' ', trim($query));
 								$rDBC->setQuery($query);
-								if($rDBC->query()) {
-									if(($first_word == 'SET' && $last_word == 'UNLOCK') || ($first_word == 'SET' && $finishing)) {
+								if ($rDBC->query())
+								{
+									if (($first_word == 'SET' && $last_word == 'UNLOCK') || ($first_word == 'SET' && $finishing))
+									{
 										$first_word = 'UNSET';
 										$finishing = true;
 									}
-									if(($first_word == 'SET' && $last_word != 'SET') || ($first_word == 'UNSET' && $last_word != 'UNSET') || ($first_word != 'SET' && $first_word != 'UNSET')) {
+									if (($first_word == 'SET' && $last_word != 'SET') || ($first_word == 'UNSET' && $last_word != 'UNSET') || ($first_word != 'SET' && $first_word != 'UNSET'))
+									{
 										$response['msg'] .= '<br />'.JText::sprintf('COM_EASYSTAGING_JS_TABLE_EXPORT_QUERY_'.strtoupper($first_word), $tableName, $rs->database_name);
 										$response['status'] = 1;
 									}
 									$last_word = $first_word;
-								} else {
+								}
+								else
+								{
 									$response['msg'] .= '<br />'.JText::sprintf('COM_EASYSTAGING_JS_TABLE_FAILED_EXPORT_QUERY_'.strtoupper($first_word), $tableName, $rDBC->getErrorMsg());
 								}
 							}
@@ -381,11 +489,15 @@ class EasyStagingControllerPlan extends JController
 					/*
 					 * @todo Confirm result, how? Check a matching number of records? What else? Maybe check the create statement?.
 					 */
-				} else {
+				}
+				else
+				{
 					$response['msg'] = JText::sprintf('COM_EASYSTAGING_JSON_FAILED_TO_READ_SQL_FILE',$tableName,$pathToSQLFile);
 					$response['status'] = 0;
 				}
-			} else {
+			}
+			else
+			{
 				$response['msg'] = JText::sprintf('COM_EASYSTAGING_JSON_COULDNT_FIND_SQL_FILE',$tableName,$pathToSQLFile);
 				$response['status'] = 0;
 			}
@@ -402,12 +514,13 @@ class EasyStagingControllerPlan extends JController
 	function finishRun()
 	{
 		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id)) {
+		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id))
+		{
 			// Load our plan record
 			JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_easystaging/tables');
 			$Plan = JTable::getInstance('Plan', 'EasyStagingTable');
 
-			if($Plan->load(array('id'=>$plan_id)))
+			if ($Plan->load(array('id'=>$plan_id)))
 			{
 				// Initialise variables.
 				$date = JFactory::getDate();
@@ -415,7 +528,7 @@ class EasyStagingControllerPlan extends JController
 				$Plan->store();
 				$format = JText::_('DATE_FORMAT_LC2');
 				$msg = JText::sprintf('COM_EASYSTAGING_LAST_RUN',$date->format($format,true));
-				$result = array( 'msg' => $msg );
+				$result = array('msg' => $msg);
 				// Log it...
 				$this->_writeToLog($result['msg']);
 
@@ -423,12 +536,14 @@ class EasyStagingControllerPlan extends JController
 				$zipArchiveName = $this->_sync_files_path() . '/' . $this->_get_run_directory() . '.zip';
 				$folder = $this->_sync_files_path() . '/' . $this->_get_run_directory();
 				$files_to_be_zipped = PlanHelper::directoryToArray($folder);
-				if(PlanHelper::createZip($files_to_be_zipped, $zipArchiveName, $this->_sync_files_path()))
+				if (PlanHelper::createZip($files_to_be_zipped, $zipArchiveName, $this->_sync_files_path()))
 				{
 					$result['cleanupMsg'] = JText::sprintf('COM_EASYSTAGING_PLAN_JSON_COMPRESSED_FILES', count($files_to_be_zipped), $zipArchiveName);
 					// Clean up our work
 					PlanHelper::remove_this_directory($folder);
-				} else {
+				}
+				else
+				{
 					$result['cleanupMsg'] = JText::_('COM_EASYSTAGING_PLAN_JSON_UNABLE_TO_ZIP_ERROR');
 				}
 
@@ -449,13 +564,18 @@ class EasyStagingControllerPlan extends JController
 	private function _filterTable($tablename)
 	{
 		$localPrefix = PlanHelper::getLocalSite($this->_plan_id())->database_table_prefix; // we don't want to remove the underscore
-		$filters = array($localPrefix . 'assets' => array('name' => 'com_easystaging%'),
-					$localPrefix . 'extensions' => array('element' => 'com_easystaging'),
-					$localPrefix . 'menu' => array('alias' => 'easystaging')
+		$filters = array(
+			$localPrefix . 'assets'		=> array('name' => 'com_easystaging%'),
+			$localPrefix . 'extensions'	=> array('element' => 'com_easystaging'),
+			$localPrefix . 'menu'		=> array('alias' => 'easystaging'),
 		);
-		if(array_key_exists($tablename, $filters)){
+
+		if (array_key_exists($tablename, $filters))
+		{
 			return $filters[$tablename];
-		} else {
+		}
+		else
+		{
 			return false;
 		}
 	}
@@ -477,7 +597,8 @@ class EasyStagingControllerPlan extends JController
 
 		$db = JFactory::getDbo();
 		$fieldNames = array();
-		foreach ($tableFields as $aField => $aFieldType) {
+		foreach ($tableFields as $aField => $aFieldType)
+		{
 			$fieldNames[] = $db->quoteName($aField);
 		}
 		return $fieldNames;
@@ -494,23 +615,30 @@ class EasyStagingControllerPlan extends JController
 
 	private function _getTablesForReplication($plan_id, $remoteTableList = array())
 	{
-		if(isset($plan_id))
+		if (isset($plan_id))
 		{
 			$db = JFactory::getDbo();
 			$db->setQuery("select * from `#__easystaging_tables` where `plan_id` = ".$plan_id." and (`action` = '1' or `action` = '2')");
-			if($localTableRows = $db->loadAssocList()) {
+			if ($localTableRows = $db->loadAssocList())
+			{
 				$tableRows = array(); // Where we'll store the tables to be copied.
 				$localPrefix = PlanHelper::getLocalSite($plan_id)->database_table_prefix;   // Get the local & remote prefix for use in the loop
 				$remotePrefix = PlanHelper::getRemoteSite($plan_id)->database_table_prefix; // Get the local & remote prefix for use in the loop
 				// Loop through the table settings and adding them to the $tableRows to be used if their action suites.
-				foreach ($localTableRows as $localTable) {
+				foreach ($localTableRows as $localTable)
+				{
 					// If this table is set to 'Copy To Live' we add it to our array
-					if($localTable['action'] == 1){
+					if ($localTable['action'] == 1)
+					{
 						$tableRows[] = $localTable;
-					} else { // It's a copy if not exists table
+					}
+					else
+					{
+						// It's a copy if not exists table
 						// Swap out the local table prefix with the remote, so we can get a match
 						$itsRemoteTableName = str_replace($localPrefix, $remotePrefix, $localTable['tablename']);
-						if(empty($remoteTableList) || !in_array($itsRemoteTableName, $remoteTableList)) {
+						if (empty($remoteTableList) || !in_array($itsRemoteTableName, $remoteTableList))
+						{
 							$tableRows[] = $localTable;
 						}
 					}
@@ -521,44 +649,66 @@ class EasyStagingControllerPlan extends JController
 				$tableResults['rows'] = $tableRows;
 				$tableResults['status'] = count($tableRows);
 				return $tableResults;
-			} else {
-				return array("msg" => JText::sprintf('COM_EASYSTAGING_FAILED_TO_RETRIEV_TABLES_FROM_DB', $plan_id), 'status' => 0);
+			}
+			else
+			{
+				return array(
+					'msg'		=> JText::sprintf('COM_EASYSTAGING_FAILED_TO_RETRIEV_TABLES_FROM_DB', $plan_id),
+					'status'	=> 0,
+				);
 			}
 		}
 
-		return array("msg" => JText::_('COM_EASYSTAGING_NO_PLAN_ID_AVAIL'), 'status' => 0);
+		return array(
+			'msg'		=> JText::_('COM_EASYSTAGING_NO_PLAN_ID_AVAIL'),
+			'status'	=> 0,
+		);
 	}
 
 	private function _getTablesForInitialReplication($plan_id)
 	{
-		if(isset($plan_id))
+		if (isset($plan_id))
 		{
 			$db = JFactory::getDbo();
 			$db->setQuery("select * from `#__easystaging_tables` where `plan_id` = ".$plan_id." and `action` = '2'");
-			if($tableRows = $db->loadAssocList()) {
-				$tableResults = array();
-				$tableResults['msg'] = JText::sprintf('COM_EASYSTAGING_INITIAL_REPLICATION_TABLE_DESC', $plan_id, count($tableRows));
-				$tableResults['rows'] = $tableRows;
-				$tableResults['status'] = count($tableRows);
+			if ($tableRows = $db->loadAssocList())
+			{
+				$tableResults = array(
+					'msg'		=> JText::sprintf('COM_EASYSTAGING_INITIAL_REPLICATION_TABLE_DESC', $plan_id, count($tableRows)),
+					'rows'		=> $tableRows,
+					'status'	=> count($tableRows),
+				);
 				return $tableResults;
-			} else {
-				return array("msg" => JText::sprintf('COM_EASYSTAGING_FAILED_TO_RETRIEV_DESC', $plan_id), 'status' => 0);
+			}
+			else
+			{
+				$tableResults = array(
+					'msg'		=> JText::sprintf('COM_EASYSTAGING_FAILED_TO_RETRIEV_DESC', $plan_id),
+					'status'	=> 0,
+				);
+				return $tableResults;
 			}
 		}
 
-		return array("msg" => JText::_('COM_EASYSTAGING_NO_PLAN_ID_AVAIL'), 'status' => 0);
+		return array(
+			'msg' => JText::_('COM_EASYSTAGING_NO_PLAN_ID_AVAIL'),
+			'status' => 0,
+		);
 	}
 
 	private function _createRSYNCExclusionFile($plan_id)
 	{
-		if(isset($plan_id))
+		if (isset($plan_id))
 		{
 			// Build our file path & file handle
 			$pathToExclusionsFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_excl_file_name();
-			$result = array('fileName' =>  $this->_get_run_directory() . '/' . $this->_excl_file_name());
+			$result = array(
+				'fileName' =>  $this->_get_run_directory() . '/' . $this->_excl_file_name(),
+			);
 			$result['fullPathToExclusionFile'] = $pathToExclusionsFile;
 
-			if($exclusionFile = @fopen($pathToExclusionsFile, 'w')){
+			if ($exclusionFile = @fopen($pathToExclusionsFile, 'w'))
+			{
 
 				// Create the content for our exclusions file
 				$defaultExclusions = <<< EOH
@@ -585,7 +735,9 @@ EOH;
 
 				// Time to close off
 				fclose($exclusionFile);
-			} else {
+			}
+			else
+			{
 				$result['status'] = 0;
 				$result['msg'] = JText::_('COM_EASYSTAGING_JSON_UNABLE_TO_OPEN_RSYNC_EXC_FILE');
 			}
@@ -597,13 +749,15 @@ EOH;
 
 	private function _writeToLog($logLine, $runTicket = NULL)
 	{
-		if($runTicket == NULL) {
+		if ($runTicket == NULL)
+		{
 			$runTicket = $this->_getInputVar('runTicket');
 		} // first call for a plan run may need to supply a ticket otherwise retrieve from request values.
 		$logFileName = 'es-log-plan-' . $this->_plan_id() . '-run-' . $runTicket . '.txt';
 		$fullPathToLogFile = JPATH_ADMINISTRATOR . '/components/com_easystaging/syncfiles/' . $runTicket . '/' . $logFileName;
 
-		if($logFile = fopen($fullPathToLogFile, 'ab')) {
+		if ($logFile = fopen($fullPathToLogFile, 'ab'))
+		{
 			// 'ab' has 'b' for windows :D
 			$logWriteResult = fwrite($logFile, $logLine . "\n");
 			return $logWriteResult;
@@ -619,24 +773,34 @@ EOH;
 	private function _get_run_directory($runDirectory = NULL)
 	{
 		// Get location files from this run will be saved in to.
-		if($runDirectory == NULL) {
+		if ($runDirectory == NULL)
+		{
 			$runDirectory = $this->_getInputVar('runTicket') ;
 		}
 
 		$runDirectoryPath = JPATH_ADMINISTRATOR . '/components/com_easystaging/syncfiles/' . $runDirectory;
 
-		if($runDirectory) {
-			if(!file_exists($runDirectoryPath)) {
-				if(mkdir($runDirectoryPath, 0777, true)){
+		if ($runDirectory)
+		{
+			if (!file_exists($runDirectoryPath))
+			{
+				if (mkdir($runDirectoryPath, 0777, true))
+				{
 					return $runDirectory;
-				} else {
+				}
+				else
+				{
 					$result['status'] = 0;
 					$result['msg'] = JText::sprintf('COM_EASYSTAGING_PLAN_JSON_UNABLE_TO_CREAT_RUN_DIR', $runDirectoryPath);
 				}
-			} else {
+			}
+			else
+			{
 				return $runDirectory;
 			}
-		} else {
+		}
+		else
+		{
 			$result['status'] = 0;
 			$result['msg'] = JText::_('COM_EASYSTAGING_PLAN_JSON_NO_VALID_RUN_TICKET');
 		}
@@ -653,9 +817,12 @@ EOH;
 
 	private function _plan_id()
 	{
-		if(isset($plan_id)) {
+		if (isset($plan_id))
+		{
 			return $plan_id;
-		} else {
+		}
+		else
+		{
 			$plan_id = $this->_getInputVar('plan_id', 0, 'INT');
 			return $plan_id;
 		}
@@ -675,17 +842,20 @@ EOH;
 	 */
 	private function _checkExclusionField($file_exclusions)
 	{
-		if(isset($file_exclusions) && ($file_exclusions != ''))
+		if (isset($file_exclusions) && ($file_exclusions != ''))
 		{
 			$result = array();
 			$file_exclusions = explode("\n", str_replace("\r\n", "\n", $file_exclusions)); // Just in case, we convert all \r\n before exploding
-			foreach ($file_exclusions as $fe_line) {
+			foreach ($file_exclusions as $fe_line)
+			{
 				$fe_line = trim($fe_line);
-				if($fe_line[0] != "-") $fe_line = '- '.$fe_line;
+				if ($fe_line[0] != "-") $fe_line = '- '.$fe_line;
 				$result[] = $fe_line;
 			}
 			return implode("\n", $result);
-		} else {
+		}
+		else
+		{
 			return false;
 		}
 	}
@@ -701,7 +871,8 @@ EOH;
 	private function _tokenOK()
 	{
 		// Check for request forgeries
-		if (!JRequest::checkToken('request')) {
+		if (!JRequest::checkToken('request'))
+		{
 			// We are stuck with this until JInput catches up.
 			$response = array(
 						'status' => '0',

@@ -12,11 +12,13 @@ defined('_JEXEC') or die('Restricted Access');
 	<div id="rsyncErrors"><?php echo JText::_('COM_EASYSTAGING_RSYNC_RUN_ERROR_CODES'); ?></div>
 	<div id="lastRunStatus" ><?php
 		$last_run = $this->item->last_run;
-		$not_run_yet = ($last_run == "0000-00-00 00:00:00" || empty($last_run));
-		if($not_run_yet)
+		$not_run_yet = ($last_run == '0000-00-00 00:00:00' || empty($last_run));
+		if ($not_run_yet)
 		{
-			echo JText::_('COM_EASYSTAGING_NOT_RUN_LONG'); 
-		} else {
+			echo JText::_('COM_EASYSTAGING_NOT_RUN_LONG');
+		}
+		else
+		{
 			echo JText::sprintf('COM_EASYSTAGING_LAST_RUN',JFactory::getDate($last_run)->format(JText::_('DATE_FORMAT_LC2'),true));
 		}
 	?></div>

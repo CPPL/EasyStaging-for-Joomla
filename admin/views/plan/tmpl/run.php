@@ -14,12 +14,15 @@ if(!$this->canDo->get('easystaging.run')) { return JError::raiseWarning(404, JTe
 <!-- Tab UI -->
 	<div id="com_easystaging_plan_tabs" class="width-100">
 	<?php echo JHtml::_('tabs.start', 'com_easystaging_tabs', array('useCookie'=>false));?> 
-		<?php if($this->canDo->get('easystaging.run')) {
-			echo JHtml::_('tabs.panel', JText::_('COM_EASYSTAGING_STATUS_TAB'), 'status');
-			$this->setLayout('edit'); // Again this is ugly
-			echo $this->loadTemplate('status');
-			$this->setLayout('run'); // but, it's slightly better than duplicating code :(
-		} ?>
+		<?php
+			if ($this->canDo->get('easystaging.run'))
+			{
+				echo JHtml::_('tabs.panel', JText::_('COM_EASYSTAGING_STATUS_TAB'), 'status');
+				$this->setLayout('edit'); // Again this is ugly
+				echo $this->loadTemplate('status');
+				$this->setLayout('run'); // but, it's slightly better than duplicating code :(
+			}
+		?>
 	<?php echo JHtml::_('tabs.end');?> 
 	</div>
 	<div class="clr"></div>

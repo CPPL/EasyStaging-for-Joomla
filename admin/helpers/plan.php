@@ -43,10 +43,12 @@ class PlanHelper
 		JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_easystaging/tables');
 		$Sites = JTable::getInstance('Site', 'EasyStagingTable');
 	
-		if($Sites->load(array('plan_id'=>$plan_id, 'type'=>$type)))
+		if ($Sites->load(array('plan_id'=>$plan_id, 'type'=>$type)))
 		{
 			return $Sites;
-		} else {
+		}
+		else
+		{
 			return false;
 		}
 	}
@@ -63,7 +65,8 @@ class PlanHelper
 		$user	= JFactory::getUser();
 		$result	= new JObject;
 	
-		if (empty($id)) {
+		if (empty($id))
+		{
 			$assetName = self::$extension;
 		}
 		else {
@@ -73,7 +76,8 @@ class PlanHelper
 		$actions = array_merge( array( 'core.admin', 'core.manage', 'core.create', 'core.edit', 'core.edit.own', 'core.edit.state', 'core.delete' ),
 								self::$ext_actions );
 	
-		foreach ($actions as $action) {
+		foreach ($actions as $action)
+		{
 			$result->set($action,	$user->authorise($action, $assetName));
 		}
 	
@@ -81,19 +85,22 @@ class PlanHelper
 	}
 
 	public  static function loadJSLanguageKeys($jsFile) {
-		if(isset($jsFile))
+		if (isset($jsFile))
 		{
 			$jsFile = JPATH_SITE . $jsFile;
-		} else {
+		}
+		else
+		{
 			return false;
 		}
 	
-		if($jsContents = file_get_contents($jsFile))
+		if ($jsContents = file_get_contents($jsFile))
 		{
 			$languageKeys = array();
 			preg_match_all('/Joomla\.JText\._\(\'(.*?)\'\)\)?/', $jsContents, $languageKeys);
 			$languageKeys = $languageKeys[1];
-			foreach ($languageKeys as $lkey) {
+			foreach ($languageKeys as $lkey)
+			{
 				JText::script($lkey);
 			}
 		}
@@ -105,36 +112,51 @@ class PlanHelper
 	public static function createZip($files = array(), $destination = '', $stripPath = '', $overwrite = false)
 	{
 		//if the zip file already exists and overwrite is false, return false
-		if(file_exists($destination) && !$overwrite) {
+		if (file_exists($destination) && !$overwrite)
+		{
 			return false;
 		}
 		//vars
 		$valid_files = array();
 		//if files were passed in...
-		if(is_array($files)) {
+		if (is_array($files))
+		{
 			//cycle through each file
-			foreach($files as $file) {
+			foreach ($files as $file)
+			{
 				//make sure the file exists
-				if(file_exists($file)) {
+				if (file_exists($file))
+				{
 					$valid_files[] = $file;
 				}
 			}
 		}
 		//if we have good files...
-		if(count($valid_files)) {
-			if(class_exists('ZipArchive')) { // Wouldn't you know it, some servers don't have zip.
+		if (count($valid_files))
+		{
+			// Wouldn't you know it, some servers don't have zip.
+			if (class_exists('ZipArchive'))
+			{
 				//create the archive
 				$zip = new ZipArchive();
-				if($zip->open($destination,$overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE) !== true) {
+				if ($zip->open($destination,$overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE) !== true)
+				{
 					return false;
 				}
 				//add the files
-				foreach($valid_files as $file) {
+				foreach ($valid_files as $file)
+				{
 					$pathFoundInFile = strpos($file, $stripPath);
-					if(($pathFoundInFile != false) || ($pathFoundInFile == 0)) $pathFoundInFile = true;
-					if(($stripPath == '') || !$pathFoundInFile) {
+					if (($pathFoundInFile != false) || ($pathFoundInFile == 0))
+					{
+						$pathFoundInFile = true;
+					}
+					if (($stripPath == '') || !$pathFoundInFile)
+					{
 						$localName = $file;
-					} else {
+					}
+					else
+					{
 						$localName = str_replace($stripPath, '', $file);
 					}
 					$zip->addFile($file, $localName);
@@ -156,16 +178,23 @@ class PlanHelper
 	public static function directoryToArray($directory, $recursive = false)
 	{
 		$array_items = array();
-		if ($handle = opendir($directory)) {
-			while (false !== ($file = readdir($handle))) {
-				if (($file != '.') && ($file != '..') && ($file != "Thumbs.db") && ($file != '.DS_Store')) {
-					if (is_dir($directory . '/' . $file)) {
-						if($recursive) {
+		if ($handle = opendir($directory))
+		{
+			while (false !== ($file = readdir($handle)))
+			{
+				if (($file != '.') && ($file != '..') && ($file != 'Thumbs.db') && ($file != '.DS_Store'))
+				{
+					if (is_dir($directory . '/' . $file))
+					{
+						if ($recursive)
+						{
 							$array_items = array_merge($array_items, directoryToArray($directory. '/' . $file, $recursive));
 						}
 						$file = $directory . '/' . $file;
 						$array_items[] = preg_replace('/\/\//si', '/', $file);
-					} else {
+					}
+					else
+					{
 						$file = $directory . '/' . $file;
 						$array_items[] = preg_replace('/\/\//si', '/', $file);
 					}
@@ -177,10 +206,20 @@ class PlanHelper
 	}
 
 	function remove_this_directory($directory, $recursive = false) {
-		foreach(scandir($directory) as $file) {
-			if ('.' === $file || '..' === $file) continue;
-			if (is_dir("$directory/$file")) remove_this_directory("$directory/$file");
-			else unlink("$directory/$file");
+		foreach (scandir($directory) as $file)
+		{
+			if ('.' === $file || '..' === $file)
+			{
+				continue;
+			}
+			if (is_dir("$directory/$file"))
+			{
+				remove_this_directory("$directory/$file");
+			}
+			else
+			{
+				unlink("$directory/$file");
+			}
 		}
 		rmdir($directory);
 	}

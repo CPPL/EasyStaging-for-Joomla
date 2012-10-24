@@ -92,23 +92,28 @@ class EasyStagingModelPlan extends JModelAdmin
 	{
 		$this->setState('easystaging.clean', 1);
 
-		if ($item = parent::getItem($pk)) {
+		if ($item = parent::getItem($pk))
+		{
 			$plan_id = intval($item->id);
 			
 			// Get the sites table
 			$Sites = JTable::getInstance('Site', 'EasyStagingTable');
 			// Get the local site settings
 			$localSite = $Sites->load(array('plan_id'=>$plan_id, 'type'=>'1'));
-			if($localSite) {
+			if ($localSite)
+			{
 				$localSite = $Sites->getProperties(); // We need it in an array
-			} else {
+			}
+			else
+			{
 				// No local site!
 				$localSite = $this->_getDefaultValuesFromLocal()->getProperties();
 				$localSite['site_url'] = JURI::root();
 				$localSite['site_path'] = JPATH_BASE;
 				$localSite['rsync_options'] = '-avr --delete';
 				// In the odd event that a plan exists but has NO local site data we'll let the user know.
-				if(count($this->_forms) && !($plan_id == 0)) // As getItem() gets called twice (first in getForm) we only need to tell the user once the form exists.
+				// As getItem() gets called twice (first in getForm) we only need to tell the user once
+				if (count($this->_forms) && !($plan_id == 0))
 				{
 					JFactory::getApplication()->enqueueMessage( JText::sprintf('COM_EASYSTAGING_NO_LOCAL_SITE_FOUND_FOR_PLAN', $plan_id) );
 				}
@@ -122,15 +127,19 @@ class EasyStagingModelPlan extends JModelAdmin
 
 			// Get the remote site settings
 			$remoteSite = $Sites->load(array('plan_id'=>$plan_id, 'type'=>'2'));
-			if($remoteSite) {
+			if ($remoteSite)
+			{
 				$remoteSite = $Sites->getProperties();
-			} else {
+			}
+			else
+			{
 				// No remote site! Get some defaults
 				$remoteSite = $this->_getDefaultValuesFromLocal()->getProperties();
 				$remoteSite['site_url'] = 'http://';
 				$remoteSite['site_path'] = 'public_html/';
 				$remoteSite['database_host'] = 'name.ofLiveServer.com';
-				if(count($this->_forms) && !($plan_id == 0)) // In the odd event that a plan exists but has NO remote site data we'll let the user know.
+				// In the odd event that a plan exists but has NO remote site data we'll let the user know.
+				if (count($this->_forms) && !($plan_id == 0))
 				{
 					$this->setState('easystaging.clean', 0);
 					JFactory::getApplication()->enqueueMessage( JText::sprintf('COM_EASYSTAGING_NO_REMOTE_SITE_FOUND_FOR_PLAN', $plan_id) );
@@ -140,10 +149,10 @@ class EasyStagingModelPlan extends JModelAdmin
 			$item->remoteSite = $remoteSite;
 		}
 
-		if(count($this->_forms) && !$this->getState('easystaging.clean',1))
+		if (count($this->_forms) && !$this->getState('easystaging.clean',1))
 		{
 			$mq = JFactory::getApplication()->getMessageQueue();
-			if(count($mq))
+			if (count($mq))
 			{
 				JFactory::getApplication()->enqueueMessage( JText::sprintf('COM_EASYSTAGING_SAVE_PLAN_BEFORE_USING', $plan_id) );
 				$this->setState('easystaging.clean', 1);
@@ -163,9 +172,10 @@ class EasyStagingModelPlan extends JModelAdmin
 	{
 		$data['tableSettings'] = JRequest::getVar('tableSettings', array(), 'post', 'array');
 		
-		if (parent::save($data)) {
+		if (parent::save($data))
+		{
 			// Check to see if it's a new Plan
-			if($this->getState('plan.new',1))
+			if ($this->getState('plan.new',1))
 			{	// Update the 'id' in $data to the newly saved Plan's id.
 				$data['id'] = $this->getState('plan.id',0);
 			}
@@ -179,13 +189,24 @@ class EasyStagingModelPlan extends JModelAdmin
 			// Store the table settings
 			$tableSettingsResult = $this->_saveTableSettings($data['id'], $data['tableSettings']);
 			
-			if($localSiteResult && $remoteSiteResult && $tableSettingsResult)
+			if ($localSiteResult && $remoteSiteResult && $tableSettingsResult)
 			{
 				return true;
-			} else {
-				if(!$localSiteResult)     $this->setError(JText::_('COM_EASYSTAGING_PLAN_UPDATE_LOCALSITE_FAILED'));
-				if(!$remoteSiteResult)    $this->setError(JText::_('COM_EASYSTAGING_PLAN_UPDATE_REMOTESITE_FAILED'));
-				if(!$tableSettingsResult) $this->setError(JText::_('COM_EASYSTAGING_PLAN_UPDATE_TABLE_SETTINGS_FAILED'));
+			}
+			else
+			{
+				if (!$localSiteResult)
+				{
+					$this->setError(JText::_('COM_EASYSTAGING_PLAN_UPDATE_LOCALSITE_FAILED'));
+				}
+				if (!$remoteSiteResult)
+				{
+					$this->setError(JText::_('COM_EASYSTAGING_PLAN_UPDATE_REMOTESITE_FAILED'));
+				}
+				if (!$tableSettingsResult)
+				{
+					$this->setError(JText::_('COM_EASYSTAGING_PLAN_UPDATE_TABLE_SETTINGS_FAILED'));
+				}
 			}
 		}
 		return false;
@@ -211,13 +232,15 @@ class EasyStagingModelPlan extends JModelAdmin
 		try
 		{
 			// Load the row if saving an existing record.
-			if ($table->load(array('plan_id' => $pk, 'type' => $type))) {
+			if ($table->load(array('plan_id' => $pk, 'type' => $type)))
+			{
 					
 				$isNew = false;
 			}
 		
 			// Bind the data.
-			if (!$table->bind($data)) {
+			if (!$table->bind($data))
+			{
 				$this->setError($table->getError());
 				return false;
 			}
@@ -226,13 +249,15 @@ class EasyStagingModelPlan extends JModelAdmin
 			$this->prepareTable($table);
 		
 			// Check the data.
-			if (!$table->check()) {
+			if (!$table->check())
+			{
 				$this->setError($table->getError());
 				return false;
 			}
 		
 			// Store the data.
-			if (!$table->store()) {
+			if (!$table->store())
+			{
 				$this->setError($table->getError());
 				return false;
 			}
@@ -246,7 +271,8 @@ class EasyStagingModelPlan extends JModelAdmin
 		
 		$pkName = $table->getKeyName();
 		
-		switch ($type) {
+		switch ($type)
+		{
 			case 1:
 			$name = 'localSite';
 			break;
@@ -258,7 +284,8 @@ class EasyStagingModelPlan extends JModelAdmin
 			default:
 				$name = '';
 		}
-		if (isset($table->$pkName) && !($name == '')) {
+		if (isset($table->$pkName) && !($name == ''))
+		{
 			$this->setState($name.'.id', $table->$pkName);
 			$this->setState($name.'.new', $isNew);
 		}
@@ -271,7 +298,8 @@ class EasyStagingModelPlan extends JModelAdmin
 		$table = JTable::getInstance('Tables','EasyStagingTable');
 		$isNew = true;
 		
-		foreach ($tableSettings as $tableName => $tableRow) {
+		foreach ($tableSettings as $tableName => $tableRow)
+		{
 			try {
 				$tableRow['tablename'] = $tableName;
 				$tableRow['plan_id'] = $pk;
@@ -279,13 +307,15 @@ class EasyStagingModelPlan extends JModelAdmin
 				$table->load($tableRow['id']);
 					
 				// Bind the row.
-				if (!$table->bind($tableRow)) {
+				if (!$table->bind($tableRow))
+				{
 					$this->setError($table->getError());
 					return false;
 				}
 				
 				// Store the data
-				if(!$table->store()) {
+				if (!$table->store())
+				{
 					$this->setError($table->getError());
 					return false;
 				}
@@ -312,7 +342,8 @@ class EasyStagingModelPlan extends JModelAdmin
 		$thisSiteConfig = JFactory::getConfig();
 		$thisSite = new JObject();
 
-		if ($thisSiteConfig) {
+		if ($thisSiteConfig)
+		{
 			$thisSite->site_name = $thisSiteConfig->get('sitename');
 			$thisSite->database_name = $thisSiteConfig->get('db');
 			$thisSite->database_user = $thisSiteConfig->get('user');
@@ -349,16 +380,21 @@ class EasyStagingModelPlan extends JModelAdmin
 		
 		$siteTables = $db->loadAssocList();
 		
-		if(is_array($siteTables) && count($siteTables)) {
+		if (is_array($siteTables) && count($siteTables))
+		{
 			// Run through the table list and add acceptable tables to our array to return. (This is in prep for table filtering.)
-			foreach ($siteTables as $theTable) {
+			foreach ($siteTables as $theTable)
+			{
 				$tablesAlreadyAttachedToPlan[$theTable['tablename']] = $theTable;
 			}
 			// Compare existing local tables to currently available tables.
 			return $this->_updateTables($tablesAlreadyAttachedToPlan);
-		} else {
-			if(count($this->_forms) && !($plan_id == 0)) // In the odd event that a plan exists but has no table records we'll let the user know.
+		}
+		else
+		{
+			if (count($this->_forms) && !($plan_id == 0))
 			{
+				// In the odd event that a plan exists but has no table records we'll let the user know.
 				$msg = JText::sprintf('COM_EASYSTAGING_NO_TABLES_FOUND_FOR_PLAN', $plan_id);
 				JFactory::getApplication()->enqueueMessage( $msg );
 				$this->setState('easystaging.clean', 0);
@@ -386,14 +422,28 @@ class EasyStagingModelPlan extends JModelAdmin
 		$localTables = array();
 		
 		// Run through the table list and add acceptable tables to our array to return.
-		foreach ($tableList as $theTable) {
-			if(!(strpos($theTable, '_easystaging'))) { // we exclude our own tables - no need to pollute the live site
-				if( strpos($theTable, '_session') && ($action == 1)) { // By default we set the _session table to copy only if it doesn't exist
+		foreach ($tableList as $theTable)
+		{
+			// we exclude our own tables - no need to pollute the live site
+			if (!(strpos($theTable, '_easystaging')))
+			{
+				// By default we set the _session table to copy only if it doesn't exist
+				if (strpos($theTable, '_session') && ($action == 1))
+				{
 					$actionToUse = 2;
-				} else {
+				}
+				else
+				{
 					$actionToUse = $action;
 				}
-				$localTables[$theTable] = array('id' => 0, 'plan_id' => $plan_id,'tablename' => $theTable, 'action' => $actionToUse, 'last' => '0000-00-00 00:00:00', 'lastresult' => 0);
+				$localTables[$theTable] = array(
+					'id'		=> 0,
+					'plan_id'	=> $plan_id,
+					'tablename'	=> $theTable,
+					'action'	=> $actionToUse,
+					'last' => '0000-00-00 00:00:00',
+					'lastresult' => 0,
+				);
 			}
 		}
 		return $localTables;
@@ -410,23 +460,27 @@ class EasyStagingModelPlan extends JModelAdmin
 	private function _updateTables($existingTables)
 	{
 		// Get the local tables with a default action of "Don't Copy"
-		if(count($existingTables))
+		if (count($existingTables))
 		{
 			$localTables = $this->_getLocalTables(0,0);
-		} else {
+		}
+		else
+		{
 			$localTables = $this->_getLocalTables();
 		}
 		
 		
 		// Find any tables that no longer exist on the local server
 		$removedTables = array_diff_assoc($existingTables, $localTables);
-		if(count($removedTables)) {
+		if (count($removedTables))
+		{
 			// Trim the tables no longer available from the array
 			$existingTables = $this->_reduceArray($existingTables, $removedTables);
 			// Take the same tables out of the db
 			
 			// Advise the user that tables have been removed.
-			if(count($this->_forms) && $this->_removeTables($removedTables)) {
+			if (count($this->_forms) && $this->_removeTables($removedTables))
+			{
 				$changedMsg = JText::plural('COM_EASYSTAGING_TABLES_REMOVED', count($removedTables));
 				JFactory::getApplication()->enqueueMessage( $changedMsg );
 				$this->setState('easystaging.clean', 0);
@@ -435,9 +489,11 @@ class EasyStagingModelPlan extends JModelAdmin
 		
 		// Find any new tables
 		$newTables = array_diff_assoc($localTables, $existingTables);
-		if(count($newTables)) {
+		if (count($newTables))
+		{
 			$existingTables = array_merge($existingTables, $newTables);
-			if(count($this->_forms)) {
+			if (count($this->_forms))
+			{
 				$changedMsg =  JText::plural('COM_EASYSTAGING_NEW_TABLES_FOUND', count($newTables));
 				JFactory::getApplication()->enqueueMessage( $changedMsg );
 				$this->setState('easystaging.clean', 0);
@@ -450,8 +506,9 @@ class EasyStagingModelPlan extends JModelAdmin
 	private function _removeTables($tables)
 	{
 		$table = JTable::getInstance('Tables','EasyStagingTable');
-		foreach ($tables as $aTable) {
-			if(!$table->delete($aTable['id']))
+		foreach ($tables as $aTable)
+		{
+			if (!$table->delete($aTable['id']))
 			{
 				JFactory::getApplication()->enqueueMessage( JText::sprintf('COM_EASYSTAGING_TABLE_NOT_REMOVED', $table['plan_id'], $table['tablename']) );
 				$this->setState('easystaging.clean', 0);
@@ -469,8 +526,9 @@ class EasyStagingModelPlan extends JModelAdmin
 	private function _reduceArray($origArray, $itemsToDelete)
 	{
 // Enter
-		foreach ($itemsToDelete as $key => $value) {
-			if(key_exists($key, $origArray)) unset($origArray[$key]);
+		foreach ($itemsToDelete as $key => $value)
+		{
+			if (key_exists($key, $origArray)) unset($origArray[$key]);
 		}
 		return $origArray;
 	}

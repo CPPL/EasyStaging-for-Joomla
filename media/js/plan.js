@@ -2,7 +2,8 @@
 /*global Joomla: true, alert: true*/
 
 // Only define com_EasyStaging if it doesn't exist.
-if (typeof(com_EasyStaging) === 'undefined') {
+if (typeof(com_EasyStaging) === 'undefined')
+{
 	var com_EasyStaging = {};
 }
 
@@ -15,13 +16,16 @@ if (typeof(com_EasyStaging) === 'undefined') {
 });
 
 Joomla.submitbutton = function (task) {
-	if (task === 'plan.cancel' || document.formvalidator.isValid(document.id('easystaging-form'))) {
+	if (task === 'plan.cancel' || document.formvalidator.isValid(document.id('easystaging-form')))
+	{
 		/* Trim file exclusions */
 		lfex = $('jform_localSite_file_exclusions');
 		lfex.value = lfex.value.trim();
 		/* Call Joomla's submit */
 		Joomla.submitform(task, document.getElementById('easystaging-form'));
-	} else {
+	}
+	else
+	{
 		alert(Joomla.JText._('JGLOBAL_VALIDATION_FORM_FAILED'));
 	}
 };
@@ -47,12 +51,13 @@ com_EasyStaging.setUp = function ()
 		method: 'get'
 	});
 	
-	if(this.getID() == 0) {this.lockOutBtns();}
+	if (this.getID() == 0)
+	{this.lockOutBtns();}
 };
 
 com_EasyStaging.ajaxCheckIn = function (e)
 {
-	if(confirm(Joomla.JText._('COM_EASYSTAGING_JS_PLAN_ABOUT_TO_RUN_WARNING')))
+	if (confirm(Joomla.JText._('COM_EASYSTAGING_JS_PLAN_ABOUT_TO_RUN_WARNING')))
 	{
 		this.lockOutBtns();
 		this.last_response = new Date().getTime();
@@ -86,7 +91,8 @@ com_EasyStaging.processCheckIn  = function ( response )
 	this.lockOutBtns();
 	this.notWaiting();
 	this.appendTextToCurrentStatus(response.msg);
-	if(response.status !== 0) {
+	if (response.status !== 0)
+	{
 		this.appendTextToCurrentStatus(response.msg, false);
 		// Get our ticket
 		this.requestData.runTicket = response.runTicket;
@@ -104,7 +110,9 @@ com_EasyStaging.processCheckIn  = function ( response )
 		
 		default: this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_ERROR_UNKNOWN_PROC_PATH')+'</span>');
 		}
-	} else {
+	}
+	else
+	{
 		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_AJAX_CHECK_IN_FAILED')+'</span>');
 		this.runFinished(false);
 	}
@@ -133,12 +141,15 @@ com_EasyStaging.processRsyncSetup = function ( response )
 	this.notWaiting();
 	this.appendTextToCurrentStatus(response.msg);
 
-	if(response.status !== 0) {
+	if (response.status !== 0)
+	{
 		this.appendTextToCurrentStatus(response.data.msg);
 		this.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JSON_RSYNC_EXCLUDED') + '</strong><em>' + response.data.fileData + '</em>');
 		this.requestData.fileName = response.data.fullPathToExclusionFile;
 		this.runRsync( response );
-	} else {
+	}
+	else
+	{
 		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JSON_RSYNC_FAILED_PROCE_TERM')+'</span>');
 		this.appendTextToCurrentStatus('<em>' + response.data.msg + '</em>');
 		this.runFinished(false);
@@ -167,18 +178,24 @@ com_EasyStaging.processRsyncRun = function ( response )
 	this.notWaiting();
 	this.appendTextToCurrentStatus(response.msg);
 	delete this.requestData.fileName;
-	if(response.status !== 0) {
+	if (response.status !== 0)
+	{
 		var rsyncOutput = response.data.toString().replace(/,/g,"<br />");
 		
 		this.runStage = Joomla.JText._('COM_EASYSTAGING_JS_RSYNC_PROCESS_COMPLETED');
 		this.appendTextToCurrentStatus('<em>' + rsyncOutput + '</em>');
 		this.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JS_RSYNC_PROCESS_COMPLETED') + '<br />');
-		if(this.requestData.btnPath === 'startAll') {
+		if (this.requestData.btnPath === 'startAll')
+		{
 			com_EasyStaging.checkDBConnection( response );
-		} else {
+		}
+		else
+		{
 			this.runFinished();
 		}
-	} else {
+	}
+	else
+	{
 		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JSON_RSYNC_FAILED_PROCE_TERM')+'</span>');
 		this.runFinished(false);
 	}
@@ -207,12 +224,15 @@ com_EasyStaging.checkDBConnection  = function ( response )
 com_EasyStaging.processCheckDBConnection = function ( response )
 {
 	this.notWaiting();
-	if(response.status !== 0) {
+	if (response.status !== 0)
+	{
 		this.lastRunStatus.push(Joomla.JText._('COM_EASYSTAGING_JS_CONNECTED_WITH_REMOT_DB'));
 		this.setLastRunStatus();
 		this.appendTextToCurrentStatus('<em>' + response.msg + '</em><br />');
 		this.getDBTables( response );
-	} else {
+	}
+	else
+	{
 		this.appendResponseMSGToCurrentStatus(response, true);
 		this.appendTextToCurrentStatus(response.data, true);
 		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_DATABASE_REPLICATION_FAILE_CAN')+'</span>');
@@ -248,10 +268,13 @@ com_EasyStaging.processGetDBTables  = function ( response )
 	this.setLastRunStatus();
 	
 	this.appendTextToCurrentStatus(response.msg);
-	if(response.status !== 0) {
+	if (response.status !== 0)
+	{
 		this.appendTextToCurrentStatus('<em>' + response.data.msg + '</em>');
 		this.createTableExportFiles( response.data );
-	} else {
+	}
+	else
+	{
 		this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_DATABASE_REPLICATION_FAILE_DESC')+'</span>');
 	}	
 };
@@ -293,16 +316,19 @@ com_EasyStaging.processCreateTableExportFiles  = function ( response )
 	this.last_response = new Date().getTime();
 	this.tables_proc = this.tables_proc + 1;
 
-	if(this.tables_proc > 1) {
+	if (this.tables_proc > 1)
+	{
 		this.lastRunStatus.push((this.tables_proc + Joomla.JText._('COM_EASYSTAGING_JS_TABLES_PROCESSED')));
-	} else {
+	}
+	else
+	{
 		this.lastRunStatus.push((this.tables_proc + Joomla.JText._('COM_EASYSTAGING_JS_TABLE_PROCESSED')));
 	}
 	this.setLastRunStatus();
 	this.appendTextToCurrentStatus(response.msg);
 	this.appendTextToCurrentStatus('<em>' + response.log);
 
-	if(response.status !== 0)
+	if (response.status !== 0)
 	{
 		this.SQLFileLists.push([response.pathToSQLFile, response.tableName]);
 		this.appendTextToCurrentStatus(response.data + '</em>');
@@ -311,7 +337,8 @@ com_EasyStaging.processCreateTableExportFiles  = function ( response )
 		this.appendTextToCurrentStatus('<br />' + response.pathToSQLFile + '</em>');
 	}
 
-	if(this.tables_proc === this.table_count) {
+	if (this.tables_proc === this.table_count)
+	{
 		this.tables_proc = 0;
 		this.appendTextToCurrentStatus('<br /><strong>' + Joomla.JText._('COM_EASYSTAGING_JS_RUNNING_TABLE_SQL_EXPORTS') + '</strong>');
 		this.runTableExports();
@@ -348,13 +375,16 @@ com_EasyStaging.runTableExports = function ( )
 com_EasyStaging.processRunTableExport = function ( response )
 {
 	this.last_response = new Date().getTime();
-	if(response.status !== 0)
+	if (response.status !== 0)
 	{
 		this.tables_proc = this.tables_proc + 1;
-		if(this.tables_proc > 1) {
+		if (this.tables_proc > 1)
+		{
 			this.runStage = Joomla.JText._('COM_EASYSTAGING_JS_RUNNING_TABLE_SQL_EXPORTS') + ' ' + this.tables_proc + ' ' +
 							Joomla.JText._('COM_EASYSTAGING_JS_TABLES_EXPORTED');
-		} else {
+		}
+		else
+		{
 			this.runStage = Joomla.JText._('COM_EASYSTAGING_JS_RUNNING_TABLE_SQL_EXPORTS') + ' ' + this.tables_proc + ' ' +
 							Joomla.JText._('COM_EASYSTAGING_JS_TABLE_EXPORTED');
 		}
@@ -363,12 +393,15 @@ com_EasyStaging.processRunTableExport = function ( response )
 		this.setLastRunStatus();
 		this.appendTextToCurrentStatus(response.msg);
 
-		if(this.tables_proc === this.table_count) {
+		if (this.tables_proc === this.table_count)
+		{
 			this.tables_proc = 0;
 			this.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_PLAN_JS_ALL_TABLES_SUCCESSFULL_EXPRTD'));
 			this.runFinished();
 		}
-	} else {
+	}
+	else
+	{
 		this.runTableExportsQueue.clear();
 		clearInterval(this.responseTimer);
 		this.notWaiting();
@@ -390,7 +423,8 @@ com_EasyStaging.getToken = function ()
 	var theToken;
 	var els = document.getElementsByTagName('input');
 	for (var i = 0; i < els.length; i++) {
-		if ((els[i].type === 'hidden') && (els[i].name.length === 32) && els[i].value === '1') {
+		if ((els[i].type === 'hidden') && (els[i].name.length === 32) && els[i].value === '1')
+		{
 			theToken = els[i].name;
 		}
 	}
@@ -408,7 +442,8 @@ com_EasyStaging.getTokenSegment = function ()
 com_EasyStaging.updateLastRunStatus = function (updateText)
 {
 	firstMsg = this.lastRunStatus.shift();
-	if( typeof(updateText) !== 'undefined' ) {
+	if (typeof(updateText) !== 'undefined')
+	{
 		this.lastRunStatus.unshift( updateText );
 	}
 	this.lastRunStatus.unshift( Joomla.JText._('COM_EASYSTAGING_JS_IN_PROGRESS') + firstMsg );
@@ -430,9 +465,12 @@ com_EasyStaging.setLastRunStatus = function (append)
 com_EasyStaging.appendResponseMSGToCurrentStatus  = function (response, append)
 {
 	append = typeof(append) !== 'undefined' ? append : true;
-	if(response.status === '1') {
+	if (response.status === '1')
+	{
 		this.appendTextToCurrentStatus( response.msg, append );		
-	} else {
+	}
+	else
+	{
 		this.appendTextToCurrentStatus( response.msg, append );
 	}
 };
@@ -440,9 +478,12 @@ com_EasyStaging.appendResponseMSGToCurrentStatus  = function (response, append)
 com_EasyStaging.appendTextToCurrentStatus  = function (text, append)
 {
 	append = typeof(append) !== 'undefined' ? append : true;
-	if(append) {
+	if (append)
+	{
 		$('currentStatus').innerHTML = $('currentStatus').innerHTML + '<br />' + text;
-	} else {
+	}
+	else
+	{
 		$('currentStatus').innerHTML = text;
 	}
 	this.currentStatusScroller.toBottom();
@@ -453,7 +494,7 @@ com_EasyStaging.appendTimeSince = function ()
 	var theNowDateObj = new Date();
 	var theNowMilliseconds = theNowDateObj.getTime();
 	var theDiff = theNowMilliseconds - this.last_response;
-	if((theNowMilliseconds - this.last_notification) >= 500)
+	if ((theNowMilliseconds - this.last_notification) >= 500)
 	{
 		this.lastRunStatus.push('<em>' + (theDiff/1000).round(1) + ' ' + Joomla.JText._('COM_EASYSTAGING_JS_SECONDS_SINCE_LAS_DESC') + '</em>');
 		this.setLastRunStatus();
@@ -481,7 +522,7 @@ com_EasyStaging.runFinished = function (successfullRun)
 {
 	successfullRun = typeof(successfullRun) !== 'undefined' ? successfullRun : true;
 	clearInterval(this.responseTimer);
-	if(successfullRun)
+	if (successfullRun)
 	this.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JS_PLAN_RUN_COMPLETED') + '</strong><br />',true);
 
 	this.setLastRunStatus();

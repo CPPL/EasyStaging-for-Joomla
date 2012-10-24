@@ -35,11 +35,14 @@ class EasyStagingTablePlan extends JTable
 		$date = JFactory::getDate()->toSql();
 		$uid  = JFactory::getUser()->get('id');
 
-		if ($this->id) {
+		if ($this->id)
+		{
 			// Existing item
 			$this->modified = $date;
 			$this->modified_by = $uid;
-		} else {
+		}
+		else
+		{
 			// New record.
 			$this->created = $date;
 			$this->created_by = $uid;
@@ -60,7 +63,8 @@ class EasyStagingTablePlan extends JTable
 	public function bind($array, $ignore='')
 	{
 		// Bind the rules.
-		if (isset($array['rules']) && is_array($array['rules'])) {
+		if (isset($array['rules']) && is_array($array['rules']))
+		{
 			$rules = new JAccessRules($array['rules']);
 			$this->setRules($rules);
 		}
@@ -81,7 +85,7 @@ class EasyStagingTablePlan extends JTable
 	public function delete($pk = null)
 	{
 		// We call the parent version first to look after the `plan` records
-		if(parent::delete($pk))
+		if (parent::delete($pk))
 		{
 			// Initialise variables.
 			$k = $this->_tbl_key;
@@ -126,7 +130,9 @@ class EasyStagingTablePlan extends JTable
 			}
 
 			return true;
-		} else {
+		}
+		else
+		{
 			return false;
 		}
 	}

@@ -53,31 +53,38 @@ class EasyStagingViewPlans extends JView
 		$canDo	= PlanHelper::getActions();
 		$user	= JFactory::getUser();
 
-		if($canDo->get('core.create')) {
+		if ($canDo->get('core.create'))
+		{
 			JToolBarHelper::addNew('plan.add');
 		}
 		
-		if($canDo->get('core.edit')) { 
+		if ($canDo->get('core.edit'))
+		{
 			JToolBarHelper::editList('plan.edit');
 		}
 
-		if($canDo->get('core.edit.state')) {
+		if ($canDo->get('core.edit.state'))
+		{
 			JToolBarHelper::divider();
 			JToolBarHelper::publishList('plans.publish', 'JTOOLBAR_PUBLISH', true);
 			JToolBarHelper::unpublishList('plans.unpublish', 'JTOOLBAR_UNPUBLISH', true);
 		}
 
-		if($canDo->get('core.delete')) {
+		if ($canDo->get('core.delete'))
+		{
 			JToolBarHelper::deleteList('','plans.delete');
 			JToolBarHelper::divider();
 		}
 
-		if ($canDo->get('core.admin')) {
+		if ($canDo->get('core.admin'))
+		{
 			JToolBarHelper::preferences('com_easystaging');
 			JToolBarHelper::divider();
 		}
 
-		JToolBarHelper::help('COM_EASYSTAGING_HELP_EASYSTAGING_MANAGER',false,'http://seepeoplesoftware.com/products/easystaging/1.0/help/plans.html');
+		JToolBarHelper::help(	'COM_EASYSTAGING_HELP_EASYSTAGING_MANAGER',
+								false,
+								'http://seepeoplesoftware.com/products/easystaging/1.0/help/plans.html');
 	}
 	
 	private function addCSSEtc ()

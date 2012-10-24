@@ -100,7 +100,7 @@ class EasyStagingViewPlan extends JView
 		$document = JFactory::getDocument();
 
 		// First add CSS to the document
-		$document->addStyleSheet(JURI::root().'/administrator/components/com_easystaging/assets/css/plan.css');
+		$document->addStyleSheet(JURI::root().'media/com_easystaging/css/plan.css');
 
 		// Load the defaults first so that our script loads after them
 		JHtml::_('behavior.framework', true);
@@ -108,9 +108,9 @@ class EasyStagingViewPlan extends JView
 		JHtml::_('behavior.multiselect');
 
 		// Then add JS to the document‚ - make sure all JS comes after CSS
-		$jsFile = '/media/com_easystaging/js/plan.js';
+		$jsFile = 'media/com_easystaging/js/plan.js';
 		$document->addScript(JURI::root().$jsFile);
-		PlanHelper::loadJSLanguageKeys($jsFile);
+		PlanHelper::loadJSLanguageKeys('/'.$jsFile);
 	}
 
 	private function _runOnlyMode() {

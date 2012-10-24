@@ -34,11 +34,11 @@ foreach ($localTables as $tablename => $row)
 		$actionCurrent = '1';
 	}
 	$id = $row['id'];
-	
+
 	// Setup ControlName so that within the tablesettings each table has its own array
 	$controlName = 'tableSettings[' .$tablename. ']';
 	$tableRowId = 'tableSettings_'.$tablename.'_'.$id;
-	
+
 	$lastActionResult = '';
 	if ($last == '0000-00-00 00:00:00')
 	{
@@ -47,10 +47,10 @@ foreach ($localTables as $tablename => $row)
 	else
 	{
 		$last = strtotime( $last );
-		$lastResult = ($lastResult ? JText::_('COM_EASYSTAGING_TABLE_LAST_RESULT_SUCCESS') : JText::_('COM_EASYSTAGING_TABLE_LAST_RESULT_FAIL')); 
+		$lastResult = ($lastResult ? JText::_('COM_EASYSTAGING_TABLE_LAST_RESULT_SUCCESS') : JText::_('COM_EASYSTAGING_TABLE_LAST_RESULT_FAIL'));
 		$lastActionResult = JText::sprintf('COM_EASYSTAGING_TABLE_LAST_ACTION_RESULT',$last,$lastResult);
 	}
-	$actionSelect = JHtml::_('select.genericlist', $actionChoices, $controlName.'[action]', 'class="inputbox"', 'action', 'actionLabel', $actionCurrent, $tableRowId);
+	$actionSelect = $this->_getActionMenu($actionCurrent, $controlName.'[action]', $tableRowId);
 
 ?>
 		<tr class="row<?php echo $i++ % 2; ?>">

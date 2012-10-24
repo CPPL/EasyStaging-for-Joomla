@@ -140,12 +140,41 @@ class EasyStagingViewPlan extends JView
 		}
 	}
 
+	/*
+	 * @todo we have to change this so we build the individual <options> of the <select> tag and pass that as the array, this means we call _actionChoices from the view tmpl file.
+	 * Currently there is no other way to disable the divider label options...
+	 */
 	private function _actionChoices()
 	{
 		$actionChoices = array( );
-		$actionChoices[] = array('action' => 0, 'actionLabel' => '-- '.JText::_('COM_EASYSTAGING_TABLE_ACTION0').' --');
+		$actionChoices[] = array('action' => '','actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION_PUSH_DIV_LABEL'));
+		$actionChoices[] = array('action' => 0, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION0'));
 		$actionChoices[] = array('action' => 1, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION1'));
 		$actionChoices[] = array('action' => 2, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION2'));
+		$actionChoices[] = array('action' => '','actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION_PULLPUSH_DIV_LABEL'));
+		$actionChoices[] = array('action' => 3, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION3'));
+		$actionChoices[] = array('action' => '','actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION_PULL_DIV_LABEL'));
+		$actionChoices[] = array('action' => 4, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION4'));
+		$actionChoices[] = array('action' => 5, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION5'));
 		return $actionChoices;
+	}
+
+	protected function _getActionMenu($selectedAction, $controlName, $rowId)
+	{
+		$actionChoices = $this->_actionChoices();
+		$actionMenuOptions    = array();
+
+		foreach ($actionChoices as $optionDefaults) {
+			$optDisabled = false;
+			if($optionDefaults['action'] === '')
+			{
+				$optDisabled = true;
+			}
+
+			$actionMenuOptions[] = JHtml::_('select.option',$optionDefaults['action'], $optionDefaults['actionLabel'], 'value', 'text', $optDisabled);
+		}
+
+		$actionMenu = JHtml::_('select.genericlist', $actionMenuOptions, $controlName, 'class="inputbox"', 'value', 'text', $selectedAction, $rowId);
+		return $actionMenu;
 	}
 }

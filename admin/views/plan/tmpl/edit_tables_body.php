@@ -11,7 +11,7 @@ foreach ($localTables as $tablename => $row)
 	// Retrieve values & Sanitize data
 	if (array_key_exists('last', $row))
 	{
-		$last =  $row['last'];
+		$last = $row['last'];
 	}
 	else
 	{
@@ -19,7 +19,7 @@ foreach ($localTables as $tablename => $row)
 	}
 	if (array_key_exists('lastresult', $row))
 	{
-		$lastResult =  $row['lastresult'];
+		$lastResult = $row['lastresult'];
 	}
 	else
 	{
@@ -36,30 +36,33 @@ foreach ($localTables as $tablename => $row)
 	$id = $row['id'];
 
 	// Setup ControlName so that within the tablesettings each table has its own array
-	$controlName = 'tableSettings[' .$tablename. ']';
-	$tableRowId = 'tableSettings_'.$tablename.'_'.$id;
+	$controlName = 'tableSettings[' . $tablename . ']';
+	$tableRowId = 'tableSettings_' . $tablename . '_' . $id;
 
 	$lastActionResult = '';
+
 	if ($last == '0000-00-00 00:00:00')
 	{
 		$lastActionResult = JText::_('COM_EASYSTAGING_TABLE_NO_LAST_ACTION_RESULT');
 	}
 	else
 	{
-		$last = strtotime( $last );
+		$last = strtotime($last);
 		$lastResult = ($lastResult ? JText::_('COM_EASYSTAGING_TABLE_LAST_RESULT_SUCCESS') : JText::_('COM_EASYSTAGING_TABLE_LAST_RESULT_FAIL'));
-		$lastActionResult = JText::sprintf('COM_EASYSTAGING_TABLE_LAST_ACTION_RESULT',$last,$lastResult);
+		$lastActionResult = JText::sprintf('COM_EASYSTAGING_TABLE_LAST_ACTION_RESULT', $last, $lastResult);
 	}
-	$actionSelect = $this->_getActionMenu($actionCurrent, $controlName.'[action]', $tableRowId);
 
+	$actionSelect = $this->_getActionMenu($actionCurrent, $controlName . '[action]', $tableRowId);
+
+	// Increment our row index
+	$i++;
 ?>
-		<tr class="row<?php echo $i++ % 2; ?>">
+		<tr class="row<?php echo $i % 2; ?>">
 			<td><?php echo $tablename; ?>
-			<input type="hidden" name="<?php echo $controlName.'[origAction]'; ?>" value="<?php echo $actionCurrent; ?>">
-			<input type="hidden" name="<?php echo $controlName.'[id]';         ?>" value="<?php echo $id;            ?>"></td>
+			<input type="hidden" name="<?php echo $controlName . '[origAction]" value="' . $actionCurrent; ?>">
+			<input type="hidden" name="<?php echo $controlName . '[id]" value="' . $id; ?>"></td>
 			<td><span class="com_easystaging_mgr_last_run"><?php echo $lastActionResult; ?></span></td>
 			<td><?php echo $actionSelect; ?></td>
 		</tr>
 <?php
-	}
-?>
+}

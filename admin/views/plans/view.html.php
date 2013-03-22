@@ -1,16 +1,19 @@
 <?php
 /**
  * Main Manager View for EasyStaging Component
- * 
- * @link		http://seepeoplesoftware.com
- * @license		GNU/GPL
- * @copyright	Craig Phillips Pty Ltd
+ *
+ * @package    EasyTable_Pro
+ * @author     Craig Phillips <craig@craigphillips.biz>
+ * @copyright  Copyright (C) 2012 Craig Phillips Pty Ltd.
+ * @license    GNU/GPL http://www.gnu.org/copyleft/gpl.html
+ * @url        http://www.seepeoplesoftware.com
  */
- 
-// Check to ensure this file is included in Joomla!
-defined('_JEXEC') or die();
- 
-jimport( 'joomla.application.component.view' );
+
+// No direct access
+
+defined('_JEXEC') or die('Restricted access');
+
+jimport('joomla.application.component.view');
  
 /**
  * EasyStaging Manager View
@@ -18,9 +21,22 @@ jimport( 'joomla.application.component.view' );
  */
 class EasyStagingViewPlans extends JView
 {
-	function display($tpl = null)
+	protected $items;
+
+	protected $pagination;
+
+	protected $state;
+
+	/**
+	 * Our implementation of display()
+	 *
+	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+	 *
+	 * @return  mixed  A string if successful, otherwise a JError object.
+	 */
+	public function display($tpl = null)
 	{
-		require_once JPATH_COMPONENT.'/helpers/plan.php';
+		require_once JPATH_COMPONENT . '/helpers/plan.php';
 
 		JHtml::_('behavior.framework', true);
 		JHtml::_('behavior.tooltip');
@@ -31,24 +47,32 @@ class EasyStagingViewPlans extends JView
 		$this->addCSSEtc();
 
 		// Get data from the model
-		$items = $this->get( 'Items');
+		$items = $this->get('Items');
 		$pagination = $this->get('Pagination');
-		
-		if (count($errors = $this->get('Errors'))) 
+
+		if (count($errors = $this->get('Errors')))
 		{
 			JError::raiseError(500, implode('<br />', $errors));
+
 			return false;
 		}
 		// Assign data to the view
 		$this->items = $items;
 		$this->pagination = $pagination;
-		
+
 		parent::display($tpl);
 	}
 
-	private function addToolbar ()
+	/**
+	 * addToolbar()
+	 *
+	 * @return null
+	 *
+	 * @since 1.1
+	 */
+	private function addToolbar()
 	{
-		JToolBarHelper::title( JText::_( 'COM_EASYSTAGING_EASYSTAGING_MANAGER' ), 'easystaging' );
+		JToolBarHelper::title(JText::_('COM_EASYSTAGING_EASYSTAGING_MANAGER'), 'easystaging');
 
 		$canDo	= PlanHelper::getActions();
 		$user	= JFactory::getUser();
@@ -57,7 +81,7 @@ class EasyStagingViewPlans extends JView
 		{
 			JToolBarHelper::addNew('plan.add');
 		}
-		
+
 		if ($canDo->get('core.edit'))
 		{
 			JToolBarHelper::editList('plan.edit');
@@ -72,7 +96,7 @@ class EasyStagingViewPlans extends JView
 
 		if ($canDo->get('core.delete'))
 		{
-			JToolBarHelper::deleteList('','plans.delete');
+			JToolBarHelper::deleteList('', 'plans.delete');
 			JToolBarHelper::divider();
 		}
 
@@ -82,22 +106,31 @@ class EasyStagingViewPlans extends JView
 			JToolBarHelper::divider();
 		}
 
-		JToolBarHelper::help(	'COM_EASYSTAGING_HELP_EASYSTAGING_MANAGER',
-								false,
-								'http://seepeoplesoftware.com/products/easystaging/1.0/help/plans.html');
+		JToolBarHelper::help(
+			'COM_EASYSTAGING_HELP_EASYSTAGING_MANAGER',
+			false,
+			'http://seepeoplesoftware.com/products/easystaging/1.0/help/plans.html'
+		);
 	}
-	
+
+	/**
+	 * addCSSEtc()
+	 *
+	 * @return null
+	 *
+	 * @since 1.1
+	 */
 	private function addCSSEtc ()
 	{
 		// Get the document object
 		$document = JFactory::getDocument();
-		
+
 		// First add CSS to the document
-		$document->addStyleSheet(JURI::root().'media/com_easystaging/css/plans.css');
-		
+		$document->addStyleSheet(JURI::root() . 'media/com_easystaging/css/plans.css');
+
 		// Then add JS to the document‚ - make sure all JS comes after CSS
 		$jsFile = 'media/com_easystaging/js/plans.js';
-		$document->addScript(JURI::root().$jsFile);
-		PlanHelper::loadJSLanguageKeys('/'.$jsFile);
+		$document->addScript(JURI::root() . $jsFile);
+		PlanHelper::loadJSLanguageKeys('/' . $jsFile);
 	}
 }

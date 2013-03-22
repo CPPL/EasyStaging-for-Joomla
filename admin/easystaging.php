@@ -1,15 +1,16 @@
 <?php
 /**
- * @package		EasyStaging
- * @link		http://seepeoplesoftware.com
- * @license		GNU/GPL
- * @copyright	Craig Phillips Pty Ltd
+ * @package    EasyStaging
+ * @author     Craig Phillips <craig@craigphillips.biz>
+ * @copyright  Copyright (C) 2012 Craig Phillips Pty Ltd.
+ * @license    GNU/GPL http://www.gnu.org/copyleft/gpl.html
+ * @url        http://www.seepeoplesoftware.com
 */
- 
+
 // No direct access
- 
-defined( '_JEXEC' ) or die( 'Restricted access' );
- 
+
+defined('_JEXEC') or die('Restricted access');
+
 // Access check.
 if (!JFactory::getUser()->authorise('core.manage', 'com_easystaging'))
 {

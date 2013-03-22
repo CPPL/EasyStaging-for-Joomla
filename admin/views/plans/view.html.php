@@ -75,7 +75,6 @@ class EasyStagingViewPlans extends JView
 		JToolBarHelper::title(JText::_('COM_EASYSTAGING_EASYSTAGING_MANAGER'), 'easystaging');
 
 		$canDo	= PlanHelper::getActions();
-		$user	= JFactory::getUser();
 
 		if ($canDo->get('core.create'))
 		{

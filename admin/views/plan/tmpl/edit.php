@@ -1,24 +1,27 @@
 <?php
 // No direct access
 defined('_JEXEC') or die('Restricted access');
+
 // Load the tooltip behavior.
 JHtml::_('behavior.tooltip');
 JHtml::_('behavior.formvalidation');
 JHtml::_('behavior.keepalive');
+
 if (!$this->canDo->get('core.edit'))
 {
 	$app =& JFactory::getApplication();
 	$app->redirect('index.php?option=com_easystaging');
+
 	return JError::raiseWarning(404, JText::_('JERROR_ALERTNOAUTHOR'));
 }
 ?>
 
-<form action="<?php echo JRoute::_('index.php?option=com_easystaging&layout=edit&id='.(int) $this->item->id); ?>"
+<form action="<?php echo JRoute::_('index.php?option=com_easystaging&layout=edit&id=' . (int) $this->item->id); ?>"
       method="post" name="adminForm" id="easystaging-form">
 	<?php echo $this->loadTemplate('plan');?>
 <!-- Tab UI -->
 	<div id="com_easystaging_plan_tabs" class="width-100">
-	<?php echo JHtml::_('tabs.start', 'com_easystaging_tabs', array('useCookie'=>false));?> 
+	<?php echo JHtml::_('tabs.start', 'com_easystaging_tabs', array('useCookie' => false));?>
 		<?php
 			if ($this->canDo->get('easystaging.run'))
 			{
@@ -46,8 +49,9 @@ if (!$this->canDo->get('core.edit'))
 		<div class="clr"></div>
 	<?php if ($this->canDo->get('core.admin')): ?>
 		<div class="width-100 fltlft">
-			<?php echo JHtml::_('sliders.start','permissions-sliders-'.$this->item->id, array('useCookie'=>1)); ?>
-				<?php echo JHtml::_('sliders.panel',JText::_('COM_EASYSTAGING_FIELDSET_RULES'), 'access-rules'); ?>
+		<?php
+			echo JHtml::_('sliders.start', 'permissions-sliders-' . $this->item->id, array('useCookie' => 1));
+			echo JHtml::_('sliders.panel', JText::_('COM_EASYSTAGING_FIELDSET_RULES'), 'access-rules'); ?>
 				<fieldset class="panelform">
 					<?php echo $this->form->getLabel('rules'); ?>
 					<?php echo $this->form->getInput('rules'); ?>

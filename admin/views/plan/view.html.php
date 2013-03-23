@@ -10,7 +10,7 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die();
 
-jimport( 'joomla.application.component.view' );
+jimport('joomla.application.component.view');
 
 /**
  * EasyStaging Plan Editor View
@@ -24,8 +24,9 @@ class EasyStagingViewPlan extends JView
 	 */
 	function display($tpl = null)
 	{
-		require_once JPATH_COMPONENT.'/helpers/plan.php';
-		// get the Data
+		require_once JPATH_COMPONENT . '/helpers/plan.php';
+
+		// Get the Data
 		$form = $this->get('Form');
 		$item = $this->get('Item');
 
@@ -33,6 +34,7 @@ class EasyStagingViewPlan extends JView
 		if (count($errors = $this->get('Errors')))
 		{
 			JError::raiseError(500, implode('<br />', $errors));
+
 			return false;
 		}
 		// Assign the Data
@@ -50,7 +52,7 @@ class EasyStagingViewPlan extends JView
 		$this->addCSSEtc();
 
 		// Create the table action choices array
-		$this->assign('actionChoices',$this->_actionChoices());
+		$this->assign('actionChoices', $this->_actionChoices());
 
 		// Display the template
 		parent::display($tpl);
@@ -87,7 +89,7 @@ class EasyStagingViewPlan extends JView
 		}
 		JToolBarHelper::cancel('plan.cancel', $isNew ? 'JTOOLBAR_CANCEL' : 'JTOOLBAR_CLOSE');
 		JToolBarHelper::divider();
-		JToolBarHelper::help('COM_EASYSTAGING_HELP_EASYSTAGING_MANAGER',false,'http://seepeoplesoftware.com/products/easystaging/1.0/help/plan.html');
+		JToolBarHelper::help('COM_EASYSTAGING_HELP_EASYSTAGING_MANAGER', false, 'http://seepeoplesoftware.com/products/easystaging/1.0/help/plan.html');
 	}
 
 	/**
@@ -100,7 +102,7 @@ class EasyStagingViewPlan extends JView
 		$document = JFactory::getDocument();
 
 		// First add CSS to the document
-		$document->addStyleSheet(JURI::root().'media/com_easystaging/css/plan.css');
+		$document->addStyleSheet(JURI::root() . 'media/com_easystaging/css/plan.css');
 
 		// Load the defaults first so that our script loads after them
 		JHtml::_('behavior.framework', true);
@@ -127,24 +129,26 @@ JS;
 		PlanHelper::loadJSLanguageKeys('/' . $jsFile);
 	}
 
-	private function _runOnlyMode() {
+	private function _runOnlyMode()
+	{
 		if (!($this->canDo->get('core.edit') || $this->canDo->get('core.create')) && $this->canDo->get('easystaging.run'))
 		{
 			// They can run but not hide, I mean create/edit plans - better limit the access to form elements.
-			$this->form->setFieldAttribute('name','class','readonly');
-			$this->form->setFieldAttribute('name','readonly','true');
-			$this->form->setFieldAttribute('description','class','readonly');
-			$this->form->setFieldAttribute('description','disabled','true');
-			$this->form->setFieldAttribute('published','class','readonly');
-			$this->form->setFieldAttribute('published','readonly','true');
-			$this->form->setFieldAttribute('publish_up','class','readonly');
-			$this->form->setFieldAttribute('publish_up','readonly','true');
-			$this->form->setFieldAttribute('publish_up','format','%Y-%m-%d %H:%M:%S');
-			$this->form->setFieldAttribute('publish_up','filter','user_utc');
-			$this->form->setFieldAttribute('publish_down','class','readonly');
-			$this->form->setFieldAttribute('publish_down','readonly','true');
-			$this->form->setFieldAttribute('publish_down','format','%Y-%m-%d %H:%M:%S');
-			$this->form->setFieldAttribute('publish_down','filter','user_utc');
+			$this->form->setFieldAttribute('name', 'class', 'readonly');
+			$this->form->setFieldAttribute('name', 'readonly', 'true');
+			$this->form->setFieldAttribute('description', 'class', 'readonly');
+			$this->form->setFieldAttribute('description', 'disabled', 'true');
+			$this->form->setFieldAttribute('published', 'class', 'readonly');
+			$this->form->setFieldAttribute('published', 'readonly', 'true');
+			$this->form->setFieldAttribute('publish_up', 'class', 'readonly');
+			$this->form->setFieldAttribute('publish_up', 'readonly', 'true');
+			$this->form->setFieldAttribute('publish_up', 'format', '%Y-%m-%d %H:%M:%S');
+			$this->form->setFieldAttribute('publish_up', 'filter', 'user_utc');
+			$this->form->setFieldAttribute('publish_down', 'class', 'readonly');
+			$this->form->setFieldAttribute('publish_down', 'readonly', 'true');
+			$this->form->setFieldAttribute('publish_down', 'format', '%Y-%m-%d %H:%M:%S');
+			$this->form->setFieldAttribute('publish_down', 'filter', 'user_utc');
+
 			// Finally return true for run only mode
 			return true;
 		}
@@ -161,15 +165,16 @@ JS;
 	private function _actionChoices()
 	{
 		$actionChoices = array( );
-		$actionChoices[] = array('action' => '','actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION_PUSH_DIV_LABEL'));
+		$actionChoices[] = array('action' => '', 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION_PUSH_DIV_LABEL'));
 		$actionChoices[] = array('action' => 0, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION0'));
 		$actionChoices[] = array('action' => 1, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION1'));
 		$actionChoices[] = array('action' => 2, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION2'));
-		$actionChoices[] = array('action' => '','actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION_PULLPUSH_DIV_LABEL'));
+		$actionChoices[] = array('action' => '', 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION_PULLPUSH_DIV_LABEL'));
 		$actionChoices[] = array('action' => 3, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION3'));
-		$actionChoices[] = array('action' => '','actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION_PULL_DIV_LABEL'));
+		$actionChoices[] = array('action' => '', 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION_PULL_DIV_LABEL'));
 		$actionChoices[] = array('action' => 4, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION4'));
 		$actionChoices[] = array('action' => 5, 'actionLabel' => JText::_('COM_EASYSTAGING_TABLE_ACTION5'));
+
 		return $actionChoices;
 	}
 
@@ -178,17 +183,20 @@ JS;
 		$actionChoices = $this->_actionChoices();
 		$actionMenuOptions    = array();
 
-		foreach ($actionChoices as $optionDefaults) {
+		foreach ($actionChoices as $optionDefaults)
+		{
 			$optDisabled = false;
-			if($optionDefaults['action'] === '')
+
+			if ($optionDefaults['action'] === '')
 			{
 				$optDisabled = true;
 			}
 
-			$actionMenuOptions[] = JHtml::_('select.option',$optionDefaults['action'], $optionDefaults['actionLabel'], 'value', 'text', $optDisabled);
+			$actionMenuOptions[] = JHtml::_('select.option', $optionDefaults['action'], $optionDefaults['actionLabel'], 'value', 'text', $optDisabled);
 		}
 
 		$actionMenu = JHtml::_('select.genericlist', $actionMenuOptions, $controlName, 'class="inputbox"', 'value', 'text', $selectedAction, $rowId);
+
 		return $actionMenu;
 	}
 }

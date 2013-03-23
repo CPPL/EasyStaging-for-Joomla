@@ -41,6 +41,7 @@ com_EasyStaging.setUp = function ()
 	this.lastRunStatus       = [];
 	this.currentStatus       = [];
 	this.SQLFileLists        = [];
+    this.toolbarClickEvents  = [];
 	this.requestData         = {};
 	var token                = this.getToken();
 	this.requestData[token]  = 1;
@@ -52,7 +53,9 @@ com_EasyStaging.setUp = function ()
 	});
 	
 	if (this.getID() == 0)
-	{this.lockOutBtns();}
+	{
+        this.lockOutBtns();
+    }
 };
 
 com_EasyStaging.ajaxCheckIn = function (e)
@@ -60,6 +63,7 @@ com_EasyStaging.ajaxCheckIn = function (e)
 	if (confirm(Joomla.JText._('COM_EASYSTAGING_JS_PLAN_ABOUT_TO_RUN_WARNING')))
 	{
 		this.lockOutBtns();
+        this.disableToolbarBtns();
 		this.last_response = new Date().getTime();
 		this.responseTimer = this.appendTimeSince.periodical(500,this);
 		/* Once we start updates we want it be very visible. */
@@ -89,6 +93,7 @@ com_EasyStaging.ajaxCheckIn = function (e)
 com_EasyStaging.processCheckIn  = function ( response )
 {
 	this.lockOutBtns();
+    this.disableToolbarBtns();
 	this.notWaiting();
 	this.appendTextToCurrentStatus(response.msg);
 	if (response.status !== 0)
@@ -406,7 +411,8 @@ com_EasyStaging.processRunTableExport = function ( response )
 		clearInterval(this.responseTimer);
 		this.notWaiting();
 		this.enableBtns();
-		this.lastRunStatus.push(Joomla.JText._('COM_EASYSTAGING_JS_RUN_ABORTED_TABLE_EXPORT_FAILED'));
+        this.enableToolbarBtns();
+        this.lastRunStatus.push(Joomla.JText._('COM_EASYSTAGING_JS_RUN_ABORTED_TABLE_EXPORT_FAILED'));
 		this.setLastRunStatus();
 		this.appendTextToCurrentStatus(response.msg);
 	}
@@ -529,8 +535,9 @@ com_EasyStaging.runFinished = function (successfullRun)
 	this.currentStatusScroller.toBottom.delay(100,this.currentStatusScroller);
 	this.notWaiting();
 	this.enableBtns();
+    this.disableToolbarBtns();
 
-	// Finally set the "last run" timestamp for the Plan and clean up.
+    // Finally set the "last run" timestamp for the Plan and clean up.
 	this.requestData.task = 'plan.finishRun';
 	var req = new Request.JSON({
 		method: 'get',
@@ -549,22 +556,71 @@ com_EasyStaging.runFinished = function (successfullRun)
 
 com_EasyStaging.lockOutBtns = function ()
 {
-	$('startFile').disabled = 1;
+    // Disable Plan control buttons
+    $('startFile').disabled = 1;
 	$('startFileBtn').addClass('com_easystaging_plan_btn_off');
 	$('startDBase').disabled = 1;
 	$('startDBaseBtn').addClass('com_easystaging_plan_btn_off');
 	$('startAll').disabled = 1;
 	$('startAllBtn').addClass('com_easystaging_plan_btn_off');
+
+    // Hide tabs so users can't switch during a plan run
+    $$('dl#com_easystaging_tabs.tabs').hide();
 	this.currentStatusScroller.toBottom.delay(100,this.currentStatusScroller);
 };
 
 com_EasyStaging.enableBtns = function ()
 {
-	$('startFile').disabled = 0;
+	// Enable Plan control buttons
+    $('startFile').disabled = 0;
 	$('startFileBtn').removeClass('com_easystaging_plan_btn_off');
 	$('startDBase').disabled = 0;
 	$('startDBaseBtn').removeClass('com_easystaging_plan_btn_off');
 	$('startAll').disabled = 0;
 	$('startAllBtn').removeClass('com_easystaging_plan_btn_off');
+
+    // Show tabs
+    $$('dl#com_easystaging_tabs.tabs').show();
 	this.currentStatusScroller.toBottom.delay(100,this.currentStatusScroller);
+
+    // Enable Toolbar
+    this.enableToolbarBtns();
 };
+
+com_EasyStaging.disableToolbarBtns = function ()
+{
+    // Disable Toolbar CSS
+    $('toolbar').addClass('tb-off');
+    tbhref = $$('div#toolbar li.button a.toolbar');
+    tbhref.addClass('tb-off');
+    $$('div#toolbar li.button a.toolbar span').addClass('tb-off')
+
+    // Store current onclick
+    tbhref.each(function(ahref, index)
+    {
+        com_EasyStaging.toolbarClickEvents.push(ahref.onclick);
+    })
+    // Disable current onclick
+    tbhref.each(function(ahref, index)
+    {
+        ahref.onclick = function()
+        {
+            return false;
+        }
+    })
+}
+
+com_EasyStaging.enableToolbarBtns = function ()
+{
+    // Enable Toolbar CSS
+    $('toolbar').removeClass('tb-off');
+    $$('div#toolbar li.button a.toolbar span').removeClass('tb-off')
+    tbhref = $$('div#toolbar li.button a.toolbar');
+    tbhref.removeClass('tb-off');
+
+    // Restore click function
+    tbhref.each(function(ahref, index)
+    {
+        ahref.onclick = com_EasyStaging.toolbarClickEvents.shift();
+    })
+}

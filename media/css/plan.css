@@ -38,6 +38,23 @@
 	clear:both;
 }
 
+div.toolbar-list li a.tb-off {
+    cursor: default;
+    color: #cccccc;
+}
+
+div.toolbar-list li a span.tb-off {
+    background-position-y: 32px;
+}
+
+div.toolbar-list.tb-off a:hover,
+div.toolbar-list.tb-off a:focus,
+div.toolbar-list.tb-off a:active {
+    border-color: transparent;
+    text-decoration: none;
+    color: #cccccc;
+}
+
 #startFileBtn {
 	background: url("../images/orange-1.png") no-repeat 0px 0px;
 }
@@ -60,7 +77,14 @@
 #startFileBtn.com_easystaging_plan_btn_off,
 #startDBaseBtn.com_easystaging_plan_btn_off,
 #startAllBtn.com_easystaging_plan_btn_off {
-	background-position-y: -32px;
+	background-position-y: 32px;
+}
+
+#startFileBtn.com_easystaging_plan_btn_off button:hover,
+#startDBaseBtn.com_easystaging_plan_btn_off button:hover,
+#startAllBtn.com_easystaging_plan_btn_off button:hover {
+    cursor: default;
+    background-color: white;
 }
 
 #rsyncErrors {

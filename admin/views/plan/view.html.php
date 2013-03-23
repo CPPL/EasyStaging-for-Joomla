@@ -109,8 +109,22 @@ class EasyStagingViewPlan extends JView
 
 		// Then add JS to the document‚ - make sure all JS comes after CSS
 		$jsFile = 'media/com_easystaging/js/plan.js';
-		$document->addScript(JURI::root().$jsFile);
-		PlanHelper::loadJSLanguageKeys('/'.$jsFile);
+		$document->addScript(JURI::root() . $jsFile);
+
+		// Finally is the plan clean, i.e. can it by run?
+		if(!$this->item->clean)
+		{
+			$lockOutPlanBtnsScript = <<<'JS'
+window.addEvent('domready', function () {
+	/* Disable Plan Run buttons until it's been saved */
+	com_EasyStaging.lockOutBtns();
+});
+JS;
+
+			$document->addScriptDeclaration($lockOutPlanBtnsScript);
+		}
+
+		PlanHelper::loadJSLanguageKeys('/' . $jsFile);
 	}
 
 	private function _runOnlyMode() {

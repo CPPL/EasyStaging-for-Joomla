@@ -94,6 +94,7 @@ class EasyStagingModelPlan extends JModelAdmin
 
 		if ($item = parent::getItem($pk))
 		{
+			$item->clean = true;
 			$plan_id = intval($item->id);
 			
 			// Get the sites table
@@ -141,6 +142,7 @@ class EasyStagingModelPlan extends JModelAdmin
 				// In the odd event that a plan exists but has NO remote site data we'll let the user know.
 				if (count($this->_forms) && !($plan_id == 0))
 				{
+					$item->clean = false;
 					$this->setState('easystaging.clean', 0);
 					JFactory::getApplication()->enqueueMessage( JText::sprintf('COM_EASYSTAGING_NO_REMOTE_SITE_FOUND_FOR_PLAN', $plan_id) );
 				}
@@ -154,6 +156,7 @@ class EasyStagingModelPlan extends JModelAdmin
 			$mq = JFactory::getApplication()->getMessageQueue();
 			if (count($mq))
 			{
+				$item->clean = false;
 				JFactory::getApplication()->enqueueMessage( JText::sprintf('COM_EASYSTAGING_SAVE_PLAN_BEFORE_USING', $plan_id) );
 				$this->setState('easystaging.clean', 1);
 			}

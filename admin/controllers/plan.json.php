@@ -297,65 +297,62 @@ class EasyStagingControllerPlan extends JController
 					$dbq->where($condition);
 				}
 				$db->setQuery($dbq);
+
 				if (($records = $db->loadRowList()) != null)
 				{
-					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_CREATING_INSERT_STATEMEN_DESC',count($records));
 					// 4. Then we build the list of field/column names that we'll insert data into
 					// -- first we get the columns
 					$tableFields = $db->getTableColumns($table);
 					$flds = $this->_getArrayOfFieldNames($tableFields);
-					$num_fields = count($flds);
-
-					// -- then we implode them into a suitable statement
-					$columnInsertSQL = 'INSERT INTO '.$this->_changeTablePrefix($dbTableName).' ('.implode( ', ' , $flds ).') VALUES ';
-
-					// - keeping it intact for later user if the table is too big.
-
-					// 5. Now we can process the rows into INSERT values
-					// -- first we need to retreive the max_packet value from our session so we can figure out how many rows we can fit in to each chunk
-					$session = JFactory::getSession();
-					$max_ps = $session->get('com_easystaging_max_ps');
-					// -- and we initialise our counter
-					$sizeOfSQLBlock = strlen($columnInsertSQL);
-					// -- then create an empty array ready for our values
-					$valuesSQL = array();
-
-					foreach ($records as $row)
+					// No problems getting the field names?
+					if($flds)
 					{
-						// Process each row for slashes, new lines.
-						foreach ($row as $field => $value)
-						{
-							$row[$field] = addslashes($value);
-							$row[$field] = str_replace("\n","\\n",$row[$field]);
-						}
-						// Convert our row to a suitable values string
-						$rowAsValues  = "('". implode('\', \'', $row) ."')";
-						// First up we check to see if this row will put our SQL block size over our max_packet value on the remote server
-						$rowSize = strlen($rowAsValues);
+						$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_CREATING_INSERT_STATEMEN_DESC',count($records));
+						// -- then we implode them into a suitable statement
+						$columnInsertSQL = 'INSERT INTO '.$this->_changeTablePrefix($dbTableName).' ('.implode( ', ' , $flds ).') VALUES ';
 
-						if ($max_ps < ($sizeOfSQLBlock += $rowSize))
+						// - keeping it intact for later user if the table is too big.
+
+						// 5. Now we can process the rows into INSERT values
+						// -- first we need to retreive the max_packet value from our session so we can figure out how many rows we can fit in to each chunk
+						$session = JFactory::getSession();
+						$max_ps = $session->get('com_easystaging_max_ps');
+						// -- and we initialise our counter
+						$sizeOfSQLBlock = strlen($columnInsertSQL);
+						// -- then create an empty array ready for our values
+						$valuesSQL = array();
+
+						foreach ($records as $row)
+						{
+							// Process each row for slashes, new lines.
+							foreach ($row as $field => $value)
+							{
+								$row[$field] = addslashes($value);
+								$row[$field] = str_replace("\n","\\n",$row[$field]);
+							}
+							// Convert our row to a suitable values string
+							$rowAsValues  = "('". implode('\', \'', $row) ."')";
+							// First up we check to see if this row will put our SQL block size over our max_packet value on the remote server
+							$rowSize = strlen($rowAsValues);
+
+							if ($max_ps < ($sizeOfSQLBlock += $rowSize))
+							{
+								$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n";
+								$valuesSQL = array();
+								$sizeOfSQLBlock = strlen($columnInsertSQL);
+							}
+							// We can add the processed & imploded row to our values array.
+							$valuesSQL[] = $rowAsValues;
+						}
+
+						// We have some left over rows we need to add.
+						if (count($valuesSQL))
 						{
 							$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n";
-							$valuesSQL = array();
-							$sizeOfSQLBlock = strlen($columnInsertSQL);
 						}
-						// We can add the processed & imploded row to our values array.
-						$valuesSQL[] = $rowAsValues;
-					}
-					
-					// We have some left over rows we need to add.
-					if (count($valuesSQL))
-					{
-						$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n";
-					}
-				}
-				else
-				{
-					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_JSON__S_IS_EMPTY_NO_INS_REQ', $table) ;
-				}
 
-				// Time to unlock and restore keys to their enabled state
-				$endofSQL = "ALTER TABLE `$table` ENABLE KEYS;\n" .
+						// Time to unlock and restore keys to their enabled state
+						$endofSQL = "ALTER TABLE `$table` ENABLE KEYS;\n" .
 							"\n\n-- End of Statement --\n\n" .
 							"UNLOCK TABLES;" .
 							"\n\n-- End of Statement --\n\n" .
@@ -371,39 +368,58 @@ class EasyStagingControllerPlan extends JController
 							"\n\n-- End of Statement --\n\n" .
 							'SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION' .
 							"\n\n-- End of Statement --\n\n";
-				$endofSQL = $this->_changeTablePrefix($endofSQL);
+						$endofSQL = $this->_changeTablePrefix($endofSQL);
 
-				$buildTableSQL .= $endofSQL;
-				// 6. Save the export SQL to file for the next request to execute.
-				// Build our file path & file handle
-				$pathToSQLFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_export_file_name($table);
-				$data = $pathToSQLFile;
-				if ($exportSQLFile = @fopen($pathToSQLFile, 'w'))
-				{
-					// Attempt to write the file
-					$status = fwrite($exportSQLFile, $buildTableSQL);
-					// Time to close off
-					fclose($exportSQLFile);
-					$msg = JText::sprintf('COM_EASYSTAGING_SQL_EXPORT_SUCC', $table);
-					$response = array(
-						'msg'			=> $msg,
-						'status'		=> $status,
-						'data' 			=> $data,
-						'tableName' 	=> $table,
-						'pathToSQLFile'	=> $pathToSQLFile,
-						'log'			=> $log,
-					);
+						$buildTableSQL .= $endofSQL;
+						// 6. Save the export SQL to file for the next request to execute.
+						// Build our file path & file handle
+						$pathToSQLFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_export_file_name($table);
+						$data = $pathToSQLFile;
+						if ($exportSQLFile = @fopen($pathToSQLFile, 'w'))
+						{
+							// Attempt to write the file
+							$status = fwrite($exportSQLFile, $buildTableSQL);
+							// Time to close off
+							fclose($exportSQLFile);
+							$msg = JText::sprintf('COM_EASYSTAGING_SQL_EXPORT_SUCC', $table);
+							$response = array(
+								'msg'			=> $msg,
+								'status'		=> $status,
+								'data' 			=> $data,
+								'tableName' 	=> $table,
+								'pathToSQLFile'	=> $pathToSQLFile,
+								'log'			=> $log,
+							);
+						}
+						else
+						{
+							$response = array(
+								'msg'			=> JText::_('COM_EASYSTAGING_JSON_FAILED_TO_OPEN_SQL_EXP_FILE'),
+								'status'		=> $exportSQLFile,
+								'data'			=> error_get_last(),
+								'tableName'		=> $table,
+								'pathToSQLFile'	=> $pathToSQLFile,
+								'log'			=> $log,
+							);
+						}
+					}
+					else
+					{
+						/**
+						 * Ahh... bugger, Joomla! found a column name it didn't like (i.e. a column name that the current db doesn't like)
+						 * Typical causes are columns names that start with a number or other illegal character or are completely numeric
+						 *
+						 */
+						$response = array(
+							'msg'		=> JText::_('COM_EASYSTAGING_TABLE_CONTAINS_INVALID_COLS_NAMES'),
+							'status'	=> 0,
+							'data'		=> $tableFields,
+							'log'		=> $log);
+					}
 				}
 				else
 				{
-					$response = array(
-						'msg'			=> JText::_('COM_EASYSTAGING_JSON_FAILED_TO_OPEN_SQL_EXP_FILE'),
-						'status'		=> $exportSQLFile,
-						'data'			=> error_get_last(),
-						'tableName'		=> $table,
-						'pathToSQLFile'	=> $pathToSQLFile,
-						'log'			=> $log,
-					);
+					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_JSON__S_IS_EMPTY_NO_INS_REQ', $table) ;
 				}
 
 			}
@@ -599,7 +615,15 @@ class EasyStagingControllerPlan extends JController
 		$fieldNames = array();
 		foreach ($tableFields as $aField => $aFieldType)
 		{
-			$fieldNames[] = $db->quoteName($aField);
+			if(!is_numeric($aField) && ($thisFldName = $db->quoteName($aField)) && is_string($thisFldName))
+			{
+				$fieldNames[] = $thisFldName;
+			}
+			else
+			{
+				// Time to bail Joomla! considers the column name invalid for this DB.
+				return false;
+			}
 		}
 		return $fieldNames;
 	}
@@ -618,7 +642,14 @@ class EasyStagingControllerPlan extends JController
 		if (isset($plan_id))
 		{
 			$db = JFactory::getDbo();
-			$db->setQuery("select * from `#__easystaging_tables` where `plan_id` = ".$plan_id." and (`action` = '1' or `action` = '2')");
+			$query = $db->getQuery(true);
+			$query->select('*');
+			$query->from($db->quoteName('#__easystaging_tables'));
+			$query->where($db->quoteName('plan_id') . ' = ' . $plan_id);
+			$query->where('(' . $db->quoteName('action') . ' = ' . $db->quote('1') . ' OR ' . $db->quoteName('action') . ' = ' . $db->quote('2') . ')');
+			$query->order($db->quoteName('tablename'));
+			$db->setQuery($query);
+
 			if ($localTableRows = $db->loadAssocList())
 			{
 				$tableRows = array(); // Where we'll store the tables to be copied.

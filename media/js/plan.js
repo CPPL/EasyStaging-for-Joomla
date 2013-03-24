@@ -54,7 +54,7 @@ com_EasyStaging.setUp = function ()
 	
 	if (this.getID() == 0)
 	{
-        this.lockOutBtns();
+        this.lockOutBtns(false);
     }
 };
 
@@ -352,29 +352,41 @@ com_EasyStaging.processCreateTableExportFiles  = function ( response )
 
 com_EasyStaging.runTableExports = function ( )
 {
-	this.runStage = Joomla.JText._('COM_EASYSTAGING_JS_RUNNING_TABLE_SQL_EXPORTS');
-	this.requestData.task = 'plan.runTableExport';
-	var runTableRequests = {};
-	this.SQLFileLists.each(function (fileDataArray){
-		path = fileDataArray[0];
-		com_EasyStaging.requestData.tableName = fileDataArray[1];
-		com_EasyStaging.requestData.pathToSQLFile = fileDataArray[0];
-		runTableRequests[path] = new Request.JSON ({
-			method: 'get',
-			url: com_EasyStaging.jsonURL,
-			data: com_EasyStaging.requestData,
-			onRequest: function () { com_EasyStaging.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JS_LOADING_SQL_EXPORT_FILE') + fileDataArray[0]); },
-			onComplete: function (response) { com_EasyStaging.processRunTableExport ( response ); }
-		});
-	});
+    if(this.SQLFileLists.length)
+    {
+        this.runStage = Joomla.JText._('COM_EASYSTAGING_JS_RUNNING_TABLE_SQL_EXPORTS');
+        this.requestData.task = 'plan.runTableExport';
+        var runTableRequests = {};
+        this.SQLFileLists.each(function (fileDataArray){
+            path = fileDataArray[0];
+            com_EasyStaging.requestData.tableName = fileDataArray[1];
+            com_EasyStaging.requestData.pathToSQLFile = fileDataArray[0];
+            runTableRequests[path] = new Request.JSON ({
+                method: 'get',
+                url: com_EasyStaging.jsonURL,
+                data: com_EasyStaging.requestData,
+                onRequest: function () { com_EasyStaging.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JS_LOADING_SQL_EXPORT_FILE') + fileDataArray[0]); },
+                onComplete: function (response) { com_EasyStaging.processRunTableExport ( response ); }
+            });
+        });
 
-	this.runTableExportsQueue = new Request.Queue ({
-		requests: runTableRequests,
-		stopOnFailure: false,
-		onComplete:function () { com_EasyStaging.appendTextToCurrentStatus('--'); }
-	});
-	
-	Object.each(runTableRequests, function (rteValue, rteKey){rteValue.send();});
+        this.runTableExportsQueue = new Request.Queue ({
+            requests: runTableRequests,
+            stopOnFailure: false,
+            onComplete:function () { com_EasyStaging.appendTextToCurrentStatus('--'); }
+        });
+
+        Object.each(runTableRequests, function (rteValue, rteKey){rteValue.send();});
+    }
+    else
+    {
+        this.lastRunStatus.push(Joomla.JText._('COM_EASYSTAGING_JS_RUN_STOPPED_NO_VALID_TABLES_FOUND'));
+        clearInterval(this.responseTimer);
+        this.setLastRunStatus();
+        this.tables_proc = 0;
+        this.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JS_RUN_STOPPED_NO_VALID_TABLES_FOUND'));
+        this.runFinished(false);
+    }
 };
 
 com_EasyStaging.processRunTableExport = function ( response )
@@ -529,13 +541,14 @@ com_EasyStaging.runFinished = function (successfullRun)
 	successfullRun = typeof(successfullRun) !== 'undefined' ? successfullRun : true;
 	clearInterval(this.responseTimer);
 	if (successfullRun)
-	this.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JS_PLAN_RUN_COMPLETED') + '</strong><br />',true);
+    {
+        this.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JS_PLAN_RUN_COMPLETED') + '</strong><br />',true);
+        this.setLastRunStatus();
+        this.currentStatusScroller.toBottom.delay(100,this.currentStatusScroller);
+    }
 
-	this.setLastRunStatus();
-	this.currentStatusScroller.toBottom.delay(100,this.currentStatusScroller);
 	this.notWaiting();
 	this.enableBtns();
-    this.disableToolbarBtns();
 
     // Finally set the "last run" timestamp for the Plan and clean up.
 	this.requestData.task = 'plan.finishRun';
@@ -626,9 +639,12 @@ com_EasyStaging.enableToolbarBtns = function ()
     tbhref = $$('div#toolbar li.button a.toolbar');
     tbhref.removeClass('tb-off');
 
-    // Restore click function
-    tbhref.each(function(ahref, index)
+    if(this.toolbarClickEvents.length)
     {
-        ahref.onclick = com_EasyStaging.toolbarClickEvents.shift();
-    })
+    // Restore click function
+        tbhref.each(function(ahref, index)
+        {
+            ahref.onclick = com_EasyStaging.toolbarClickEvents.shift();
+        })
+    }
 }

@@ -851,7 +851,11 @@ EOH;
 			foreach ($file_exclusions as $fe_line)
 			{
 				$fe_line = trim($fe_line);
-				if ($fe_line[0] != "-") $fe_line = '- '.$fe_line;
+				// Check for explicit include or exclude because some rsyncs are broken (assume exclusion)
+				if (($fe_line[0] != '-') && ($fe_line[0] != '+'))
+				{
+					$fe_line = '- '.$fe_line;
+				}
 				$result[] = $fe_line;
 			}
 			return implode("\n", $result);

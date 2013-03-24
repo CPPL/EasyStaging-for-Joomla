@@ -119,7 +119,7 @@ class EasyStagingViewPlan extends JView
 			$lockOutPlanBtnsScript = <<<'JS'
 window.addEvent('domready', function () {
 	/* Disable Plan Run buttons until it's been saved */
-	com_EasyStaging.lockOutBtns();
+	com_EasyStaging.lockOutBtns(false);
 });
 JS;
 

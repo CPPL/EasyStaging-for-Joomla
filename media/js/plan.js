@@ -554,8 +554,9 @@ com_EasyStaging.runFinished = function (successfullRun)
 	req.send();
 };
 
-com_EasyStaging.lockOutBtns = function ()
+com_EasyStaging.lockOutBtns = function (TabsToo)
 {
+    TabsToo = typeof(TabsToo) !== 'undefined' ? TabsToo : true;
     // Disable Plan control buttons
     $('startFile').disabled = 1;
 	$('startFileBtn').addClass('com_easystaging_plan_btn_off');
@@ -565,12 +566,16 @@ com_EasyStaging.lockOutBtns = function ()
 	$('startAllBtn').addClass('com_easystaging_plan_btn_off');
 
     // Hide tabs so users can't switch during a plan run
-    $$('dl#com_easystaging_tabs.tabs').hide();
+    if(TabsToo)
+    {
+        $$('dl#com_easystaging_tabs.tabs').hide();
+    }
 	this.currentStatusScroller.toBottom.delay(100,this.currentStatusScroller);
 };
 
-com_EasyStaging.enableBtns = function ()
+com_EasyStaging.enableBtns = function (TabsToo)
 {
+    TabsToo = typeof(TabsToo) !== 'undefined' ? TabsToo : true;
 	// Enable Plan control buttons
     $('startFile').disabled = 0;
 	$('startFileBtn').removeClass('com_easystaging_plan_btn_off');
@@ -580,7 +585,10 @@ com_EasyStaging.enableBtns = function ()
 	$('startAllBtn').removeClass('com_easystaging_plan_btn_off');
 
     // Show tabs
-    $$('dl#com_easystaging_tabs.tabs').show();
+    if(TabsToo)
+    {
+        $$('dl#com_easystaging_tabs.tabs').show();
+    }
 	this.currentStatusScroller.toBottom.delay(100,this.currentStatusScroller);
 
     // Enable Toolbar

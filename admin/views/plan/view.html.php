@@ -15,14 +15,29 @@ jimport('joomla.application.component.view');
 /**
  * EasyStaging Plan Editor View
  *
+ * @property mixed form
  */
 class EasyStagingViewPlan extends JView
 {
+	/* @var $form JForm */
+	protected $form;
+
+	protected $item;
+
+	protected $canDo;
+
+	protected $runOnly;
+
 	/**
-	 * display method of Plan view.
-	 * @return void
+	 * Execute and display a template script.
+	 *
+	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+	 *
+	 * @return  mixed  A string if successful, otherwise a JError object.
+	 *
+	 * @since   1.0
 	 */
-	function display($tpl = null)
+	public function display($tpl = null)
 	{
 		require_once JPATH_COMPONENT . '/helpers/plan.php';
 
@@ -37,6 +52,7 @@ class EasyStagingViewPlan extends JView
 
 			return false;
 		}
+
 		// Assign the Data
 		$this->form  = $form;
 		$this->item  = $item;
@@ -60,6 +76,7 @@ class EasyStagingViewPlan extends JView
 
 	/**
 	 * Add the Toolbar for Plan view.
+	 *
 	 * @return void
 	 */
 	private function addToolbar ()
@@ -94,6 +111,7 @@ class EasyStagingViewPlan extends JView
 
 	/**
 	 * Add the CSS for Plan view.
+	 *
 	 * @return void
 	 */
 	private function addCSSEtc ()
@@ -114,7 +132,7 @@ class EasyStagingViewPlan extends JView
 		$document->addScript(JURI::root() . $jsFile);
 
 		// Finally is the plan clean, i.e. can it by run?
-		if(!$this->item->clean)
+		if (!$this->item->clean)
 		{
 			$lockOutPlanBtnsScript = <<<'JS'
 window.addEvent('domready', function () {
@@ -129,6 +147,11 @@ JS;
 		PlanHelper::loadJSLanguageKeys('/' . $jsFile);
 	}
 
+	/**
+	 * Adjusts the form users with only 'run' permissions.
+	 *
+	 * @return bool
+	 */
 	private function _runOnlyMode()
 	{
 		if (!($this->canDo->get('core.edit') || $this->canDo->get('core.create')) && $this->canDo->get('easystaging.run'))
@@ -158,9 +181,12 @@ JS;
 		}
 	}
 
-	/*
-	 * @todo we have to change this so we build the individual <options> of the <select> tag and pass that as the array, this means we call _actionChoices from the view tmpl file.
+	/**
+	 * And @todo we have to change this so we build the individual <options> of the <select> tag and pass that as the array,
+	 * this means we call _actionChoices from the view tmpl file.
 	 * Currently there is no other way to disable the divider label options...
+	 *
+	 * @return null
 	 */
 	private function _actionChoices()
 	{
@@ -178,6 +204,17 @@ JS;
 		return $actionChoices;
 	}
 
+	/**
+	 * Generates action menu for tables.
+	 *
+	 * @param   int     $selectedAction  Current setting for this table.
+	 *
+	 * @param   string  $controlName     Current table name
+	 *
+	 * @param   int     $rowId           Row ID of table record.
+	 *
+	 * @return string
+	 */
 	protected function _getActionMenu($selectedAction, $controlName, $rowId)
 	{
 		$actionChoices = $this->_actionChoices();

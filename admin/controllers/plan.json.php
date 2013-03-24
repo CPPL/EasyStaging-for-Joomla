@@ -166,7 +166,7 @@ class EasyStagingControllerPlan extends JController
 			}
 			else
 			{
-				echo json_encode(array('msg' => JText::_( 'COM_EASYSTAGING_DATABASE_STEP_01_FAILED_TO_CONNECT' ) , 'status' => 0, 'data' => $rDBC->getErrorMsg(true)));
+				echo json_encode(array('msg' => JText::_('COM_EASYSTAGING_DATABASE_STEP_01_FAILED_TO_CONNECT'), 'status' => 0, 'data' => $rDBC->getErrorMsg(true)));
 			}
 		}
 	}
@@ -589,8 +589,8 @@ class EasyStagingControllerPlan extends JController
 
 	/**
 	 * Strips out just the field names from the assoc array provided by Joomla!
-	 * @param array $tables
-	 * @return single list of field names
+	 * @param   array  $tableFields
+	 * @return  array  single list of field names
 	 */
 	private function _getArrayOfFieldNames($tableFields)
 	{
@@ -836,8 +836,10 @@ EOH;
 	}
 
 	/**
-	 * Checks $file_exclusions to ensure each line starts with a "-" as required by rsync ...
+	 * Checks $file_exclusions to ensure each line starts with a "-" or "+" as required by rsync ...
+	 *
 	 * @param string $file_exclusions
+	 *
 	 * @return string|boolean - false on failure
 	 */
 	private function _checkExclusionField($file_exclusions)
@@ -868,6 +870,11 @@ EOH;
 		return $opts;
 	}
 
+	/**
+	 * Confirm the current request has a valid token.
+	 *
+	 * @return bool
+	 */
 	private function _tokenOK()
 	{
 		// Check for request forgeries
@@ -885,6 +892,15 @@ EOH;
 		return true;
 	}
 
+	/**
+	 * Make sure the currently logged in user is allowed to run plans
+	 *
+	 * @param $plan_id
+	 *
+	 * @return boolean
+	 *
+	 * @since 1.0
+	 */
 	private function _areWeAllowed($plan_id)
 	{
 		// Should we be here?

@@ -701,17 +701,17 @@ class EasyStagingControllerPlan extends JController
 		if (isset($plan_id))
 		{
 			// Build our file path & file handle
-			$pathToExclusionsFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_excl_file_name();
+			$pathToExclusionsFile = $this->_get_run_directory() . '/' . $this->_excl_file_name();
 			$result = array(
-				'fileName' =>  $this->_get_run_directory() . '/' . $this->_excl_file_name(),
+				'fileName' =>  $pathToExclusionsFile,
 			);
-			$result['fullPathToExclusionFile'] = $pathToExclusionsFile;
+			$result['fullPathToExclusionFile'] = $this->_sync_files_path() . $pathToExclusionsFile;
 
-			if ($exclusionFile = @fopen($pathToExclusionsFile, 'w'))
+			if ($exclusionFile = @fopen($result['fullPathToExclusionFile'], 'w'))
 			{
 
 				// Create the content for our exclusions file
-				$defaultExclusions = <<< EOH
+				$defaultExclusions = <<< DEE
 - com_easystaging/
 - /administrator/language/en-GB/en-GB.com_easystaging.ini
 - /tmp/
@@ -721,12 +721,12 @@ class EasyStagingControllerPlan extends JController
 - /configuration.php
 - /.htaccess
 
-EOH;
+DEE;
 				// Get local site record
-				$Sites = PlanHelper::getLocalSite($plan_id);
+				$localSite = PlanHelper::getLocalSite($plan_id);
 
 				// Combine the default exclusions with those in the local site record
-				$allExclusions = $defaultExclusions.trim($this->_checkExclusionField($Sites->file_exclusions));
+				$allExclusions = $defaultExclusions . trim($this->_checkExclusionField($localSite->file_exclusions));
 				$result['fileData'] = $allExclusions;
 
 				// Attempt to write the file

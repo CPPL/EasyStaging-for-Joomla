@@ -205,7 +205,7 @@ class PlanHelper
 		return $array_items;
 	}
 
-	function remove_this_directory($directory, $recursive = false) {
+	public static function remove_this_directory($directory, $recursive = false) {
 		foreach (scandir($directory) as $file)
 		{
 			if ('.' === $file || '..' === $file)

@@ -419,7 +419,12 @@ class EasyStagingControllerPlan extends JController
 				}
 				else
 				{
-					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_JSON__S_IS_EMPTY_NO_INS_REQ', $table) ;
+					$log.= '<br />'.JText::sprintf('COM_EASYSTAGING_JSON__S_IS_EMPTY_NO_INS_REQ', $table);
+					$response = array(
+						'msg'		=> JText::sprintf('COM_EASYSTAGING_JSON__S_IS_EMPTY_NO_INS_REQ', $table),
+						'status'	=> 0,
+						'data'		=> '',
+						'log'		=> $log);
 				}
 
 			}
@@ -429,7 +434,7 @@ class EasyStagingControllerPlan extends JController
 				$response = array(
 					'msg'		=> JText::_('COM_EASYSTAGING_TABLE_COPY_FAILED'),
 					'status'	=> 0,
-					'data'		=> $return,
+					'data'		=> $table,
 					'log'		=> $log);
 			}
 		}

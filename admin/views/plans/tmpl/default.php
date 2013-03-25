@@ -16,6 +16,9 @@ $howtodiag2 = JURI::root().'media/com_easystaging/images/EasyStaging-How-To-Part
 		</table>
 	</div>
 	<div id="howitworkspanel" class="m">
+		<div id="es_version">
+			<p><?php echo JText::sprintf('COM_EASYSTAGING_CURRENT_VERSION',$this->current_version); ?></p>
+		</div>
 		<div style="display:none;">
 			<div>
 			</div>

@@ -27,6 +27,8 @@ class EasyStagingViewPlans extends JView
 
 	protected $state;
 
+	protected $current_version;
+
 	/**
 	 * Our implementation of display()
 	 *
@@ -41,6 +43,11 @@ class EasyStagingViewPlans extends JView
 		JHtml::_('behavior.framework', true);
 		JHtml::_('behavior.tooltip');
 		JHtml::_('behavior.multiselect');
+
+		// Get component helper
+		jimport('joomla.installer.packagemanifest');
+		$esManifest = new JPackageManifest(JPATH_BASE . '/components/com_easystaging/easystaging.xml');
+		$this->current_version = $esManifest->version;
 
 		// Setup document (Toolbar, css, js etc)
 		$this->addToolbar();

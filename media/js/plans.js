@@ -4,12 +4,12 @@ window.addEvent('domready', function(){
     var hiwp = document.id('howitworkspanel');
 
     hiwp.set('morph', {
-        duration: 500
+        duration: 300
     });
     
     hiwt.addEvents({
         click: function(){
-            origHeight = 132;
+            origHeight = 142;
             bordersAndMargins = 22;
             
             if (hiwp.getSize().y == (origHeight+bordersAndMargins))

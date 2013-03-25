@@ -403,7 +403,12 @@ class EasyStagingModelPlan extends JModelAdmin
 				$this->setState('easystaging.clean', 0);
 			}
 			// Then we'll send a copy of the current local tables to attach to the plan.
-			return $this->_getLocalTables($plan_id,1);
+			// Get the local tables with the default action
+			/* @var $esParams JRegistry */
+			$esParams = JComponentHelper::getParams('com_easystaging');
+			$defaultAction = $esParams->get('default_table_action',0);
+
+			return $this->_getLocalTables($plan_id, $defaultAction);
 		}
 		return false;
 	}
@@ -462,10 +467,14 @@ class EasyStagingModelPlan extends JModelAdmin
 	 */
 	private function _updateTables($existingTables)
 	{
-		// Get the local tables with a default action of "Don't Copy"
+		// Get the local tables with the default action
+		/* @var $esParams JRegistry */
+		$esParams = JComponentHelper::getParams('com_easystaging');
+		$defaultAction = $esParams->get('default_added_table_action',0);
+
 		if (count($existingTables))
 		{
-			$localTables = $this->_getLocalTables(0,0);
+			$localTables = $this->_getLocalTables(0,$defaultAction);
 		}
 		else
 		{

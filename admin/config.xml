@@ -2,15 +2,29 @@
 <config>
 
 	<fieldset name="settings"
-		label="Settings"
-		description="These are global operation settings for EasyStaging Plans."
-	>
-
+              addfieldpath="/administrator/components/com_easystaging/models/fields"
+              label="Settings"
+              description="These are global operation settings for EasyStaging Plans." >
 		<field name="max_allowed_packet"
-			type="text"
-			default="1000"
-			label="Max Data per Step"
-			description="The maximum amount of data (in Kb) that should be in any single SQL export step. (A table bigger than this will be processed in several steps.)" />
+               type="text"
+               default="1000"
+               label="Max Data per Step"
+               description="The maximum amount of data (in Kb) that should be in any single SQL export step. (A table bigger than this will be processed in several steps.)" />
+        <field
+                name="spacer1"
+                type="spacer"
+                hr="true"
+                />
+        <field name="default_table_action"
+               type="EasyStagingAction"
+               label="Default Table Action"
+               description="The default action that table will be set to when creating a new plan."
+               default="0" />
+        <field name="default_added_table_action"
+               type="EasyStagingAction"
+               label="Default Added Tables Action"
+               description="The default action that table will be set to when new tables are found that don't currently exist in the plan."
+               default="0" />
 	</fieldset>
 
 	<fieldset name="permissions"

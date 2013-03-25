@@ -292,7 +292,7 @@ com_EasyStaging.createTableExportFiles  = function ( tableData )
 	// Make sure our file list is empty, just in case the user clicks the button a second time in the same plan.
 	this.SQLFileLists.length = 0;
 	
-	var rows = tableData.rows;
+    var rows = tableData.rows;
 	
 	// Process each table individually
 	var createExportSQLRequests = {};
@@ -337,7 +337,10 @@ com_EasyStaging.processCreateTableExportFiles  = function ( response )
 	{
 		this.SQLFileLists.push([response.pathToSQLFile, response.tableName]);
 		this.appendTextToCurrentStatus(response.data + '</em>');
-	} else { // we don't abort as other tables may work...
+	} else {
+	// We don't abort as it may simple be a case of no records and other tables may work...
+    // We decrement for dud tables as they won't have an export file :D
+        this.table_count--;
 		this.appendTextToCurrentStatus(response.data);
 		this.appendTextToCurrentStatus('<br />' + response.pathToSQLFile + '</em>');
 	}
@@ -392,9 +395,9 @@ com_EasyStaging.runTableExports = function ( )
 com_EasyStaging.processRunTableExport = function ( response )
 {
 	this.last_response = new Date().getTime();
+    this.tables_proc = this.tables_proc + 1;
 	if (response.status !== 0)
 	{
-		this.tables_proc = this.tables_proc + 1;
 		if (this.tables_proc > 1)
 		{
 			this.runStage = Joomla.JText._('COM_EASYSTAGING_JS_RUNNING_TABLE_SQL_EXPORTS') + ' ' + this.tables_proc + ' ' +
@@ -420,6 +423,7 @@ com_EasyStaging.processRunTableExport = function ( response )
 	else
 	{
 		this.runTableExportsQueue.clear();
+        this.tables_proc = 0;
 		clearInterval(this.responseTimer);
 		this.notWaiting();
 		this.enableBtns();

@@ -3,13 +3,13 @@
 
 	<fieldset name="settings"
               addfieldpath="/administrator/components/com_easystaging/models/fields"
-              label="Settings"
+              label="COM_EASYSTAGING_SETTINGS_GLOBAL_LABEL"
               description="These are global operation settings for EasyStaging Plans." >
 		<field name="max_allowed_packet"
                type="text"
                default="1000"
-               label="Max Data per Step"
-               description="The maximum amount of data (in Kb) that should be in any single SQL export step. (A table bigger than this will be processed in several steps.)" />
+               label="COM_EASYSTAGING_SETTINGS_GLOBAL_MAX_DATA_LABEL"
+               description="COM_EASYSTAGING_SETTINGS_GLOBAL_MAX_DATA_DESCR" />
         <field
                 name="spacer1"
                 type="spacer"
@@ -17,13 +17,13 @@
                 />
         <field name="default_table_action"
                type="EasyStagingAction"
-               label="Default Table Action"
-               description="The default action that table will be set to when creating a new plan."
+               label="COM_EASYSTAGING_SETTINGS_GLOBAL_DEFAULT_TABLE_ACTION_LABEL"
+               description="COM_EASYSTAGING_SETTINGS_GLOBAL_DEFAULT_TABLE_ACTION_DESCR"
                default="0" />
         <field name="default_added_table_action"
                type="EasyStagingAction"
-               label="Default Added Tables Action"
-               description="The default action that table will be set to when new tables are found that don't currently exist in the plan."
+               label="COM_EASYSTAGING_SETTINGS_GLOBAL_ADDED_TABLE_ACTION_LABEL"
+               description="COM_EASYSTAGING_SETTINGS_GLOBAL_ADDED_TABLE_ACTION_DESCR"
                default="0" />
 	</fieldset>
 

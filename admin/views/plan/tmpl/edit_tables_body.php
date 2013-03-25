@@ -3,7 +3,6 @@
 defined('_JEXEC') or die('Restricted Access');
 
 $localTables = $this->item->localTables;
-$actionChoices = $this->actionChoices;
 $i = 0;
 
 foreach ($localTables as $tablename => $row)

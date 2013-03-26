@@ -375,8 +375,8 @@ class EasyStagingModelPlan extends JModelAdmin
 		// Set the query
 		$query = $db->getQuery(true);
 		$query->select('*');
-		$query->from('#__easystaging_tables');
-		$query->where('plan_id = \''.$plan_id.'\'');
+		$query->from($db->quoteName('#__easystaging_tables'));
+		$query->where($db->quoteName('plan_id') . ' = ' . $db->quote($plan_id));
 		$query->order('tablename');
 		//echo $query;
 		$db->setQuery($query);

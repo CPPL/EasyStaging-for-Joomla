@@ -611,6 +611,7 @@ class EasyStagingControllerPlan extends JController
 
 	private function _getRemoteDBTables($db)
 	{
+		/** @var $db JDatabase */
 		$tableList = $db->getTableList();
 
 		return $tableList;
@@ -755,7 +756,7 @@ class EasyStagingControllerPlan extends JController
 			{
 
 				// Create the content for our exclusions file
-				$defaultExclusions = <<< DEE
+				$defaultExclusions = <<< DEF
 - com_easystaging/
 - /administrator/language/en-GB/en-GB.com_easystaging.ini
 - /tmp/
@@ -765,7 +766,7 @@ class EasyStagingControllerPlan extends JController
 - /configuration.php
 - /.htaccess
 
-DEE;
+DEF;
 				// Get local site record
 				$localSite = PlanHelper::getLocalSite($plan_id);
 

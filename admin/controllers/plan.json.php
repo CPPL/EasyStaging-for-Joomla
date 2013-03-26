@@ -157,6 +157,7 @@ class EasyStagingControllerPlan extends JController
 				$remoteTablesRetreived = $this->_getRemoteDBTables($rDBC);
 				if ($this->_writeToLog($msg . "\n" . print_r($remoteTablesRetreived,true)))
 				{
+					$session->set('com_easystaging_remoteTableList', $remoteTablesRetreived);
 					echo json_encode(array('msg' => $msg, 'status' => 1, 'data' => $remoteTablesRetreived));
 				}
 				else
@@ -180,7 +181,16 @@ class EasyStagingControllerPlan extends JController
 		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id))
 		{
 			// Get list of tables we'll be acting on
-			$remoteTableList = $this->_getInputVar('remoteTableList');
+			$session = JFactory::getSession();
+			$rtl = $session->get('com_easystaging_remoteTableList','');
+			if($rtl == '')
+			{
+				$remoteTableList = $this->_getInputVar('remoteTableList');
+			}
+			else
+			{
+				$remoteTableList = $rtl;
+			}
 			$tableResults = $this->_getTablesForReplication($plan_id, $remoteTableList);
 			if ($tableResults)
 			{

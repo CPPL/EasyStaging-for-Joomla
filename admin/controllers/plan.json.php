@@ -858,6 +858,10 @@ DEE;
 	{
 		return ('plan-'.$this->_plan_id().'-'.$table.'-export.sql');
 	}
+	private function _rsync_output_file_name($table)
+	{
+		return ('plan-'.$this->_plan_id().'-'.$table.'-rsyncout.txt');
+	}
 
 	private function _plan_id()
 	{

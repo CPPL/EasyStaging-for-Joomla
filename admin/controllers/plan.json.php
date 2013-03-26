@@ -203,8 +203,6 @@ class EasyStagingControllerPlan extends JController
 				$initialTableResults = $this->_getTablesForInitialReplication($plan_id);
 				if ($initialTableResults['status'] != '0')
 				{
-					$msg = $response['msg'] . "\n" . JText::sprintf('COM_EASYSTAGING_FOUND_TABLES_FO_DESC',count($initialTableResults['rows']));
-					$msg .= print_r($initialTableResults['rows'], true);
 					$response['msg'] = $response['msg'] . '<br />' . JText::sprintf('COM_EASYSTAGING_FOUND_TABLES_FO_DESC',count($initialTableResults['rows']));
 					$response['initialCopyTables'] = $initialTableResults['rows'];
 				}

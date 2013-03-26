@@ -345,7 +345,7 @@ com_EasyStaging.processCreateTableExportFiles  = function ( response )
 		this.appendTextToCurrentStatus('<br />' + response.pathToSQLFile + '</em>');
 	}
 
-	if (this.tables_proc === this.table_count)
+	if (this.tables_proc >= this.table_count)
 	{
 		this.tables_proc = 0;
 		this.appendTextToCurrentStatus('<br /><strong>' + Joomla.JText._('COM_EASYSTAGING_JS_RUNNING_TABLE_SQL_EXPORTS') + '</strong>');

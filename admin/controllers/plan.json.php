@@ -659,7 +659,7 @@ class EasyStagingControllerPlan extends JController
 			$query = $db->getQuery(true);
 			$query->select('*');
 			$query->from($db->quoteName('#__easystaging_tables'));
-			$query->where($db->quoteName('plan_id') . ' = ' . $plan_id);
+			$query->where($db->quoteName('plan_id') . ' = ' . $db->quote($plan_id));
 			$query->where('(' . $db->quoteName('action') . ' = ' . $db->quote('1') . ' OR ' . $db->quoteName('action') . ' = ' . $db->quote('2') . ')');
 			$query->order($db->quoteName('tablename'));
 			$db->setQuery($query);

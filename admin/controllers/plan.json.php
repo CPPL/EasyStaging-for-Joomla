@@ -960,4 +960,28 @@ DEF;
 		$canDo = PlanHelper::getActions($plan_id);
 		return $canDo->get('easystaging.run');
 	}
+
+	/**
+	 * Is this process id ($pid) running?
+	 *
+	 * @param   int  $pid  The process id to check for
+	 *
+	 * @return bool
+	 *
+	 * @since  1.1
+	 */
+	private function _isRunning($pid)
+	{
+		try{
+			$result = shell_exec(sprintf("ps %d", $pid));
+			if( count(preg_split("/\n/", $result)) > 2)
+			{
+				return true;
+			}
+		}catch(Exception $e)
+		{
+			//nothing to do... yet
+		}
+		return false;
+	}
 }

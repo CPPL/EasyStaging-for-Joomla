@@ -125,11 +125,15 @@ class EasyStagingViewPlan extends JView
 		JHtml::_('behavior.multiselect');
 
 		// Then add JS to the document‚ - make sure all JS comes after CSS
-		$jsFile = 'media/com_easystaging/js/plan.js';
-		$document->addScript(JURI::root() . $jsFile);
+		if ($this->item->published)
+		{
+			$jsFile = 'media/com_easystaging/js/plan.js';
+			$document->addScript(JURI::root() . $jsFile);
+			PlanHelper::loadJSLanguageKeys('/' . $jsFile);
+		}
 
 		// Finally is the plan clean, i.e. can it by run?
-		if (!$this->item->clean)
+		if (!$this->item->clean && $this->item->published)
 		{
 			$lockOutPlanBtnsScript = <<<'JS'
 window.addEvent('domready', function () {
@@ -140,8 +144,6 @@ JS;
 
 			$document->addScriptDeclaration($lockOutPlanBtnsScript);
 		}
-
-		PlanHelper::loadJSLanguageKeys('/' . $jsFile);
 	}
 
 	/**

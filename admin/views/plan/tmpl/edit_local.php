@@ -2,6 +2,7 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted Access');
 ?>
+<div>
 <p class="tab-description"><?php echo JText::_('COM_EASYSTAGING_LOCALSITE_TAB_DESC')?></p>
 	<ul class="adminformlist localsite">
 		<li><?php echo $this->form->getLabel('site_name','localSite'); ?> <?php echo $this->form->getInput('site_name','localSite'); ?></li>
@@ -16,4 +17,5 @@ defined('_JEXEC') or die('Restricted Access');
 		<li><?php echo $this->form->getLabel('rsync_options','localSite'); ?> <?php echo $this->form->getInput('rsync_options','localSite'); ?></li>
 		<li><?php echo $this->form->getLabel('file_exclusions','localSite'); ?> <?php echo $this->form->getInput('file_exclusions','localSite'); ?></li>
 	</ul>
+</div>
 <div class="clr"></div>

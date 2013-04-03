@@ -2,7 +2,7 @@
 // No direct access to this file
 defined('_JEXEC') or die('Restricted Access');
 ?>
-
+<div>
 <p class="tab-description"><?php echo JText::_('COM_EASYSTAGING_REMOTESITE_TAB_DESC')?></p>
 	<ul class="adminformlist remotesite">
 		<li><?php echo $this->form->getLabel('site_name','remoteSite'); ?> <?php echo $this->form->getInput('site_name','remoteSite'); ?></li>
@@ -17,4 +17,5 @@ defined('_JEXEC') or die('Restricted Access');
 		<li><?php echo $this->form->getLabel('rsync_options','remoteSite'); ?> <?php echo $this->form->getInput('rsync_options','remoteSite'); ?></li>
 		<li><?php echo $this->form->getLabel('file_exclusions','remoteSite'); ?> <?php echo $this->form->getInput('file_exclusions','remoteSite'); ?></li>
 	</ul>
+</div>
 <div class="clr"></div>

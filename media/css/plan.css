@@ -1,8 +1,3 @@
-.com_easystaging_mgr_last_run {
-	font-style: italic;
-	color: silver;
-}
-
 .icon-48-easystaging {
 	background-image: url("../images/EasyStaging-48-icon.png");
 }
@@ -22,22 +17,7 @@
 	font-weight: bold;
 }
 
-#lastRunStatus {
-	font-weight: bold;
-	height: 20px;
-	padding-left: 10px;
-}
-
-#planControls {
-	width:60%;
-	float:left;
-}
-.planUpdatesDiv, #lastRunStatus {
-	width:60%;
-	position: relative;
-	clear:both;
-}
-
+/* Toolbar */
 div.toolbar-list li a.tb-off {
     cursor: default;
     color: #cccccc;
@@ -53,6 +33,12 @@ div.toolbar-list.tb-off a:active {
     border-color: transparent;
     text-decoration: none;
     color: #cccccc;
+}
+
+/* Plan Run Buttons */
+#planControls {
+    width:60%;
+    float:left;
 }
 
 #startFileBtn {
@@ -85,6 +71,24 @@ div.toolbar-list.tb-off a:active {
 #startAllBtn.com_easystaging_plan_btn_off button:hover {
     cursor: default;
     background-color: white;
+}
+
+/* Message Areas */
+.com_easystaging_mgr_last_run {
+    font-style: italic;
+    color: silver;
+}
+
+#lastRunStatus {
+    font-weight: bold;
+    height: 20px;
+    padding-left: 10px;
+}
+
+.planUpdatesDiv, #lastRunStatus {
+    width:60%;
+    position: relative;
+    clear:both;
 }
 
 #rsyncErrors {

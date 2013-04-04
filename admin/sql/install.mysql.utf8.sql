@@ -45,15 +45,15 @@ CREATE TABLE IF NOT EXISTS `#__easystaging_tables` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `#__easystaging_upshot` (
+CREATE TABLE `#__easystaging_steps` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `plan_id` int(11) unsigned NOT NULL,
-  `target_site_id` int(11) unsigned NOT NULL,
-  `rsync_cmd` text NOT NULL,
-  `rsync_exclusion` text NOT NULL,
-  `rsync_results` text NOT NULL,
-  `tables_to_copy` int(11) NOT NULL,
-  `tables_copied` int(11) NOT NULL,
-  `table_results` text NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Log of push results.';
+  `runticket` char(128) NOT NULL DEFAULT '',
+  `action_type` int(11) DEFAULT NULL,
+  `action` varchar(1024) DEFAULT NULL,
+  `result` tinyint(1) DEFAULT NULL,
+  `result_text` text,
+  `completed` datetime DEFAULT NULL,
+  `reported` int(1) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `runticket` (`runticket`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

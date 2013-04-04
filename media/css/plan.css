@@ -50,25 +50,30 @@ div.toolbar-list.tb-off a:active {
 #startAllBtn {
 	background: url("../images/green-3.png") no-repeat 0px 0px;
 }
-#startFileBtn, #startDBaseBtn, #startAllBtn {
+#statusBtn {
+    background: url("../images/Mushroom-Clown-Button.png") no-repeat 0px 0px;
+}
+#startFileBtn, #startDBaseBtn, #startAllBtn, #statusBtn{
 	height: 32px;
 	padding-top:10px;
 	padding-bottom:10px;
 }
-#startFile, #startDBase, #startAll {
+#startFile, #startDBase, #startAll, #status{
 	margin: 34px;
 	height: 32px;
 }
 
 #startFileBtn.com_easystaging_plan_btn_off,
 #startDBaseBtn.com_easystaging_plan_btn_off,
-#startAllBtn.com_easystaging_plan_btn_off {
+#startAllBtn.com_easystaging_plan_btn_off,
+#statusBtn.com_easystaging_plan_btn_off {
 	background-position-y: 32px;
 }
 
 #startFileBtn.com_easystaging_plan_btn_off button:hover,
 #startDBaseBtn.com_easystaging_plan_btn_off button:hover,
-#startAllBtn.com_easystaging_plan_btn_off button:hover {
+#startAllBtn.com_easystaging_plan_btn_off button:hover,
+#statusBtn.com_easystaging_plan_btn_off button:hover {
     cursor: default;
     background-color: white;
 }

@@ -7,13 +7,26 @@ if (typeof(com_EasyStaging) === 'undefined')
 	var com_EasyStaging = {};
 }
 
-	window.addEvent('domready', function () {
-	/* ajax replace element text */
-	$('startFile' ).addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );
-	$('startDBase').addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );
-	$('startAll'  ).addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );
-	com_EasyStaging.setUp();
-});
+	window.addEvent('domready',
+        function () {
+            $('startFile' ).addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );
+            $('startDBase').addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );
+            $('startAll'  ).addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );
+            // Just in case we want to copy the status ouput...
+            $('currentStatus').addEvent('click',
+                function(event) {
+                    com_EasyStaging.SelectText('currentStatus');
+                    lrs = document.getElementById('lastRunStatus');
+                    if(com_EasyStaging.lrs == undefined)
+                    {
+                        com_EasyStaging.lrs = lrs.innerHTML;
+                    }
+                    lrs.innerHTML = com_EasyStaging.lrs + Joomla.JText._('COM_EASYSTAGING_JS_COPY_INSTRUCTIONS');
+                }
+            );
+            com_EasyStaging.setUp();
+        }
+    );
 
 Joomla.submitbutton = function (task) {
 	if (task === 'plan.cancel' || document.formvalidator.isValid(document.id('easystaging-form')))
@@ -650,5 +663,32 @@ com_EasyStaging.enableToolbarBtns = function ()
         {
             ahref.onclick = com_EasyStaging.toolbarClickEvents.shift();
         })
+    }
+}
+
+com_EasyStaging.SelectText = function (objId)
+{
+    this.fnDeSelectText();
+    if (document.selection) {
+        var range = document.body.createTextRange();
+        range.moveToElementText(document.getElementById(objId));
+        range.select();
+    }
+    else if (window.getSelection) {
+        var range = document.createRange();
+        range.selectNode(document.getElementById(objId));
+        window.getSelection().addRange(range);
+    }
+}
+
+com_EasyStaging.fnDeSelectText = function ()
+{
+    if (document.selection)
+    {
+        document.selection.empty();
+    }
+    else if (window.getSelection)
+    {
+        window.getSelection().removeAllRanges();
     }
 }

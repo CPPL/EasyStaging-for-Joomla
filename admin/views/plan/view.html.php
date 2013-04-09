@@ -127,6 +127,11 @@ class EasyStagingViewPlan extends JView
 		// Then add JS to the document‚ - make sure all JS comes after CSS
 		if ($this->item->published)
 		{
+			// General Tools first
+			$jsFile = 'media/com_easystaging/js/atools.js';
+			$document->addScript(JURI::root() . $jsFile);
+			PlanHelper::loadJSLanguageKeys('/' . $jsFile);
+			// View specific
 			$jsFile = 'media/com_easystaging/js/plan.js';
 			$document->addScript(JURI::root() . $jsFile);
 			PlanHelper::loadJSLanguageKeys('/' . $jsFile);

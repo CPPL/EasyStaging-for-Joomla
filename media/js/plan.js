@@ -9,6 +9,7 @@ if (typeof(com_EasyStaging) === 'undefined')
 
 	window.addEvent('domready',
         function () {
+            cppl_tools.setUp('com_easystaging');
             $('startFile' ).addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );
             $('startDBase').addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );
             $('startAll'  ).addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );

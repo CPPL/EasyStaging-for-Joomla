@@ -3,14 +3,14 @@
  
 	<name>EasyStaging</name>
 	<!-- The following elements are optional and free of formatting constraints -->
-	<creationDate>02-Apr-2013</creationDate>
+	<creationDate>08-Apr-2013</creationDate>
 	<author>Craig Phillips</author>
 	<authorEmail>support@craigphillips.biz</authorEmail>
 	<authorUrl>http://craigphillips.biz</authorUrl>
 	<copyright>© 2011 Craig Phillips Pty Ltd</copyright>
 	<license>License Info</license>
 	<!--  The version string is recorded in the components table -->
-	<version>1.1a7 (f738a69)</version>
+	<version>1.1.0a8 (8d1667a)</version>
 	<!-- The description is optional and defaults to the name -->
 	<description>COM_EASYSTAGING_XML_DESCRIPTION</description>
 
@@ -24,7 +24,12 @@
 			<file driver="mysql" charset="utf8">sql/uninstall.mysql.utf8.sql</file>
 		</sql>
 	</uninstall>
-	<media destination="com_easystaging" folder="media">
+    <update>
+        <schemas>
+            <schemapath type="mysql">sql/updates</schemapath>
+        </schemas>
+    </update>
+    <media destination="com_easystaging" folder="media">
 		<file>index.html</file>
 		<folder>css</folder>
 		<folder>images</folder>

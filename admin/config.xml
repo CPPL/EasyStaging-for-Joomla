@@ -10,6 +10,11 @@
                default="1000"
                label="COM_EASYSTAGING_SETTINGS_GLOBAL_MAX_DATA_LABEL"
                description="COM_EASYSTAGING_SETTINGS_GLOBAL_MAX_DATA_DESCR" />
+        <field name="status_check_interval"
+               type="text"
+               label="COM_EASYSTAGING_SETTINGS_GLOBAL_STATUS_CHECK_INTERVAL_LABEL"
+               description="COM_EASYSTAGING_SETTINGS_GLOBAL_STATUS_CHECK_INTERVAL_DESCR"
+               default="5" />
         <field
                 name="spacer1"
                 type="spacer"

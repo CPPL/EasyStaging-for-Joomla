@@ -28,8 +28,7 @@ if (!$this->canDo->get('core.edit'))
 				echo JHtml::_('tabs.panel', JText::_('COM_EASYSTAGING_STATUS_TAB'), 'status');
 				echo $this->loadTemplate('status');
 			}
-		?>
-		<?php
+
 			if ($this->canDo->get('core.edit') || ($this->canDo->get('core.create') && ($this->item->id == 0)))
 			{
 				echo JHtml::_('tabs.panel', JText::_('COM_EASYSTAGING_LOCALSITE_TAB'), 'local_site');

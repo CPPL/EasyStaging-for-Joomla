@@ -24,13 +24,24 @@ class EasyStagingModelPlans extends JModelList
 	 */
 	protected function getListQuery()
 	{
-		// Create a new query object.		
+		// Create a new query object.
 		$db = JFactory::getDBO();
 		$query = $db->getQuery(true);
+
 		// Select some fields
-		$query->select('id,name,description,published,created_by,publish_down,publish_up,checked_out,last_run');
+		$query->select($db->quoteName('id'));
+		$query->select($db->quoteName('name'));
+		$query->select($db->quoteName('description'));
+		$query->select($db->quoteName('published'));
+		$query->select($db->quoteName('created_by'));
+		$query->select($db->quoteName('publish_down'));
+		$query->select($db->quoteName('publish_up'));
+		$query->select($db->quoteName('checked_out'));
+		$query->select($db->quoteName('last_run'));
+
 		// From the EasyStaging table
 		$query->from('#__easystaging_plans');
+
 		return $query;
 	}
 }

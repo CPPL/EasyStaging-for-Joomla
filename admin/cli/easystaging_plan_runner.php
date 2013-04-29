@@ -11,7 +11,7 @@
  */
 
 // Make sure we're being called from the command line, not a web interface
-if (array_key_exists('REQUEST_METHOD', $_SERVER)) die();
+if (array_key_exists('REQUEST_METHOD', $_SERVER)) die("Direct Web Request refused");
 
 // Set flag that this is a parent file.
 define('_JEXEC', 1);
@@ -63,6 +63,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 	public function doExecute()
 	{
 		// Purge all old records
+		sleep(5);
 		$db = JFactory::getDBO();
 
 		jimport('joomla.application.component.helper');
@@ -83,6 +84,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 		else
 		{
 			// Our work in here...
+			$this->out(sprintf('Plan Runner Launched, PID: %s', getmypid()));
 			$this->out(sprintf('Run tickek found, id: %s', $runTicket));
 
 			// Find any overrides that may have been passed in...
@@ -93,6 +95,135 @@ class EasyStaging_PlanRunner extends JApplicationCli
 
 		// And now we're finished
 		$this->out('Exiting plan runner.');
+	}
+	/**
+	 * Parses POSIX command line options and returns them as an associative array. Each array item contains
+	 * a single dimensional array of values. Arguments without a dash are silently ignored.
+	 *
+	 * @return array
+	 */
+	private function parseOptions()
+	{
+		global $argc, $argv;
+
+		// Workaround for PHP-CGI
+		if (!isset($argc) && !isset($argv))
+		{
+			$query = "";
+
+			if (!empty($_GET))
+			{
+				foreach ($_GET as $k => $v)
+				{
+					$query .= " $k";
+
+					if ($v != "")
+					{
+						$query .= "=$v";
+					}
+				}
+			}
+			$query = ltrim($query);
+			$argv = explode(' ', $query);
+			$argc = count($argv);
+		}
+
+		$currentName	= "";
+		$options		= array();
+
+		for ($i = 1; $i < $argc; $i++)
+		{
+			$argument = $argv[$i];
+
+			if (strpos($argument, "-") === 0)
+			{
+				$argument = ltrim($argument, '-');
+
+				if (strstr($argument, '='))
+				{
+					list($name, $value) = explode('=', $argument, 2);
+				}
+				else
+				{
+					$name = $argument;
+					$value = null;
+				}
+				$currentName = $name;
+
+				if (!isset($options[$currentName]) || ($options[$currentName] == null))
+				{
+					$options[$currentName] = array();
+				}
+			}
+			else
+			{
+				$value = $argument;
+			}
+
+			if ((!is_null($value)) && (!is_null($currentName)))
+			{
+				if (strstr($value, '='))
+				{
+					$parts = explode('=', $value, 2);
+					$key = $parts[0];
+					$value = $parts[1];
+				}
+				else
+				{
+					$key = null;
+				}
+
+				$values = $options[$currentName];
+
+				if (is_null($key))
+				{
+					array_push($values, $value);
+				}
+				else
+				{
+					$values[$key] = $value;
+				}
+				$options[$currentName] = $values;
+			}
+		}
+		return $options;
+	}
+
+	/**
+	 * Returns the value of a command line option
+	 *
+	 * @param   string  $key              The full name of the option, e.g. "foobar"
+	 *
+	 * @param   mixed   $default          The default value to return
+	 *
+	 * @param   bool    $first_item_only  Return only the first value specified (default = true)
+	 *
+	 * @return mixed
+	 */
+	private function getOption($key, $default = null, $first_item_only = true)
+	{
+		static $options = null;
+
+		if (is_null($options))
+		{
+			$options = $this->parseOptions();
+		}
+
+		if ( !array_key_exists($key, $options) )
+		{
+			return $default;
+		}
+		else
+		{
+			if ( $first_item_only )
+			{
+				return $options[$key][0];
+			}
+			else
+			{
+				return $options[$key];
+			}
+		}
 	}
 }
 

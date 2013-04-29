@@ -962,6 +962,60 @@ DEF;
 	}
 
 	/**
+	 * Runs the script in the background and returns the PID
+	 *
+	 * @param   string  $pathToScript  A path to the script to run e.g. "/path/to/my/cli/app.php"
+	 *
+	 * @return  int
+	 */
+	private function _runScriptInBackground($pathToScript)
+	{
+		print `echo /usr/bin/php -q $pathToScript | at now`;
+
+		// Get our command value sans any options
+		$command = strpos($pathToScript, ' ') ? array_shift(explode(' ', $pathToScript)): $pathToScript;
+		$timeout = (int) $this->params->get('background_timeout', 2);
+		$pid = $this->_getPIDForName($command, $timeout);
+
+		return $pid;
+	}
+
+	/**
+	 * Uses the shell command to run `ps ax` then search the results for our executing script/app name and return it's PID.
+	 * As it can be called immediately after some scheduled launches like `at` it may take a second or two for the target to be launched.
+	 * @param     $name
+	 * @param int $timeOut
+	 * @return bool|mixed
+	 */
+	protected function _getPIDForName($name, $timeOut = 0)
+	{
+		// Allow `at` time to fire `atq`
+		$pid = false;
+		$startPIDSearch = time();
+
+		while (!$pid && (($startPIDSearch - time()) < $timeOut))
+		{
+			usleep(100000);
+			$result = shell_exec("ps ax ");
+			$result = array_slice(explode("\n", $result), 1);
+
+			if ( count($result) > 2)
+			{
+				foreach ($result as $line)
+				{
+					if (($inLine = strpos($line, $name)) !== false)
+					{
+						$pid = array_shift(explode(' ', $line));
+
+						return $pid;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+	/**
 	 * Is this process id ($pid) running?
 	 *
 	 * @param   int  $pid  The process id to check for

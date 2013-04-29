@@ -13,6 +13,7 @@ if (typeof(com_EasyStaging) === 'undefined')
             $('startFile' ).addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );
             $('startDBase').addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );
             $('startAll'  ).addEvent('click', function (event) { com_EasyStaging.ajaxCheckIn(event); } );
+            $('status'    ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
             // Just in case we want to copy the status ouput...
             $('currentStatus').addEvent('click',
                 function(event) {
@@ -44,24 +45,160 @@ Joomla.submitbutton = function (task) {
 	}
 };
 
+ com_EasyStaging.start = function (whatWeWant)
+ {
+     if(whatWeWant == undefined)
+     {
+         com_EasyStaging.appendTextToCurrentStatus(cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_MISSING_PARAMETER'), 'start()'));
+     }
+     else
+     {
+         com_EasyStaging.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JSON_REQUEST_MADE_PLEASE_WAIT') + '</strong>', false);
+         com_EasyStaging.requestData.step = whatWeWant;
+         com_EasyStaging.requestData.runticket = '';
+         com_EasyStaging.lockOutBtns(true);
+         com_EasyStaging.disableToolbarBtns();
+         com_EasyStaging.status();
+     }
+ }
+
+com_EasyStaging.status = function ()
+{
+    com_EasyStaging.requestData.task = 'plan.status';
+    com_EasyStaging.runStage = Joomla.JText._('COM_EASYSTAGING_JS_IN_PROGRESS');
+    com_EasyStaging.hilightStatusMessages()
+
+    var req = new Request.JSON({
+        url: com_EasyStaging.jsonURL,
+        method: 'get',
+        data: com_EasyStaging.requestData,
+        onRequest:  function ()
+        {
+            com_EasyStaging.waiting();
+            if((com_EasyStaging.statusTimeout != null) && (com_EasyStaging.statusTimeout != undefined))
+            {
+                window.clearTimeout(com_EasyStaging.statusTimeout);
+                com_EasyStaging.statusTimeout = null;
+            }
+        },
+        onComplete: function (response)
+        {
+            com_EasyStaging.reportStatus ( response );
+        }
+    });
+    req.send();
+}
+
+com_EasyStaging.reportStatus = function ( response )
+{
+    com_EasyStaging.notWaiting();
+    if (response.status !== 0)
+    {
+        switch (response.status)
+        {
+            // Finished nothing new to report.
+            case 1:
+                com_EasyStaging.appendTextToCurrentStatus(response.msg);
+                com_EasyStaging.runEnded();
+                break;
+            // Still have steps to process
+            case 2:
+                // Only the run creation will return a runticket so we need to keep a copy so we can get run status
+                if(response.runticket != undefined)
+                {
+                    com_EasyStaging.requestData.runticket = response.runticket;
+                }
+                com_EasyStaging.appendTextToCurrentStatus(response.msg);
+                com_EasyStaging.appendUpdatesToCurrentStatus(response.updates)
+                if(response.stepsleft != undefined)
+                {
+                    var stepsRemaining = response.stepsleft.length;
+                    var leftMsg = '';
+                    if(response.stepsleft.length == 1)
+                    {
+                        leftMsg = Joomla.JText._('COM_EASYSTAGING_JS_STEP_LEFT');
+                    }
+                    else if(stepsRemaining > 1)
+                    {
+                        leftMsg = cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_STEPS_LEFT'), stepsRemaining);
+                    }
+                    com_EasyStaging.appendTextToCurrentStatus(leftMsg);
+                }
+
+                com_EasyStaging.statusTimeout = window.setTimeout(com_EasyStaging.status, com_EasyStaging.statusCheckInterval);
+                break;
+            // Shouldn't happen... unless we're adding new features ;)
+            default:
+                com_EasyStaging.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_ERROR_UNKNOWN_PROC_PATH')+'</span>');
+                com_EasyStaging.runEnded(false);
+                break;
+        }
+    }
+    else
+    {
+        com_EasyStaging.appendTextToCurrentStatus(response.error);
+        com_EasyStaging.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_STATUS_CHECK_FAILED')+'</span>');
+        com_EasyStaging.runEnded(false);
+    }
+}
+
+com_EasyStaging.appendUpdatesToCurrentStatus = function (updates)
+{
+    // If we have updates add them to the current status
+    var number_of_updates = 0;
+    if(updates != undefined && (number_of_updates = updates.length))
+    {
+        for (var i = 0; i< number_of_updates; i++)
+        {
+            var msg = updates[0].result_text;
+            com_EasyStaging.appendTextToCurrentStatus(msg);
+            updates.shift();
+        }
+    }
+}
+
+com_EasyStaging.hilightStatusMessages = function ()
+{
+    document.getElementById('currentStatus').setStyle('background','#fffea1');
+}
+
+com_EasyStaging.runEnded = function (successfullRun)
+{
+    successfullRun = typeof(successfullRun) !== 'undefined' ? successfullRun : true;
+    clearInterval(this.responseTimer);
+    if (successfullRun)
+    {
+        this.appendTextToCurrentStatus('<strong>' + Joomla.JText._('COM_EASYSTAGING_JS_PLAN_RUN_COMPLETED') + '</strong><br />',true);
+        this.setLastRunStatus();
+        this.currentStatusScroller.toBottom.delay(100,this.currentStatusScroller);
+    }
+
+    this.notWaiting();
+    this.enableBtns();
+}
+    /*
+     Old 1.0 series functions follow
+     */
+
 com_EasyStaging.setUp = function ()
 {
 	this.currentStatusScroller = new Fx.Scroll($('currentStatus'));
-	this.table_count         = 0;
-	this.tables_proc         = 0;
-	this.last_response       = 0;
-	this.last_notification   = 0;
-	this.runStage            = '';
-	this.lastRunStatus       = [];
-	this.currentStatus       = [];
-	this.SQLFileLists        = [];
-    this.toolbarClickEvents  = [];
-	this.requestData         = {};
-	var token                = this.getToken();
-	this.requestData[token]  = 1;
-	this.requestData.plan_id = this.getID();
-	this.jsonURL             = 'index.php?option=com_easystaging&format=json';
-	this.jsonRequestObj      = new Request.JSON({
+	this.table_count           = 0;
+	this.tables_proc           = 0;
+	this.last_response         = 0;
+	this.last_notification     = 0;
+	this.runStage              = '';
+	this.lastRunStatus         = [];
+	this.currentStatus         = [];
+	this.SQLFileLists          = [];
+    this.toolbarClickEvents    = [];
+	this.requestData           = {};
+	var token                  = this.getToken();
+	this.requestData[token]    = 1;
+    this.requestData.runticket = '';
+	this.requestData.plan_id   = this.getID();
+	this.jsonURL               = 'index.php?option=com_easystaging&format=json';
+	this.jsonRequestObj        = new Request.JSON({
 		url:    'index.php?option=com_easystaging&format=json',
 		method: 'get'
 	});
@@ -122,7 +259,7 @@ com_EasyStaging.processCheckIn  = function ( response )
 		case 'startFile':	
 			$('startFile').value = Joomla.JText._('COM_EASYSTAGING_JS_FILES_COPYING___');
 			this.setupRsync( response );
-		break;
+            break;
 
 		case 'startDBase':	this.checkDBConnection( response );
 		break;
@@ -522,7 +659,7 @@ com_EasyStaging.appendTextToCurrentStatus  = function (text, append)
 	{
 		$('currentStatus').innerHTML = text;
 	}
-	this.currentStatusScroller.toBottom();
+//	this.currentStatusScroller.toBottom();
 };
 
 com_EasyStaging.appendTimeSince = function ()

@@ -131,11 +131,26 @@ class EasyStagingViewPlan extends JView
 			$jsFile = 'media/com_easystaging/js/atools.js';
 			$document->addScript(JURI::root() . $jsFile);
 			PlanHelper::loadJSLanguageKeys('/' . $jsFile);
+
 			// View specific
 			$jsFile = 'media/com_easystaging/js/plan.js';
 			$document->addScript(JURI::root() . $jsFile);
 			PlanHelper::loadJSLanguageKeys('/' . $jsFile);
 		}
+
+		// Add our Status check interval value to the view
+		$params = JComponentHelper::getParams('com_easystaging');
+		$status_check_interval = $params->get('status_check_interval', 5);
+		$status_check_interval = ($status_check_interval > 60) ? 60 : (($status_check_interval < 1) ? 1 : $status_check_interval);
+		$sci_in_ms = $status_check_interval * 1000;
+		$sc_js = <<<JS
+window.addEvent('domready', function () {
+	/* Sets the interval between status checks from ES Global Settings */
+	com_EasyStaging.statusCheckInterval = $sci_in_ms;
+});
+JS;
+
+		$document->addScriptDeclaration($sc_js);
 
 		// Finally is the plan clean, i.e. can it by run?
 		if (!$this->item->clean && $this->item->published)

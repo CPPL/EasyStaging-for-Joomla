@@ -10,7 +10,7 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
 jimport('joomla.application.component.controller');
-jimport( 'joomla.database.table' );
+jimport('joomla.database.table');
 
 /**
  * EasyStaging Component Plan Controller
@@ -214,13 +214,12 @@ class EasyStagingControllerPlan extends JController
 						else
 						{
 							// Oh no couldn't launch the Plan Runner
-							$steps[] = array('action_type' => 99, 'result_text' => JText::_('COM_EASYSTAGING_PLAN_RUNNER_LAUNCH_FAILED'));
+							$response['status'] = 0;
+							$response['error']  = JText::_('COM_EASYSTAGING_PLAN_RUNNER_LAUNCH_FAILED');
 
 							// Set the plan back to published
 							$thePlan->published = self::PUBLISHED;
-
-							// Terminate the run.
-							$response['status'] = 0;
+							$thePlan->store();
 						}
 						// Add the steps to the updates to be sent back to the browser...
 						$response['updates'] = $steps;

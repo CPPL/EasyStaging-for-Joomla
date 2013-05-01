@@ -206,9 +206,8 @@ class EasyStagingControllerPlan extends JController
 					if($response['status'])
 					{
 						// Finally we launch our server side cli app
-						$pid = $this->_runScriptInBackground(JPATH_BASE . 'cli/easystaging_plan_runner.php --runticket=' . $runticket);
-						// if($pid && $this->_isRunning($pid))
-						if($pid)
+						$ok = $this->_runScriptInBackground(JPATH_SITE . '/cli/easystaging_plan_runner.php --runticket=' . $runticket);
+						if($ok)
 						{
 							$steps[] = array('action_type' => 99, 'result_text' => JText::_('COM_EASYSTAGING_PLAN_RUNNER_LAUNCHED'));
 						}
@@ -1509,7 +1508,7 @@ DEF;
 	}
 
 	/**
-	 * Runs the script in the background and returns the PID
+	 * Runs the script in the background by scheduling it with the `at` daemon and returns the result
 	 *
 	 * @param   string  $pathToScript  A path to the script to run e.g. "/path/to/my/cli/app.php"
 	 *
@@ -1517,14 +1516,13 @@ DEF;
 	 */
 	private function _runScriptInBackground($pathToScript)
 	{
-		print `echo /usr/bin/php -q $pathToScript | at now`;
+		$cmdPath = "/usr/bin/php -q $pathToScript";
 
-		// Get our command value sans any options
-		$command = strpos($pathToScript, ' ') ? array_shift(explode(' ', $pathToScript)): $pathToScript;
-		$timeout = (int) $this->params->get('background_timeout', 2);
-		$pid = $this->_getPIDForName($command, $timeout);
+		// We need '2>&1' so we have something to pass back
+		$cmd     = 'echo "' . $cmdPath . '" | at now 2>&1';
+		$result = shell_exec($cmd);
 
-		return $pid;
+		return $result;
 	}
 
 	/**

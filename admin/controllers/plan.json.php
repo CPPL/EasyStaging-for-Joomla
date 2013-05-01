@@ -209,7 +209,7 @@ class EasyStagingControllerPlan extends JController
 						$ok = $this->_runScriptInBackground(JPATH_SITE . '/cli/easystaging_plan_runner.php --runticket=' . $runticket);
 						if($ok)
 						{
-							$steps[] = array('action_type' => 99, 'result_text' => JText::_('COM_EASYSTAGING_PLAN_RUNNER_LAUNCHED'));
+							$steps[] = array('action_type' => 99, 'result_text' => JText::sprintf('COM_EASYSTAGING_PLAN_RUNNER_LAUNCHED', $ok));
 						}
 						else
 						{

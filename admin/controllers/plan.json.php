@@ -1527,10 +1527,14 @@ DEF;
 
 	/**
 	 * Uses the shell command to run `ps ax` then search the results for our executing script/app name and return it's PID.
-	 * As it can be called immediately after some scheduled launches like `at` it may take a second or two for the target to be launched.
-	 * @param     $name
-	 * @param int $timeOut
-	 * @return bool|mixed
+	 * As it can be called immediately after some scheduled launches like `at` it may take a second or two for the target
+	 * to be launched depending on the system configuration.
+	 *
+	 * @param   string  $name     The name of the process to look for (could be any string really)
+	 *
+	 * @param   int     $timeOut  The number of seconds to try for... NB. forced to int.
+	 *
+	 * @return bool|ints
 	 */
 	protected function _getPIDForName($name, $timeOut = 0)
 	{
@@ -1538,7 +1542,7 @@ DEF;
 		$pid = false;
 		$startPIDSearch = time();
 
-		while (!$pid && (($startPIDSearch - time()) < $timeOut))
+		while (!$pid && ((time() - $startPIDSearch) <= (int) $timeOut))
 		{
 			usleep(100000);
 			$result = shell_exec("ps ax ");
@@ -1550,15 +1554,14 @@ DEF;
 				{
 					if (($inLine = strpos($line, $name)) !== false)
 					{
-						$pid = array_shift(explode(' ', $line));
-
-						return $pid;
+						$linearray = explode(' ', $line);
+						$pid = array_shift($linearray);
 					}
 				}
 			}
 		}
 
-		return false;
+		return $pid;
 	}
 	/**
 	 * Is this process id ($pid) running?

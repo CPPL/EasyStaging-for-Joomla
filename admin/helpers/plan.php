@@ -19,6 +19,13 @@ class PlanHelper
 
 	private static $_ext_actions = array('easystaging.run');
 
+	/**
+	 * Loads the specified plan as a JTable object.
+	 *
+	 * @param   int  $plan_id  The plan in question.
+	 *
+	 * @return  bool|JTable
+	 */
 	public static function getPlan($plan_id)
 	{
 		JTable::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_easystaging/tables');

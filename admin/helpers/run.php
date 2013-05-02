@@ -16,7 +16,7 @@ class RunHelper
 	public static $extension = 'com_easystaging';
 
 	/**
-	 * Checks that the ticket is of a valid format, the plan is published and the UUID matches the users sessions store.
+	 * Checks that the ticket is of a valid format, the plan is published (for the runner the UUID is irrelevant).
 	 *
 	 * @param   string  $runticket  The run ticket string. PlanId-DTS-UUID
 	 *
@@ -43,8 +43,8 @@ class RunHelper
 				{
 					$jAp = JFactory::getApplication();
 
-					// Does the UUID match the one in this users Session?
-					if ($rtarray['rt_uuid'] == $jAp->getUserState('rt_uuid'))
+					// Is the uuid the right length? (it's the only thing we can check...)
+					if ((strlen($rtarray['rt_uuid']) == 13) || (strlen($rtarray['rt_uuid']) == 23))
 					{
 						$result = true;
 					}

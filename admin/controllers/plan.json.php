@@ -287,7 +287,7 @@ class EasyStagingControllerPlan extends JController
 		// Get our Rsync steps
 		if(($stepsRequired == 'startFile') || ($stepsRequired == 'startAll'))
 		{
-			$rsyncStep = $this->createRsyncSteps($thePlan, $runticket, $localSite, $remoteSite);
+			$rsyncStep = $this->createRsyncSteps($runticket, $localSite, $remoteSite);
 			if(is_array($rsyncStep))
 			{
 				$steps = array_merge($steps,array(0 =>$rsyncStep));
@@ -350,17 +350,17 @@ class EasyStagingControllerPlan extends JController
 	 *
 	 * @since   1.1.0
 	 */
-	protected function createRsyncSteps ($runticket, $thePlan, $localSite, $remoteSite)
+	protected function createRsyncSteps ($runticket, $localSite, $remoteSite)
 	{
 		// Setup our Rsync step, if we have local and remote paths
 		if(($localSite->site_path != '') && ($remoteSite->site_path != ''))
 		{
 			// create the step in here...
 			$action = array(
-				'local_path'  => $localSite->site_path,
-				'remote_path' => $remoteSite->site_path,
-				'options'     => $localSite->rsync_options,
-				'exclusion'   => $localSite->file_exclusions,
+				'local_site_path'  => $localSite->site_path,
+				'remote_site_path' => $remoteSite->site_path,
+				'rsync_options'     => $localSite->rsync_options,
+				'file_exclusions'   => $localSite->file_exclusions,
 			);
 			$result = array('runticket' => $runticket, 'action_type' => 1, 'action' => json_encode($action));
 		}

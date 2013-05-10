@@ -103,28 +103,35 @@ com_EasyStaging.reportStatus = function ( response )
                 break;
             // Still have steps to process
             case 2:
-                // Only the run creation will return a runticket so we need to keep a copy so we can get run status
-                if(response.runticket != undefined)
+                if( cppl_tools.compareTwoObjects(this.previousResponse, JSON.parse(JSON.stringify(response))))
                 {
-                    com_EasyStaging.requestData.runticket = response.runticket;
+                    com_EasyStaging.appendTextToCurrentStatus('.',true,'');
                 }
-                com_EasyStaging.appendTextToCurrentStatus(response.msg);
-                com_EasyStaging.appendUpdatesToCurrentStatus(response.updates)
-                if(response.stepsleft != undefined)
+                else
                 {
-                    var stepsRemaining = response.stepsleft.length;
-                    var leftMsg = '';
-                    if(response.stepsleft.length == 1)
+                    this.previousResponse = JSON.parse(JSON.stringify(response));
+                    // Only the run creation will return a runticket so we need to keep a copy so we can get run status
+                    if(response.runticket != undefined)
                     {
-                        leftMsg = Joomla.JText._('COM_EASYSTAGING_JS_STEP_LEFT');
+                        com_EasyStaging.requestData.runticket = response.runticket;
                     }
-                    else if(stepsRemaining > 1)
+                    com_EasyStaging.appendTextToCurrentStatus(response.msg);
+                    com_EasyStaging.appendUpdatesToCurrentStatus(response.updates)
+                    if(response.stepsleft != undefined)
                     {
-                        leftMsg = cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_STEPS_LEFT'), stepsRemaining);
+                        var stepsRemaining = response.stepsleft.length;
+                        var leftMsg = '';
+                        if(response.stepsleft.length == 1)
+                        {
+                            leftMsg = Joomla.JText._('COM_EASYSTAGING_JS_STEP_LEFT');
+                        }
+                        else if(stepsRemaining > 1)
+                        {
+                            leftMsg = cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_STEPS_LEFT'), stepsRemaining);
+                        }
+                        com_EasyStaging.appendTextToCurrentStatus(leftMsg);
                     }
-                    com_EasyStaging.appendTextToCurrentStatus(leftMsg);
                 }
-
                 com_EasyStaging.statusTimeout = window.setTimeout(com_EasyStaging.status, com_EasyStaging.statusCheckInterval);
                 break;
             // Shouldn't happen... unless we're adding new features ;)
@@ -188,6 +195,7 @@ com_EasyStaging.setUp = function ()
 	this.last_response         = 0;
 	this.last_notification     = 0;
 	this.runStage              = '';
+    this.previousResponse      = null;
 	this.lastRunStatus         = [];
 	this.currentStatus         = [];
 	this.SQLFileLists          = [];

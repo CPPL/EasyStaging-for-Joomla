@@ -61,6 +61,7 @@ class EasyStagingControllerPlan extends JController
 	function __construct($config)
 	{
 		require_once JPATH_COMPONENT.'/helpers/plan.php';
+
 		parent::__construct($config);
 		$this->params = JComponentHelper::getParams('com_easystaging');
 	}
@@ -113,7 +114,7 @@ class EasyStagingControllerPlan extends JController
 				}
 				else
 				{
-					if($this->runTicketIsValid($runTicket))
+					if ($this->runTicketIsValid($runTicket))
 					{
 						// Hey we have a run ticket and we're logged in let's get this programm his status
 						$stepDetails = $this->getUnreportedRunSteps($runTicket);
@@ -279,6 +280,7 @@ class EasyStagingControllerPlan extends JController
 		$steps[] = array('runticket' => $runticket, 'action_type' => 0, 'state' => self::FINISHED, 'result_text' => JText::_('COM_EASYSTAGING_JSON_ROOT_ACTION_MSG'));
 
 		// We assume success, but we will fail if any step goes wrong...
+		// Where "Goes wrong" means a serious breakdown... not just a single copy failing...
 		$response   = array('status' => 1, 'msg' => JText::_('COM_EASYSTAGING_JSON_CREATING_RUN_STEPS'));
 		$rsyncStep  = false;
 		$tableSteps = false;
@@ -339,8 +341,6 @@ class EasyStagingControllerPlan extends JController
 	 * Creates the steps for the rsync if it's setup
 	 *
 	 * @param   string  $runticket   The current runticket to tag steps with.
-	 *
-	 * @param   JTable  $thePlan     The plan id.
 	 *
 	 * @param   JTable  $localSite   The local site object.
 	 *

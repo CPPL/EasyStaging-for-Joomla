@@ -42,7 +42,7 @@ JError::$legacy = true;
 require_once JPATH_CONFIGURATION . '/configuration.php';
 
 // Set the root path to EasyStaging
-define('JPATH_COMPONENT_ADMINISTRATOR', JPATH_ADMINISTRATOR.'/components/com_easystaging');
+define('JPATH_COMPONENT_ADMINISTRATOR', JPATH_ADMINISTRATOR . '/components/com_easystaging');
 
 
 /**

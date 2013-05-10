@@ -44,6 +44,165 @@ cppl_tools.getID  = function ()
 	}
 }
 
+cppl_tools.compareTwoObjects = function (firstObj, secondObj)
+{
+    firstObj = typeof firstObj !== 'undefined' ? firstObj : false;
+    secondObj = typeof secondObj !== 'undefined' ? secondObj : false;
+    // Assume success, look for failure
+    var compareResult = true;
+
+    if(firstObj && secondObj)
+    {
+        // Compare our two objects
+        if((typeof firstObj == "object") && (typeof secondObj == "object"))
+        {
+            for (var aProp in firstObj)
+            {
+                if(secondObj.hasOwnProperty(aProp) && (aProp != "__proto__") && (typeof firstObj[aProp] != "function"))
+                {
+                    var foP = firstObj[aProp];
+                    var soP = secondObj[aProp];
+                    if(typeof foP == typeof soP)
+                    {
+                        if(this.typeof(foP) == "object")
+                        {
+                            if(!this.compareTwoObjects(foP, soP))
+                            {
+                                // The objects are different
+                                compareResult = false;
+                                break
+                            }
+                        }
+                        else if(this.typeof(foP) == "array")
+                        {
+                            this.compareTwoArrays(foP, soP)
+                        }
+                        else if(foP != soP)
+                        {
+                            // Ok same property different values, that's a fail
+                            compareResult = false;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        // Properties of the same name but different types, thats a fail
+                        compareResult = false;
+                        break;
+                    }
+                }
+                else
+                {
+                    // Missing a property that's a fail
+                    compareResult = false;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            // We only check objects
+            compareResult = false;
+        }
+    }
+    else
+    {
+        // Need two objects to compare ;)
+        compareResult = false;
+    }
+
+    return compareResult;
+}
+
+cppl_tools.compareTwoArrays = function (firstArray, secondArray)
+{
+    firstArray = typeof firstArray !== 'undefined' ? firstArray : false;
+    secondArray = typeof secondArray !== 'undefined' ? secondArray : false;
+    // Assume success, look for failure
+    var compareResult = true;
+
+    if(firstArray && secondArray)
+    {
+        // Compare our two objects
+        if((this.typeof(firstArray) == "array") && (this.typeof(secondArray) == "array"))
+        {
+            if(firstArray.length == secondArray.length)
+            {
+                var faItemType;
+                var saItemType;
+                var faItem;
+                var saItem;
+                for (var i = 0; i < firstArray.length; i++)
+                {
+                    faItemType = this.typeof(firstArray[i]);
+                    faItem = firstArray[i];
+                    saItem = secondArray[i];
+
+                    if(faItemType != 'array')
+                    {
+                        if(faItemType != 'object')
+                        {
+                            if(faItem != saItem)
+                            {
+                                // Items are not the same
+                                compareResult = false;
+                                break;
+                            }
+                        }
+                        else if(!this.compareTwoObjects(faItem, saItem))
+                        {
+                            // Sub-objects are not the same...
+                            compareResult = false;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if(!this.compareTwoArrays(faItem, saItem))
+                        {
+                            // These sub-arrays are not equal
+                            compareResult = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Arrays do not have a matching number of elements, thats a fail
+                compareResult = false;
+            }
+        }
+        else
+        {
+            compareResult = false;
+        }
+    }
+    else
+    {
+        compareResult = false;
+    }
+
+    return compareResult;
+}
+
+cppl_tools.typeof = function (testItem) {
+    var t = typeof testItem;
+    if (t === 'object')
+    {
+        if (testItem)
+        {
+            if (Object.prototype.toString.call(testItem) === '[object Array]')
+            {
+                t = 'array';
+            }
+        } else {
+            t = 'null';
+        }
+    }
+    return t;
+}
+
 cppl_tools.disableToolbarBtn = function (toolBarBtn, newToolTipText)
 {
 	// Setup the default vars

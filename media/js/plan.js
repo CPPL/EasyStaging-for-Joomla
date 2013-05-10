@@ -648,12 +648,14 @@ com_EasyStaging.appendResponseMSGToCurrentStatus  = function (response, append)
 	}
 };
 
-com_EasyStaging.appendTextToCurrentStatus  = function (text, append)
+com_EasyStaging.appendTextToCurrentStatus  = function (text, append, precedeWith)
 {
-	append = typeof(append) !== 'undefined' ? append : true;
+	append      = typeof(append) !== 'undefined' ? append : true;
+    precedeWith = typeof(precedeWith) !== 'undefined' ? precedeWith : '<br />';
+
 	if (append)
 	{
-		$('currentStatus').innerHTML = $('currentStatus').innerHTML + '<br />' + text;
+		$('currentStatus').innerHTML = $('currentStatus').innerHTML + precedeWith + text;
 	}
 	else
 	{

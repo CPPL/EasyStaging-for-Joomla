@@ -3,6 +3,16 @@
 // No direct access
 defined('_JEXEC') or die;
 
+if (file_exists(JPATH_COMPONENT_ADMINISTRATOR . '/helpers/plan.php'))
+{
+	require_once JPATH_COMPONENT_ADMINISTRATOR . '/helpers/plan.php';
+}
+else
+{
+	die("EasyStaging isn't installed correctly.");
+}
+
+
 /**
  * EasyStaging component helper.
  *
@@ -41,8 +51,6 @@ class RunHelper
 				// Does the plan exist and is it published or running? (Both are OK)
 				if ($thePlan && (($thePlan->published == 1) || ($thePlan->published == 2)))
 				{
-					$jAp = JFactory::getApplication();
-
 					// Is the uuid the right length? (it's the only thing we can check...)
 					if ((strlen($rtarray['rt_uuid']) == 13) || (strlen($rtarray['rt_uuid']) == 23))
 					{
@@ -101,6 +109,23 @@ class RunHelper
 		$result = $db->loadAssocList();
 
 		return $result;
+	}
+
+	/**
+	 * Get a step object.
+	 *
+	 * @param   int  $id  Step record id.
+	 *
+	 * @return bool
+	 */
+	public static function getStep($id)
+	{
+		/** @var $stepTable JTable */
+		$stepTable = JTable::getInstance('Steps', 'EasyStagingTable');
+
+		$stepTable->load($id);
+
+		return $stepTable;
 	}
 
 	/**

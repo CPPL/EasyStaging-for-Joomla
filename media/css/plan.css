@@ -136,6 +136,10 @@ div.toolbar-list.tb-off a:active {
 .payattention {
     background: #fffea1;
 }
+
+#currentStatus p {
+    margin: 0px;
+}
 .waiting {
 	background: url("../images/spinning.gif") no-repeat 50% 0%;
 }

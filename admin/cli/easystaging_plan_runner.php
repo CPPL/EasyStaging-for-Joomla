@@ -364,6 +364,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 - /administrator/cache/
 - /configuration.php
 - /.htaccess
+- .DS_Store
 
 DEF;
 

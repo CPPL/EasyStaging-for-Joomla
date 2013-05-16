@@ -31,6 +31,7 @@ class EasyStagingControllerPlan extends JController
 	 * Plan is not published i.e. not to be used
 	 */
 	const UNPUBLISHED  = 0;
+	const NOTRUNNING   = 0;
 	/**
 	 * Plan is published and can be used
 	 */
@@ -98,7 +99,7 @@ class EasyStagingControllerPlan extends JController
 				{
 					// Ok what steps are required?
 					$stepsRequired = $jIn->get('step', null);
-					$validSteps = array('status', 'startFile', 'startDBase', 'startAll');
+					$validSteps = array('startFile', 'startDBase', 'startAll');
 
 					if($stepsRequired != null && in_array($stepsRequired, $validSteps))
 					{
@@ -107,7 +108,7 @@ class EasyStagingControllerPlan extends JController
 					else
 					{
 						$response = array(
-							'status' => '0',
+							'status' => self::NOTRUNNING,
 							'error' => JText::_('COM_EASYSTAGING_PLAN_NO_STEP_REQUIRED'),
 						);
 					}
@@ -121,11 +122,14 @@ class EasyStagingControllerPlan extends JController
 						if(count($stepDetails))
 						{
 							$updates = isset($stepDetails['updates']) ? $stepDetails['updates'] : '';
+							$running = isset($stepDetails['running']) ? $stepDetails['running'] : '';
 							$left = isset($stepDetails['left']) ? $stepDetails['left'] : '';
+							$status = $left ? self::PROCESSING : self::FINISHED;
 							$response = array(
 								'msg'     => JText::_( 'COM_EASYSTAGING_PLAN_JSON_IS_RUNNING' ),
-								'status'  => 2,
+								'status'  => $status,
 								'updates' => $updates,
+								'running' => $running,
 								'stepsleft'    => $left,
 							);
 						}
@@ -133,7 +137,7 @@ class EasyStagingControllerPlan extends JController
 						{
 							$response = array(
 								'msg'    => JText::_( 'COM_EASYSTAGING_RUN_FINISHED' ),
-								'status' => 1,
+								'status' => self::FINISHED,
 								'runticket' => $runTicket,
 							);
 						}
@@ -141,7 +145,7 @@ class EasyStagingControllerPlan extends JController
 					else
 					{
 						$response = array(
-							'status' => '0',
+							'status' => self::NOTRUNNING,
 							'error' => JText::_('COM_EASYSTAGING_PLAN_JSON_NO_VALID_RUN_TICKET'),
 						);
 					}
@@ -150,7 +154,7 @@ class EasyStagingControllerPlan extends JController
 			else
 			{
 				$response = array(
-					'status' => '0',
+					'status' => self::NOTRUNNING,
 					'error' => JText::_('COM_EASYSTAGING_PLAN_YOU_DO_NOT_HAVE_PERM'),
 				);
 			}
@@ -277,17 +281,17 @@ class EasyStagingControllerPlan extends JController
 
 		// Create our root action
 		$steps = array();
-		$steps[] = array('runticket' => $runticket, 'action_type' => 0, 'state' => self::FINISHED, 'result_text' => JText::_('COM_EASYSTAGING_JSON_ROOT_ACTION_MSG'));
+		$steps[] = array('runticket' => $runticket, 'action_type' => 0, 'state' => self::WAITING, 'result_text' => JText::_('COM_EASYSTAGING_JSON_ROOT_ACTION_MSG'));
 
 		// We assume success, but we will fail if any step goes wrong...
 		// Where "Goes wrong" means a serious breakdown... not just a single copy failing...
-		$response   = array('status' => 1, 'msg' => JText::_('COM_EASYSTAGING_JSON_CREATING_RUN_STEPS'));
+		$response   = array('status' => self::FINISHED, 'msg' => JText::_('COM_EASYSTAGING_JSON_CREATING_RUN_STEPS'));
 		$rsyncStep  = false;
 		$tableSteps = false;
 		$totalSteps = 0;
 
 		// Get our Rsync steps
-		if(($stepsRequired == 'startFile') || ($stepsRequired == 'startAll'))
+		if(($stepsRequired == 'startFile') || ($stepsRequired == 'startAll' || ($stepsRequired == 'status')))
 		{
 			$rsyncStep = $this->createRsyncSteps($runticket, $localSite, $remoteSite);
 			if(is_array($rsyncStep))
@@ -323,12 +327,12 @@ class EasyStagingControllerPlan extends JController
 		// Did we actually create any steps?s
 		if(!$rsyncStep && !$tableSteps)
 		{
-			$response['status'] = 0;
+			$response['status'] = self::NOTRUNNING;
 			$response['error']  = JText::_('COM_EASYSTAGING_JSON_NO_STEPS_CREATED_FOR_PLAN');
 		}
 		else
 		{
-			$response['status']    = 2;
+			$response['status']    = self::RUNNING;
 			$response['msg']       = JText::sprintf('COM_EASYSTAGING_JSON_X_STEPS_CREATED_FOR_PLAN', $totalSteps);
 			$response['runticket'] = $runticket;
 			$response['steps']     = $steps;
@@ -362,7 +366,7 @@ class EasyStagingControllerPlan extends JController
 				'rsync_options'     => $localSite->rsync_options,
 				'file_exclusions'   => $localSite->file_exclusions,
 			);
-			$result = array('runticket' => $runticket, 'action_type' => 1, 'action' => json_encode($action));
+			$result = array('runticket' => $runticket, 'action_type' => 1, 'action' => json_encode($action), 'result_text' => JText::_('COM_EASYSTAGING_JSON_RSYNC_STEP_ADDED'));
 		}
 		else
 		{
@@ -442,14 +446,16 @@ class EasyStagingControllerPlan extends JController
 			if($unreportedCompletedSteps && count($unreportedCompletedSteps))
 			{
 				$response['updates'] = $unreportedCompletedSteps;
+				$this->markStepsReported($unreportedCompletedSteps);
 			}
 
 			// Get the step being processed
-			$runningSteps = $this->getRunSteps($runticket, self::RUNNING);
+			$runningSteps = $this->getRunSteps($runticket, self::RUNNING, self::NOTREPORTED);
 
 			if($runningSteps && count($runningSteps))
 			{
 				$response['running'] = $runningSteps;
+				$this->markStepsReported($runningSteps);
 			}
 
 			// Get the remaining and unreported records
@@ -527,6 +533,35 @@ class EasyStagingControllerPlan extends JController
 	}
 
 	/**
+	 * Sets the reported flag of the steps.
+	 *
+	 * @param   array  $steps  Array of steps
+	 *
+	 * @return  mixed  A database cursor resource on success, boolean false on failure.
+	 */
+	protected function markStepsReported($steps)
+	{
+		// Set up some defaults
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		$stepsToUpdate = array();
+		$open = $db->quoteName('id') .  ' = ';
+
+		foreach ($steps as $step)
+		{
+			$stepsToUpdate[] = $open . $db->quote($step['id']);
+		}
+
+		$query->update($db->quoteName('#__easystaging_steps'));
+		$query->set($db->quoteName('reported') . ' = ' . $db->quote(self::REPORTED));
+		$query->set($db->quoteName('result_text') . ' = NULL' );
+		$query->where($stepsToUpdate);
+		$db->setQuery($query);
+
+		return $db->execute();
+	}
+
+	/**
 	 * Checks that the ticket is of a valid format, the plan is published and the UUID matches the users sessions store.
 	 *
 	 * @param   string  $runticket  The run ticket string. PlanId-DTS-UUID
@@ -547,7 +582,7 @@ class EasyStagingControllerPlan extends JController
 			/** @var $thePlan EasyStagingTablePlan */
 			$thePlan = PlanHelper::getPlan($plan_id);
 			// Does the plan exist and is it published or running? (Both are OK)
-			if($thePlan && (($thePlan->published == 1) || ($thePlan->published == 2)))
+			if($thePlan && (($thePlan->published == self::PUBLISHED) || ($thePlan->published == self::RUNNING)))
 			{
 				$jAp = JFactory::getApplication();
 				// Does the UUID match the one in this users Session?

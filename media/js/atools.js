@@ -13,11 +13,11 @@ if (typeof(cppl_tools) === 'undefined') {
 
 cppl_tools.setUp = function (option)
 {
-    this.option = option;
-	var token         = cppl_tools.getToken();
-	this.requestData[token]  = 1;
-	this.requestData.id = cppl_tools.getID();
-	this.jsonRequestObj      = new Request.JSON({
+    this.option                  = option;
+	this.token                   = this.getToken();
+	this.requestData[this.token] = 1;
+	this.requestData.id          = this.getID();
+	this.jsonRequestObj          = new Request.JSON({
 		url:    'index.php?option='+option+'&format=json',
 		method: 'get'
 	});
@@ -237,7 +237,7 @@ cppl_tools.disableToolbarBtn = function (toolBarBtn, newToolTipText)
 	var JTooltips = new Tips($$('.hasTip'), { maxTitleChars: 50, fixed: false});
 
 	// Change icon
-	// This could be a problem if buttons ever end up with multiple classes if different orders.
+	// This could be a problem if buttons ever end up with multiple classes in different orders.
 	var ourBtnSpanClassArray = ourBtnSpan.get('class').split(' ');
 	ourBtnSpanClassOff = ourBtnSpanClassArray[0] + '-off';
 

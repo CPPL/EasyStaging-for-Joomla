@@ -20,4 +20,17 @@ class EasyStagingTableSteps extends JTable
 	{
 		parent::__construct('#__easystaging_steps', 'id', $db);
 	}
+
+	/**
+	 * Refresh the current row, useful in long running processes that update a given row.
+	 *
+	 * @return  bool
+	 */
+	public function refresh()
+	{
+		$keyName = $this->_tbl_key;
+		$keyValue = $this->$keyName;
+
+		return $this->load($keyValue);
+	}
 }

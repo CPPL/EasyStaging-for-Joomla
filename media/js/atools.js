@@ -35,6 +35,17 @@ cppl_tools.getToken = function ()
 	return theToken;
 }
 
+cppl_tools.getTokenSegment = function ()
+{
+    if(typeof this.token == 'undefined' || this.token == null)
+    {
+        this.token = this.getToken();
+    }
+    var tokenSegment = ('&' + token + '=1');
+    return tokenSegment;
+};
+
+
 cppl_tools.getID  = function ()
 {
 	if ($('id')) {

@@ -61,10 +61,12 @@ cppl_tools.compareTwoObjects = function (firstObj, secondObj)
                 if(secondObj.hasOwnProperty(aProp) && (aProp != "__proto__") && (typeof firstObj[aProp] != "function"))
                 {
                     var foP = firstObj[aProp];
+                    var foPType = this.typeof(foP)
                     var soP = secondObj[aProp];
-                    if(typeof foP == typeof soP)
+                    var soPType = this.typeof(soP)
+                    if(foPType == soPType)
                     {
-                        if(this.typeof(foP) == "object")
+                        if(foPType == "object")
                         {
                             if(!this.compareTwoObjects(foP, soP))
                             {
@@ -73,9 +75,14 @@ cppl_tools.compareTwoObjects = function (firstObj, secondObj)
                                 break
                             }
                         }
-                        else if(this.typeof(foP) == "array")
+                        else if(foPType == "array")
                         {
-                            this.compareTwoArrays(foP, soP)
+                           if(!this.compareTwoArrays(foP, soP))
+                           {
+                               // Ok these arrays are different, that's a fail
+                               compareResult = false;
+                               break;
+                           }
                         }
                         else if(foP != soP)
                         {

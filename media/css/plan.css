@@ -132,6 +132,10 @@ div.toolbar-list.tb-off a:active {
 	max-height: 250px;
 	padding: 5px 0px 50px 10px;
 }
+
+.payattention {
+    background: #fffea1;
+}
 .waiting {
 	background: url("../images/spinning.gif") no-repeat 50% 0%;
 }

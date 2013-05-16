@@ -18,7 +18,7 @@ if (typeof(com_EasyStaging) === 'undefined')
             $('currentStatus').addEvent('click',
                 function(event) {
                     com_EasyStaging.SelectText('currentStatus');
-                    lrs = document.getElementById('lastRunStatus');
+                    lrs = document.id('lastRunStatus');
                     if(com_EasyStaging.lrs == undefined)
                     {
                         com_EasyStaging.lrs = lrs.innerHTML;
@@ -37,7 +37,7 @@ Joomla.submitbutton = function (task) {
 		lfex = $('jform_localSite_file_exclusions');
 		lfex.value = lfex.value.trim();
 		/* Call Joomla's submit */
-		Joomla.submitform(task, document.getElementById('easystaging-form'));
+		Joomla.submitform(task, document.id('easystaging-form'));
 	}
 	else
 	{
@@ -166,7 +166,7 @@ com_EasyStaging.appendUpdatesToCurrentStatus = function (updates)
 
 com_EasyStaging.hilightStatusMessages = function ()
 {
-    document.getElementById('currentStatus').setStyle('background','#fffea1');
+    document.id('currentStatus').addClass('payattention');
 }
 
 com_EasyStaging.runEnded = function (successfullRun)
@@ -412,12 +412,12 @@ com_EasyStaging.SelectText = function (objId)
     this.fnDeSelectText();
     if (document.selection) {
         var range = document.body.createTextRange();
-        range.moveToElementText(document.getElementById(objId));
+        range.moveToElementText(document.id(objId));
         range.select();
     }
     else if (window.getSelection) {
         var range = document.createRange();
-        range.selectNode(document.getElementById(objId));
+        range.selectNode(document.id(objId));
         window.getSelection().addRange(range);
     }
 }

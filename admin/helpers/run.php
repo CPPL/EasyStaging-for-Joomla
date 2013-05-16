@@ -23,6 +23,18 @@ else
  */
 class RunHelper
 {
+	/**
+	 * Step states
+	 */
+	const WAITING      = 0;
+	const FINISHED     = 1;
+	const PROCESSING   = 2;
+	/**
+	 * Step Reported states
+	 */
+	const NOTREPORTED  = 0;
+	const REPORTED     = 1;
+
 	public static $extension = 'com_easystaging';
 
 	/**
@@ -129,9 +141,80 @@ class RunHelper
 	}
 
 	/**
+	 * Utilitiy function to update the steps results text i.e. the current status
+	 *
+	 * @param   EasyStagingTableSteps  $theStep  The step to update.
+	 *
+	 * @param   string                 $msg      The latest result msg.
+	 *
+	 * @return  null
+	 */
+	public static function updateResults($theStep, $msg)
+	{
+		$theStep->refresh();
+		$existing_rt = $theStep->result_text;
+
+		// If this existing result text has already been reported then we can overwrite.
+		if ($theStep->reported == self::REPORTED)
+		{
+			$new_result_text = $msg;
+		}
+		else
+		{
+			$existing_rt .= $existing_rt ? "<br />\n" : '';
+			$new_result_text = $existing_rt . $msg;
+		}
+
+		// Update our step
+		self::updateStep($theStep, array('result_text' => $new_result_text, 'state' => self::PROCESSING));
+	}
+
+	/**
+	 * Marks a step as completed and updates result is if an optional msg is provided.
+	 *
+	 * @param   JTable  $theStep  The step object.
+	 *
+	 * @param   string  $msg      The optional message to provide.
+	 *
+	 * @return null
+	 */
+	public static function markCompleted($theStep, $msg = '')
+	{
+		if ($msg != '')
+		{
+			self::updateResults($theStep, $msg);
+		}
+
+		// Completed now
+		$completed = new JDate('now');
+		$updateArray['completed'] = $completed->toSql();
+		$updateArray['state'] = self::FINISHED;
+
+		self::updateStep($theStep, $updateArray);
+	}
+
+	/**
+	 * Updates the step record by default setting the reported flag to false.
+	 *
+	 * @param   JTable  $theStep      The step being updated.
+	 * @param   array   $updateArray  The values to bind to the step.
+	 *
+	 * @return null
+	 */
+	public static function updateStep($theStep, $updateArray)
+	{
+		if (!isset($updateArray['reported']))
+		{
+			$updateArray['reported'] = self::NOTREPORTED;
+		}
+		// Update the step record.
+		$theStep->bind($updateArray);
+		$theStep->store();
+	}
+
+	/**
 	 * Tools for zipping directories & files.
 	 */
-
 
 	/**
 	 * Create a Zip file

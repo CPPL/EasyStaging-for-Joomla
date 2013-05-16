@@ -636,74 +636,6 @@ class EasyStagingControllerPlan extends JController
 		}
 	}
 
-	function setupRsync()
-	{
-		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id))
-		{
-			$rsResult = $this->_createRSYNCExclusionFile($plan_id);
-			if ($rsResult['status'])
-			{
-				$fileCreated = $rsResult['fileName'];
-				$msg = JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_SUCCEEDED', $fileCreated);
-				if ($this->_writeToLog($msg))
-				{
-					echo json_encode(array('msg' => $msg, 'status' => 1, 'data' => $rsResult));
-				}
-				else
-				{
-					echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_UNABLE_TO_LOG', __FUNCTION__), 'status' => 0));
-				}
-			}
-			else
-			{
-				echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_FAILED', $plan_id), 'status' => 0,  'data' => $rsResult));
-			}
-		}
-	}
-
-	function runRsync()
-	{
-		// Check for request forgeries
-		if ($this->_tokenOK() && ($plan_id = $this->_plan_id()) && $this->_areWeAllowed($plan_id))
-		{
-			// first we add the rsync options
-			$rsyncCmd = 'rsync '.$this->_getRsyncOptions($plan_id);
-			// then we add the exclusions file name
-			$rsyncCmd.= ' --exclude-from='.$this->_getInputVar('fileName');
-
-			// add the source
-			$rsyncCmd.= ' ' . PlanHelper::getLocalSite($plan_id)->site_path;
-			// add the destination
-			$rsyncCmd.= ' ' . PlanHelper::getRemoteSite($plan_id)->site_path;
-
-			// exec the rsync command
-			$rsyncResult = '';
-			$rsyncOutput = array();
-			exec($rsyncCmd, $rsyncOutput, $rsyncResult);
-			// check the result
-			if ($rsyncResult == 0)
-			{
-				$msg = JText::sprintf('COM_EASYSTAGING_RSYNC_RUN_STATUS_OK', $plan_id)."\n";
-			}
-			else
-			{
-				$msg = JText::sprintf('COM_EASYSTAGING_RSYNC_RUN_STATUS_FAILED', $rsyncResult, $plan_id)."\n";
-			}
-			// write it all to the log and returned json
-			$rsyncOutput[] = '<br />'.$rsyncCmd;
-			$msg .= JText::sprintf('COM_EASYSTAGING_RSYNC_RUN_DESC',$plan_id);
-			if ($this->_writeToLog($msg . "\n" . print_r($rsyncOutput,true)))
-			{
-				echo json_encode(array('msg' => $msg, 'status' => 1, 'data' => $rsyncOutput));
-			}
-			else
-			{
-				echo json_encode(array('msg' => JText::sprintf('COM_EASYSTAGING_JSON_UNABLE_TO_LOG', __FUNCTION__), 'status' => 0));
-			}
-		}
-	}
-
 	/**
 	 * Check the connection to the remote database ...
 	 */
@@ -1321,57 +1253,6 @@ class EasyStagingControllerPlan extends JController
 		);
 	}
 
-	private function _createRSYNCExclusionFile($plan_id)
-	{
-		if (isset($plan_id))
-		{
-			// Build our file path & file handle
-			$pathToExclusionsFile = $this->_get_run_directory() . '/' . $this->_excl_file_name();
-			$result = array(
-				'fileName' =>  $pathToExclusionsFile,
-			);
-			$result['fullPathToExclusionFile'] = $this->_sync_files_path() . $pathToExclusionsFile;
-
-			if ($exclusionFile = @fopen($result['fullPathToExclusionFile'], 'w'))
-			{
-
-				// Create the content for our exclusions file
-				$defaultExclusions = <<< DEF
-- com_easystaging/
-- /administrator/language/en-GB/en-GB.com_easystaging.ini
-- /tmp/
-- /logs/
-- /cache/
-- /administrator/cache/
-- /configuration.php
-- /.htaccess
-
-DEF;
-				// Get local site record
-				$localSite = PlanHelper::getLocalSite($plan_id);
-
-				// Combine the default exclusions with those in the local site record
-				$allExclusions = $defaultExclusions . trim($this->_checkExclusionField($localSite->file_exclusions));
-				$result['fileData'] = $allExclusions;
-
-				// Attempt to write the file
-				$result['status'] = fwrite($exclusionFile, $allExclusions);
-				$result['msg'] = $result['status'] ? JText::sprintf('COM_EASYSTAGING_FILE_WRITTEN_SUCCESSFULL_DESC',$result['status']) : JText::_('COM_EASYSTAGING_FAILED_TO_WRIT_DESC') ;
-
-				// Time to close off
-				fclose($exclusionFile);
-			}
-			else
-			{
-				$result['status'] = 0;
-				$result['msg'] = JText::_('COM_EASYSTAGING_JSON_UNABLE_TO_OPEN_RSYNC_EXC_FILE');
-			}
-			// Return to Maine, where the moose, deer, eagles and loons roam.
-			return $result;
-		}
-		return false;
-	}
-
 	private function _writeToLog($logLine, $runTicket = NULL)
 	{
 		if ($runTicket == NULL)
@@ -1431,10 +1312,7 @@ DEF;
 		}
 		return $result;
 	}
-	private function _excl_file_name()
-	{
-		return ('plan-'.$this->_plan_id().'-exclusions.txt');
-	}
+
 	private function _export_file_name($table)
 	{
 		return ('plan-'.$this->_plan_id().'-'.$table.'-export.sql');
@@ -1458,45 +1336,6 @@ DEF;
 		$jinput =  JFactory::getApplication()->input;
 		$varValue = $jinput->get($varName, $defaultValue, $type);
 		return $varValue;
-	}
-
-	/**
-	 * Checks $file_exclusions to ensure each line starts with a "-" or "+" as required by rsync ...
-	 *
-	 * @param string $file_exclusions
-	 *
-	 * @return string|boolean - false on failure
-	 */
-	private function _checkExclusionField($file_exclusions)
-	{
-		if (isset($file_exclusions) && ($file_exclusions != ''))
-		{
-			$result = array();
-			$file_exclusions = explode("\n", str_replace("\r\n", "\n", $file_exclusions)); // Just in case, we convert all \r\n before exploding
-			foreach ($file_exclusions as $fe_line)
-			{
-				$fe_line = trim($fe_line);
-				// Check for explicit include or exclude because some rsyncs are broken (assume exclusion)
-				if (($fe_line[0] != '-') && ($fe_line[0] != '+'))
-				{
-					$fe_line = '- '.$fe_line;
-				}
-				$result[] = $fe_line;
-			}
-			return implode("\n", $result);
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	private function _getRsyncOptions($plan_id)
-	{
-		//place holder, will get from plan record
-		$SiteRecord = PlanHelper::getLocalSite($plan_id);
-		$opts = $SiteRecord->rsync_options;
-		return $opts;
 	}
 
 	/**

@@ -372,8 +372,8 @@ DEF;
 			$allExclusions = $defaultExclusions . trim($this->_checkExclusionField($decoded_details->file_exclusions));
 			$result['fileData'] = $allExclusions;
 			// Insert <br>'s into exclusions for display in browser
-			$allExclusions = implode("<br />\n", explode("\n", $allExclusions));
-			RunHelper::updateResults($theStep, $allExclusions);
+			$formattedExclusions = implode("<br />\n", explode("\n", $allExclusions));
+			RunHelper::updateResults($theStep, $formattedExclusions);
 
 			// Attempt to write the file
 			$result['status'] = fwrite($exclusionFile, $allExclusions);

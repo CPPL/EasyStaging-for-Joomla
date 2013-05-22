@@ -63,7 +63,12 @@ else
 class EasyStaging_PlanRunner extends JApplicationCli
 {
 	/**
-	 * @var string $runticket
+	 * @var   int  $status
+	 */
+	private $status = 0;
+
+	/**
+	 * @var   string  $runticket
 	 */
 	protected $runticket;
 
@@ -179,12 +184,13 @@ class EasyStaging_PlanRunner extends JApplicationCli
 							case self::RUN_ROOT:
 								// Keep the root step for closing off the run
 								$rootStep = RunHelper::getStep($step['id']);
+								$this->status = true;
 								break;
 
 							case self::RSYNC_PUSH:
 							case self::RSYNC_PULL:
 							case self::RSYNC_CLEAR:
-								$this->performRSYNC($step);
+								$this->status =  $this->performRSYNC($step);
 								break;
 
 							case self::TABLE_DONT_COPY_IGNORE:
@@ -204,6 +210,11 @@ class EasyStaging_PlanRunner extends JApplicationCli
 
 							default:
 								// Anything else we discard, who knows what crazyness caused this... best to avoid potential damage by doing nothing!
+						}
+						if(!$this->status)
+						{
+							// We've had a serious failure, no point in continuing with the loop.
+							break;
 						}
 					}
 
@@ -226,10 +237,11 @@ class EasyStaging_PlanRunner extends JApplicationCli
 	 *
 	 * @since 1.1.0
 	 *
-	 * @return null
+	 * @return  bool  Indicating success or failure.
 	 */
 	private function performRSYNC($step)
 	{
+		$status = false;
 		// Let's get our step record so we can update as we go...
 		/** @var $theStep JTable */
 		$theStep = RunHelper::getStep($step['id']);
@@ -244,7 +256,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 			if ($this->_writeToLog($msg))
 			{
 				RunHelper::updateResults($theStep, $msg);
-				$this->runRsync($theStep, $rsResult['fullPathToExclusionFile']);
+				$status = $this->runRsync($theStep, $rsResult['fullPathToExclusionFile']);
 			}
 			else
 			{
@@ -255,6 +267,8 @@ class EasyStaging_PlanRunner extends JApplicationCli
 		{
 			RunHelper::markCompleted($theStep, JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_FAILED', $this->plan_id));
 		}
+
+		return $status;
 	}
 
 	/**
@@ -264,12 +278,13 @@ class EasyStaging_PlanRunner extends JApplicationCli
 	 *
 	 * @param   string                 $filename  Path to the exclusion file.
 	 *
-	 * @throws Exception
+	 * @throws  Exception
 	 *
-	 * @return null;
+	 * @return  bool
 	 */
 	protected function runRsync($theStep, $filename)
 	{
+		$status = false;
 		$details = json_decode($theStep->action);
 
 		// First we add the rsync options
@@ -320,6 +335,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 			if (($rsyncResult != false) && ($rsyncResult == 0))
 			{
 				// It ended cleanly.
+				$status = true;
 				RunHelper::updateResults($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_INDICATES_SUCCESS'));
 			}
 			else
@@ -338,6 +354,8 @@ class EasyStaging_PlanRunner extends JApplicationCli
 		}
 
 		RunHelper::markCompleted($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_PROCESS_COMPLETED'));
+
+		return $status;
 	}
 
 	private function _createRSYNCExclusionFile($theStep)

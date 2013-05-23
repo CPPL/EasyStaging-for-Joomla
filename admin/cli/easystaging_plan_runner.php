@@ -479,6 +479,21 @@ DEF;
 	 */
 
 	/**
+	 * Basic utility for logging to both the user and log file.
+	 *
+	 * @param   EasyStagingTableSteps  $step  The current step.
+	 *
+	 * @param   string                 $msg   The log message.
+	 *
+	 * @return  null
+	 */
+	private function _log($step, $msg)
+	{
+		RunHelper::updateResults($step, RunHelper::addBRsToLineEnds($msg));
+		$this->_writeToLog($msg);
+	}
+
+	/**
 	 * Central point for writing out details to our run log.
 	 *
 	 * @param   string  $logLine  The line to record in the run log.

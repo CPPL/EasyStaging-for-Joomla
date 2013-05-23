@@ -99,6 +99,37 @@ class RunHelper
 	}
 
 	/**
+	 * By default add BR tags to the end of each line of text (or if an array, the end of each element).
+	 *
+	 * @param   string|array  $text     The string or array.
+	 *
+	 * @param   string        $lineEnd  The suffix/line ending to be attached. Defaults to a <br /> tag.
+	 *
+	 * @return  array|string
+	 */
+	public static function addBRsToLineEnds($text, $lineEnd = '<br />')
+	{
+		if (is_string($text))
+		{
+			$newLines = substr_count($text, "\n");
+
+			if ($newLines)
+			{
+				$text = implode($lineEnd . "\n", explode("\n", $text));
+			}
+			else
+			{
+				$text .= $lineEnd;
+			}
+		}
+		elseif(is_array($text))
+		{
+			$text = explode("\n", implode($lineEnd . "\n", $text));
+		}
+
+		return $text;
+	}
+	/**
 	 * Selects steps for the current run ticket that aren't completed
 	 *
 	 * @param   string  $runticket  The run ticket.

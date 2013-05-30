@@ -129,6 +129,7 @@ class RunHelper
 
 		return $text;
 	}
+
 	/**
 	 * Selects steps for the current run ticket that aren't completed
 	 *
@@ -227,8 +228,8 @@ class RunHelper
 	/**
 	 * Updates the step record by default setting the reported flag to false.
 	 *
-	 * @param   JTable  $theStep      The step being updated.
-	 * @param   array   $updateArray  The values to bind to the step.
+	 * @param   EasyStagingTableSteps  $theStep      The step being updated.
+	 * @param   array                  $updateArray  The values to bind to the step.
 	 *
 	 * @return null
 	 */
@@ -238,6 +239,7 @@ class RunHelper
 		{
 			$updateArray['reported'] = self::NOTREPORTED;
 		}
+
 		// Update the step record.
 		$theStep->refresh();
 		$theStep->bind($updateArray);
@@ -348,6 +350,7 @@ class RunHelper
 					{
 						$pathFoundInFile = true;
 					}
+
 					if (($stripPath == '') || !$pathFoundInFile)
 					{
 						$localName = $file;
@@ -356,6 +359,7 @@ class RunHelper
 					{
 						$localName = str_replace($stripPath, '', $file);
 					}
+
 					$zip->addFile($file, $localName);
 				}
 
@@ -398,6 +402,7 @@ class RunHelper
 						{
 							$array_items = array_merge($array_items, directoryToArray($directory . '/' . $file, $recursive));
 						}
+
 						$file = $directory . '/' . $file;
 						$array_items[] = preg_replace('/\/\//si', '/', $file);
 					}
@@ -408,8 +413,10 @@ class RunHelper
 					}
 				}
 			}
+
 			closedir($handle);
 		}
+
 		return $array_items;
 	}
 

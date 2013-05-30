@@ -7,6 +7,9 @@ $i = 0;
 
 foreach ($localTables as $tablename => $row)
 {
+	/**
+	 * @todo move all of this into the model
+	 */
 	// Retrieve values & Sanitize data
 	if (array_key_exists('last', $row))
 	{
@@ -16,6 +19,7 @@ foreach ($localTables as $tablename => $row)
 	{
 		$last = '0000-00-00 00:00:00';
 	}
+
 	if (array_key_exists('lastresult', $row))
 	{
 		$lastResult = $row['lastresult'];
@@ -24,6 +28,7 @@ foreach ($localTables as $tablename => $row)
 	{
 		$lastResult = 0;
 	}
+
 	if (array_key_exists('action', $row))
 	{
 		$actionCurrent = $row['action'];
@@ -32,6 +37,7 @@ foreach ($localTables as $tablename => $row)
 	{
 		$actionCurrent = '1';
 	}
+
 	$id = $row['id'];
 
 	// Setup ControlName so that within the tablesettings each table has its own array
@@ -56,12 +62,12 @@ foreach ($localTables as $tablename => $row)
 	// Increment our row index
 	$i++;
 ?>
-		<tr class="row<?php echo $i % 2; ?>">
+		<tr class="table-settings row<?php echo $i % 2; ?>" id="<?php echo $tablename; ?>">
 			<td><?php echo $tablename; ?>
 			<input type="hidden" name="<?php echo $controlName . '[origAction]" value="' . $actionCurrent; ?>">
 			<input type="hidden" name="<?php echo $controlName . '[id]" value="' . $id; ?>"></td>
 			<td><span class="com_easystaging_mgr_last_run"><?php echo $lastActionResult; ?></span></td>
-			<td><?php echo $actionSelect; ?></td>
+			<td class="tableactioncell"><?php echo $actionSelect; ?></td>
 		</tr>
 <?php
 }

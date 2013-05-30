@@ -63,7 +63,7 @@ else
 class EasyStaging_PlanRunner extends JApplicationCli
 {
 	/**
-	 * @var   int  $_status
+	 * @var   int  $status
 	 */
 	private $status = 0;
 
@@ -78,44 +78,6 @@ class EasyStaging_PlanRunner extends JApplicationCli
 	private   $plan_id;
 
 	/**
-	 * @var   EasyStagingTableSteps  $rootStep
-	 */
-	private $rootStep;
-
-	/**
-	 * @var   bool       $db_status
-	 * @var   JDatabase  $remote_db
-	 * @var   JDatabase  $local_db
-	 */
-	private $db_status;
-
-	private $remote_db;
-
-	private $local_db;
-
-	/**
-	 * @var   string  $localPrefix
-	 */
-	private $localPrefix;
-
-	/**
-	 * @var   string  $remotePrefix
-	 */
-	private $remotePrefix;
-
-	/**
-	 * @var   int  $max_ps
-	 */
-	private $max_ps;
-
-	/**
-	 * @var  array  $remoteTablesRetreived
-	 */
-	private $remoteTablesRetreived;
-
-	private $logFile;
-
-	/**
 	 * Action types
 	 *
 	 * Root action for a run
@@ -123,12 +85,8 @@ class EasyStaging_PlanRunner extends JApplicationCli
 	const RUN_ROOT = 0;
 	/**
 	 * Rsync Actions
-	 * Eventually plans will have multiple rsync's available to them
 	 */
 	const RSYNC_PUSH  = 1;
-	/**
-	 *
-	 */
 	const RSYNC_PULL  = 2;
 	const RSYNC_CLEAR = 3;
 
@@ -213,6 +171,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 
 				// Get some basics
 				$steps = RunHelper::getRunSteps($this->runticket);
+				$rootStep = null;
 
 				// If we have steps lets process them
 				if ($steps)
@@ -220,21 +179,18 @@ class EasyStaging_PlanRunner extends JApplicationCli
 					// Process each step
 					foreach ($steps as $step)
 					{
-						// Get our matching EasyStagingTableSteps Obj
-						$theStepObj = RunHelper::getStep($step['id']);
-
 						switch ($step['action_type'])
 						{
 							case self::RUN_ROOT:
 								// Keep the root step for closing off the run
-								$this->rootStep = $theStepObj;
+								$rootStep = RunHelper::getStep($step['id']);
 								$this->status = true;
 								break;
 
 							case self::RSYNC_PUSH:
 							case self::RSYNC_PULL:
 							case self::RSYNC_CLEAR:
-								$this->status = $this->performRSYNC($theStepObj);
+								$this->status =  $this->performRSYNC($step);
 								break;
 
 							case self::TABLE_DONT_COPY_IGNORE:
@@ -243,17 +199,19 @@ class EasyStaging_PlanRunner extends JApplicationCli
 
 							case self::TABLE_COPY_2_LIVE_ONLY:
 							case self::TABLE_COPY_IF_NOT_FND:
+								$this->performTableCopy($step);
+								break;
+
 							case self::TABLE_MERGE_BACK_COPY:
 							case self::TABLE_MERGE_BACK_ONLY:
 							case self::TABLE_MERGE_BACK_CLEAN:
-								$this->status = $this->performTableStep($theStepObj);
+								$this->performTableMerge($step);
 								break;
 
 							default:
 								// Anything else we discard, who knows what crazyness caused this... best to avoid potential damage by doing nothing!
 						}
-
-						if (!$this->status)
+						if(!$this->status)
 						{
 							// We've had a serious failure, no point in continuing with the loop.
 							break;
@@ -261,12 +219,13 @@ class EasyStaging_PlanRunner extends JApplicationCli
 					}
 
 					// Time to mark this as done
-					$this->finishRun($this->_plan_id());
+					$this->finishRun($rootStep, $this->_plan_id());
 				}
 				else
 				{
 					// Else we simply exit.
 				}
+
 			}
 		}
 	}
@@ -274,24 +233,35 @@ class EasyStaging_PlanRunner extends JApplicationCli
 	/**
 	 * The main entry for RSYNC steps.
 	 *
-	 * @param   EasyStagingTableSteps  $theStep  The step object.
+	 * @param   array  $step  The step details.
 	 *
 	 * @since 1.1.0
 	 *
 	 * @return  bool  Indicating success or failure.
 	 */
-	private function performRSYNC($theStep)
+	private function performRSYNC($step)
 	{
 		$status = false;
+		// Let's get our step record so we can update as we go...
+		/** @var $theStep JTable */
+		$theStep = RunHelper::getStep($step['id']);
 
 		// Create the RSYNC exclusions file
 		$rsResult = $this->_createRSYNCExclusionFile($theStep);
 
 		if ($rsResult['status'])
 		{
-			$msg = JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_SUCCEEDED', $rsResult['fileName']);
-			$this->_log($theStep, $msg);
-			$status = $this->runRsync($theStep, $rsResult['fullPathToExclusionFile']);
+			$msg = JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_SUCCEEDED', $rsResult['fileName']) . "\n";
+
+			if ($this->_writeToLog($msg))
+			{
+				RunHelper::updateResults($theStep, $msg);
+				$status = $this->runRsync($theStep, $rsResult['fullPathToExclusionFile']);
+			}
+			else
+			{
+				RunHelper::markCompleted($theStep, JText::sprintf('COM_EASYSTAGING_JSON_UNABLE_TO_LOG', __FUNCTION__));
+			}
 		}
 		else
 		{
@@ -330,7 +300,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 		$rsyncCmd .= ' ' . $details->remote_site_path;
 
 		// Update the steps results
-		$this->_log($theStep, JText::sprintf('COM_EASYSTAGING_CLI_RSYNC_CMD_X', $rsyncCmd));
+		RunHelper::updateResults($theStep, JText::sprintf('COM_EASYSTAGING_CLI_RSYNC_CMD_X', $rsyncCmd));
 
 		// As this is a long running process we want to update the results text as we go...
 		$descriptorspec = array(
@@ -356,9 +326,8 @@ class EasyStaging_PlanRunner extends JApplicationCli
 			{
 				// $s is the latest string written to stdout by rsync
 				$rsyncOutput[] = $s;
-				$this->_log($theStep, $s);
+				RunHelper::updateResults($theStep, $s);
 			}
-
 			$rsyncResult = end($rsyncOutput);
 			proc_close($rsync_process);
 
@@ -367,16 +336,21 @@ class EasyStaging_PlanRunner extends JApplicationCli
 			{
 				// It ended cleanly.
 				$status = true;
-				$this->_log($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_INDICATES_SUCCESS'));
+				RunHelper::updateResults($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_INDICATES_SUCCESS'));
 			}
 			else
 			{
-				$this->_log($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_INDICATES_FAILURE'));
+				RunHelper::updateResults($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_INDICATES_FAILURE'));
 			}
 		}
 		else
 		{
-			$this->_log($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_PROC_OPEN_FAILED'));
+			RunHelper::updateResults($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_PROC_OPEN_FAILED'));
+		}
+
+		if (!$this->_writeToLog("\n" . print_r($rsyncOutput, true)))
+		{
+			throw new Exception(JText::sprintf('COM_EASYSTAGING_JSON_UNABLE_TO_LOG', __FUNCTION__));
 		}
 
 		RunHelper::markCompleted($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_PROCESS_COMPLETED'));
@@ -384,16 +358,8 @@ class EasyStaging_PlanRunner extends JApplicationCli
 		return $status;
 	}
 
-	/**
-	 * Builds the appropriate file of exclusion, inserting our defaults along the way.
-	 *
-	 * @param   EasyStagingTableSteps  $theStep  The current step.
-	 *
-	 * @return array
-	 */
 	private function _createRSYNCExclusionFile($theStep)
 	{
-		$this->_log($theStep, JText::_('COM_EASYSTAGING_CLI_START_RSYNC_STEP1'));
 		$decoded_details = json_decode($theStep->action);
 
 		// Build our file path & file handle
@@ -405,6 +371,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 
 		if ($exclusionFile = @fopen($result['fullPathToExclusionFile'], 'w'))
 		{
+
 			// Create the content for our exclusions file
 			$defaultExclusions = <<< DEF
 - com_easystaging/
@@ -422,14 +389,13 @@ DEF;
 			// Combine the default exclusions with those in the local site record
 			$allExclusions = $defaultExclusions . trim($this->_checkExclusionField($decoded_details->file_exclusions));
 			$result['fileData'] = $allExclusions;
-
 			// Insert <br>'s into exclusions for display in browser
-			$this->_log($theStep, $allExclusions . "\n");
+			$formattedExclusions = implode("<br />\n", explode("\n", $allExclusions));
+			RunHelper::updateResults($theStep, $formattedExclusions);
 
 			// Attempt to write the file
 			$result['status'] = fwrite($exclusionFile, $allExclusions);
-			$result['msg'] = $result['status'] ? JText::sprintf('COM_EASYSTAGING_FILE_WRITTEN_SUCCESSFULL_DESC', $result['status'])
-												: JText::_('COM_EASYSTAGING_FAILED_TO_WRIT_DESC');
+			$result['msg'] = $result['status'] ? JText::sprintf('COM_EASYSTAGING_FILE_WRITTEN_SUCCESSFULL_DESC',$result['status']) : JText::_('COM_EASYSTAGING_FAILED_TO_WRIT_DESC') ;
 
 			// Time to close off
 			fclose($exclusionFile);
@@ -439,9 +405,7 @@ DEF;
 			$result['status'] = 0;
 			$result['msg'] = JText::_('COM_EASYSTAGING_JSON_UNABLE_TO_OPEN_RSYNC_EXC_FILE');
 		}
-
-		$this->_log($theStep, $result['msg']);
-
+		RunHelper::updateResults($theStep, $result['msg']);
 		// Return to Maine, where the moose, deer, eagles and loons roam.
 		return $result;
 	}
@@ -471,10 +435,8 @@ DEF;
 				{
 					$fe_line = '- ' . $fe_line;
 				}
-
 				$result[] = $fe_line;
 			}
-
 			return implode("\n", $result);
 		}
 		else
@@ -489,599 +451,27 @@ DEF;
 	 */
 
 	/**
-	 * The starting point for all table related steps.
+	 * The main entry table copy steps.
 	 *
-	 * @param   EasyStagingTableSteps  $step  The table copying step.
+	 * @param   array  $details  The table to be copied.
 	 *
-	 * @return  null
+	 * @return null
 	 */
-	private function performTableStep($step)
+	private function performTableCopy($details)
 	{
-		// Assume failure
-		$status = false;
-
-		if (!($this->db_status))
-		{
-			$this->db_status = $this->checkDBConnection($step);
-		}
-
-		$this->_log($step, JText::sprintf('COM_EASYSTAGNG_CLI_STARTING_TABLE_X', $step->action));
-
-		if ($this->db_status)
-		{
-			// Switch the step to the relevant method to handle the table.
-			switch ($step->action_type)
-			{
-				case self::TABLE_COPY_2_LIVE_ONLY:
-					$actiontype = 'COPY2LIVE';
-					$status = $this->performTableCopy($step);
-					break;
-				case self::TABLE_COPY_IF_NOT_FND:
-					$actiontype = 'COPYINF';
-					$status = $this->performTableCopyINF($step);
-					break;
-				case self::TABLE_MERGE_BACK_COPY:
-				case self::TABLE_MERGE_BACK_ONLY:
-				case self::TABLE_MERGE_BACK_CLEAN:
-					$actiontype = 'MERGE';
-					$status = $this->performTableMerge($step);
-					break;
-			}
-		}
-
-		if ($status)
-		{
-			$msg = JText::sprintf('COM_EASYSTAGING_CLI_RESULT_FOR_TABLE_X_' . $actiontype . '_STEP_SUCCESS', $step->action);
-		}
-		else
-		{
-			$msg = JText::sprintf('COM_EASYSTAGING_CLI_RESULT_FOR_TABLE_X_' . $actiontype . '_STEP_FAILURE', $step->action);
-		}
-
-		$this->_log($step, $msg . "\n");
-		RunHelper::markCompleted($step, '');
-
-		return $status;
+		// Run the table copy
 	}
 
 	/**
 	 * The main entry table copy steps.
 	 *
-	 * @param   array  $step  The table to be copied.
-	 *
-	 * @return bool
-	 */
-	private function performTableCopyINF($step)
-	{
-		// It's not a problem if the table does or doesn't exist on the remote db.
-		$status = true;
-
-		// Create the remote name
-		$itsRemoteTableName = str_replace($this->localPrefix, $this->remotePrefix, $step->action);
-
-		// Does the table exist on the remote db?
-		if (empty($this->remoteTablesRetreived) || !in_array($itsRemoteTableName, $this->remoteTablesRetreived))
-		{
-			// No matching table found, lets copy it!
-			$status = $this->performTableCopy($step);
-		}
-
-		return $status;
-	}
-
-	/**
-	 * The main entry table copy steps.
-	 *
-	 * @param   array  $step  The table to be copied.
+	 * @param   array  $details  The table to be copied.
 	 *
 	 * @return null
 	 */
-	private function performTableCopy($step)
+	private function performTableMerge($details)
 	{
-		// Lets assume we fail
-		$status = false;
-
-		// First we export the table
-		if ($this->createTableExportFile($step))
-		{
-			// Run the table copy
-			$status = $this->runTableExport($step);
-		}
-
-		return $status;
-	}
-
-	/**
-	 * The main entry table merge steps.
-	 *
-	 * @param   array  $step  The table to be copied.
-	 *
-	 * @return null
-	 */
-	private function performTableMerge($step)
-	{
-		// Run the table Merge
-	}
-
-
-	/**
-	 * DATABASE SECTION
-	 */
-
-	/**
-	 * Check the connection to the remote database ...
-	 *
-	 * @param   EasyStagingTableSteps  $theStep  The current step.
-	 *
-	 * @return  bool
-	 */
-	private function checkDBConnection($theStep)
-	{
-		// Assume failure
-		$status = false;
-
-		// Get our plan
-		$plan_id = $this->_plan_id();
-
-		// Get the remote site details
-		$rs = PlanHelper::getRemoteSite($plan_id);
-		$options = array(
-			'host'		=> $rs->database_host,
-			'user'		=> $rs->database_user,
-			'password'	=> $rs->database_password,
-			'database'	=> $rs->database_name,
-			'prefix'	=> $rs->database_table_prefix,
-		);
-
-		// Get our DB objects
-		$this->remote_db = JDatabase::getInstance($options);
-		$this->local_db  = JFactory::getDbo();
-
-		if ($this->remote_db->getErrorNum() == 0)
-		{
-			$q = "SHOW VARIABLES LIKE 'max_allowed_packet'";
-			$this->remote_db->setQuery($q);
-			$qr = $this->remote_db->loadRow();
-
-			if ($qr)
-			{
-				// Use slightly less than actual max to avoid the CSUA doublebyte issue...
-				$this->max_ps = (int) ($qr[1] * 0.95);
-				$msg = JText::_('COM_EASYSTAGING_DATABASE_STEP_01_CONNECTED');
-				$this->_log($theStep, $msg);
-				$this->remoteTablesRetreived = $this->remote_db->getTableList();
-
-				// Get the local & remote prefix
-				$this->localPrefix = PlanHelper::getLocalSite($plan_id)->database_table_prefix;
-				$this->remotePrefix = PlanHelper::getRemoteSite($plan_id)->database_table_prefix;
-
-				if ($this->remoteTablesRetreived)
-				{
-					$tableList = print_r($this->remoteTablesRetreived, true);
-
-					$this->_log($theStep, $tableList);
-					$status = true;
-				}
-			}
-		}
-		else
-		{
-			$msg = JText::_('COM_EASYSTAGING_DATABASE_STEP_01_FAILED_TO_CONNECT');
-			$this->_log($theStep, $msg);
-		}
-
-		return $status;
-	}
-
-	/**
-	 * Create our export file for the table in this step.
-	 *
-	 * @param   EasyStagingTableSteps  $step  The current step.
-	 *
-	 * @return  bool
-	 */
-	private function createTableExportFile($step)
-	{
-		// If we can't create the export file we have to abort
-		$status = false;
-		$table = $step->action;
-		$msg = JText::sprintf('COM_EASYSTAGING_CLI_CREATING_SQL_EXPORT_FOR_X', $table);
-
-		// Build our file path & file handle
-		$pathToSQLFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_export_file_name($table);
-
-
-		// For each table we need to treat it like a database dump so that forgein keys etc don't cause issues
-		$buildTableSQL = 'SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT' .
-			"\n\n-- End of Statement --\n\n" .
-			'SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS' .
-			"\n\n-- End of Statement --\n\n" .
-			'SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION' .
-			"\n\n-- End of Statement --\n\n" .
-			'SET NAMES utf8' .
-			"\n\n-- End of Statement --\n\n" .
-			'SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0' .
-			"\n\n-- End of Statement --\n\n" .
-			'SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE=\'NO_AUTO_VALUE_ON_ZERO\'' .
-			"\n\n-- End of Statement --\n\n" .
-			'SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0' .
-			"\n\n-- End of Statement --\n\n";
-
-		/** @var $ldb JDatabase */
-		$ldb = $this->local_db;
-		$dbTableName = $ldb->quoteName($table);
-
-		// Get any filter that may apply to this table.
-		$hasAFilter = $this->_filterTable($table);
-
-		// Build our SQL to recreate the table on the remote server.
-		// Disable keys and Lock our table before replacing it and then unlock and enable keys after.
-		$startSQL = 'LOCK TABLES ' . $dbTableName . " WRITE;\n" .
-			"\n\n-- End of Statement --\n\n" .
-			'ALTER TABLE ' . $dbTableName . " DISABLE KEYS;\n" .
-			"\n\n-- End of Statement --\n\n";
-
-		$buildTableSQL .= $startSQL;
-
-		// 1. First we drop the existing table
-		$buildTableSQL .= 'DROP TABLE IF EXISTS ' . $dbTableName . ";\n\n-- End of Statement --\n\n";
-
-		// 2. Then we create it again, except with a new prefix :D
-		$ldb->setQuery('SHOW CREATE TABLE ' . $dbTableName);
-		$createStatement = $ldb->loadRow();
-		$buildTableSQL .= str_replace("\r", "\n", $createStatement[1]) . ";\n\n-- End of Statement --\n\n";
-		$buildTableSQL = $this->_changeToRemotePrefix($buildTableSQL);
-
-		// 3. Next we try and get the records in the table (after all no point in creating an insert statement if there are no records :D )
-		$dbq = $ldb->getQuery(true);
-		$dbq->select('*');
-		$dbq->from($table);
-
-		if ($hasAFilter)             // If our table has an exclusion filter we need to add a 'where' element to our query.
-		{
-			$fieldToCompare = key($hasAFilter);
-			$valueToAvoid = $hasAFilter[$fieldToCompare];
-			$condition = $ldb->quoteName($fieldToCompare) . 'NOT LIKE ' . $ldb->quote($valueToAvoid);
-			$dbq->where($condition);
-		}
-
-		$ldb->setQuery($dbq);
-
-		if (($records = $ldb->loadRowList()) != null)
-		{
-			// 4. Then we build the list of field/column names that we'll insert data into
-			// -- first we get the columns
-			$flds = $this->_getArrayOfFieldNames($table, $ldb);
-
-			// No problems getting the field names?
-			if ($flds)
-			{
-				$msg .= JText::sprintf('COM_EASYSTAGING_CREATING_INSERT_STATEMEN_DESC', count($records));
-				$this->_log($step, $msg);
-
-				// -- then we implode them into a suitable statement
-				$columnInsertSQL = 'INSERT INTO ' . $this->_changeToRemotePrefix($dbTableName) . ' (' . implode(', ', $flds) . ') VALUES ';
-
-				// - keeping it intact for later user if the table is too big.
-
-				// 5. Now we can process the rows into INSERT values
-				// -- and we initialise our counter
-				$sizeOfSQLBlock = strlen($columnInsertSQL);
-
-				// -- then create an empty array ready for our values
-				$valuesSQL = array();
-
-				foreach ($records as $row)
-				{
-					// Process each row for slashes, new lines.
-					foreach ($row as $field => $value)
-					{
-						$row[$field] = addslashes($value);
-						$row[$field] = str_replace("\n", "\\n", $row[$field]);
-					}
-
-					// Convert our row to a suitable values string
-					$rowAsValues  = "('" . implode("', '", $row) . "')";
-
-					// First up we check to see if this row will put our SQL block size over our max_packet value on the remote server
-					$rowSize = strlen($rowAsValues);
-
-					// Have we reached our block size? If so, add the current data to the build SQL and reset for next block of SQL.
-					if ($this->max_ps < ($sizeOfSQLBlock += $rowSize))
-					{
-						$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n";
-						$valuesSQL = array();
-						$sizeOfSQLBlock = strlen($columnInsertSQL);
-					}
-
-					// We can add the processed & imploded row to our values array.
-					$valuesSQL[] = $rowAsValues;
-				}
-
-				// We have some left over rows we need to add.
-				if (count($valuesSQL))
-				{
-					$buildTableSQL .= $columnInsertSQL . "\n" . implode(', ', $valuesSQL) . ";\n\n-- End of Statement --\n\n";
-				}
-
-				// Time to unlock and restore keys to their enabled state
-				$endofSQL = $this->_end_of_export_SQL($table);
-				$endofSQL = $this->_changeToRemotePrefix($endofSQL);
-
-				$buildTableSQL .= $endofSQL;
-
-				// 6. Save the export SQL to file for the next request to execute.
-				if ($exportSQLFile = @fopen($pathToSQLFile, 'w'))
-				{
-					// Attempt to write the file
-					if ($status = fwrite($exportSQLFile, $buildTableSQL))
-					{
-						$msg = JText::sprintf('COM_EASYSTAGING_SQL_EXPORT_SUCC', $table) . "\n";
-						$status = true;
-					}
-					else
-					{
-						$msg = JText::sprintf('COM_EASYSTAGING_CLI_UNABLE_TO_WRITE_SQL_EXPORT_FOR_TABLE_X', $table);
-					}
-
-					$msg .= JText::sprintf('COM_EASYSTAGING_CLI_PATH_TO_SQL_EXPORT_FILE_X_FOR_TABLE_Y', $pathToSQLFile, $table);
-
-					// Time to close off
-					fclose($exportSQLFile);
-				}
-				else
-				{
-					$msg = JText::_('COM_EASYSTAGING_CLI_FAILED_TO_OPEN_SQL_EXP_FILE');
-					$msg .= error_get_last();
-				}
-			}
-			else
-			{
-				/**
-				 * Ahh... bugger, Joomla! found a column name it didn't like (i.e. a column name that the current db doesn't like)
-				 * Typical causes are columns names that start with a number or other illegal character or are completely numeric
-				 *
-				 */
-				$msg = JText::_('COM_EASYSTAGING_TABLE_CONTAINS_INVALID_COLS_NAMES');
-			}
-		}
-		else
-		{
-			$msg = JText::sprintf('COM_EASYSTAGING_CLI_TABLE_X_IS_EMPTY_NO_INS_REQ', $table);
-			$endofSQL = $this->_end_of_export_SQL($table);
-			$endofSQL = $this->_changeToRemotePrefix($endofSQL);
-			$buildTableSQL .= $endofSQL;
-
-			if ($exportSQLFile = @fopen($pathToSQLFile, 'w'))
-			{
-				// Attempt to write the file
-				if ($status = fwrite($exportSQLFile, $buildTableSQL))
-				{
-					$msg .= JText::sprintf('COM_EASYSTAGING_SQL_EXPORT_SUCC', $table) . "\n";
-					$status = true;
-				}
-				else
-				{
-					$msg .= JText::sprintf('COM_EASYSTAGING_CLI_UNABLE_TO_WRITE_SQL_EXPORT_FOR_TABLE_X', $table);
-				}
-
-				$msg .= JText::sprintf('COM_EASYSTAGING_CLI_PATH_TO_SQL_EXPORT_FILE_X_FOR_TABLE_Y', $pathToSQLFile, $table);
-
-				// Time to close off
-				fclose($exportSQLFile);
-			}
-		}
-
-		// Log it...
-		$this->_log($step, $msg);
-
-		return $status;
-	}
-
-	/**
-	 * Simple function for end of export SQL
-	 *
-	 * @param   string  $table  The name of the table
-	 *
-	 * @return  string
-	 */
-	private function _end_of_export_SQL($table)
-	{
-		$endofSQL = "ALTER TABLE `$table` ENABLE KEYS;\n" .
-			"\n\n-- End of Statement --\n\n" .
-			"UNLOCK TABLES;" .
-			"\n\n-- End of Statement --\n\n" .
-			'SET SQL_NOTES=@OLD_SQL_NOTES' .
-			"\n\n-- End of Statement --\n\n" .
-			'SET SQL_MODE=@OLD_SQL_MODE' .
-			"\n\n-- End of Statement --\n\n" .
-			'SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS' .
-			"\n\n-- End of Statement --\n\n" .
-			'SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT' .
-			"\n\n-- End of Statement --\n\n" .
-			'SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS' .
-			"\n\n-- End of Statement --\n\n" .
-			'SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION' .
-			"\n\n-- End of Statement --\n\n";
-
-		return $endofSQL;
-	}
-
-	/**
-	 * Runs the exported tables SQL file.
-	 *
-	 * @param   EasystagingTableSteps  $step  The step.
-	 *
-	 * @return  bool
-	 */
-	private function runTableExport($step)
-	{
-		$last_msg = '';
-		$tableName = $step->action;
-		$finishing = false;
-		$pathToSQLFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_export_file_name($tableName);
-
-		// Make sure our file exists
-		if (($pathToSQLFile != '') && (file_exists($pathToSQLFile)))
-		{
-			$msg = JText::sprintf('COM_EASYSTAGING_CLI_FOUND_SQL_EXPOR_FILE', $tableName) . "\n";
-
-			$exportSQLQuery = explode("\n\n-- End of Statement --\n\n", file_get_contents($pathToSQLFile));
-
-
-			// Update progress
-			$msg .= JText::sprintf('COM_EASYSTAGING_CLI_EXPORT_FILE_X_HAS_Y_STATEMENTS', $tableName, count($exportSQLQuery));
-			$this->_log($step, $msg);
-
-			if (count($exportSQLQuery))
-			{
-				$rs = PlanHelper::getRemoteSite($this->plan_id);
-
-				// Get remote DB connection.
-				/** @var $rDBC JDatabase */
-				$rDBC = $this->remote_db;
-
-				if ($rDBC)
-				{
-					$last_word = '';
-
-					// Run queries from the SQL file.
-					foreach ($exportSQLQuery as $query)
-					{
-						if (!empty($query))
-						{
-							list($first_word) = explode(' ', trim($query));
-							$rDBC->setQuery($query);
-
-							if ($rDBC->query())
-							{
-								if (($first_word == 'SET' && $last_word == 'UNLOCK') || ($first_word == 'SET' && $finishing))
-								{
-									$first_word = 'UNSET';
-									$finishing = true;
-								}
-
-								if (($first_word == 'SET' && $last_word != 'SET')
-									|| ($first_word == 'UNSET' && $last_word != 'UNSET')
-									|| ($first_word != 'SET' && $first_word != 'UNSET'))
-								{
-									$msg = JText::sprintf('COM_EASYSTAGING_CLI_TABLE_EXPORT_QUERY_' . strtoupper($first_word), $tableName, $rs->database_name);
-								}
-
-								$last_word = $first_word;
-							}
-							else
-							{
-								$msg = JText::sprintf('COM_EASYSTAGING_CLI_TABLE_FAILED_EXPORT_QUERY_' . strtoupper($first_word), $tableName, $rDBC->getErrorMsg());
-							}
-						}
-
-						// Update progress
-						if ($msg != $last_msg)
-						{
-							$this->_log($step, $msg);
-							$last_msg = $msg;
-						}
-					}
-				}
-
-				/**
-				 * @todo Confirm result, how? Check a matching number of records? What else? Maybe check the create statement?.
-				 */
-			}
-			else
-			{
-				$msg = JText::sprintf('COM_EASYSTAGING_JSON_FAILED_TO_READ_SQL_FILE', $tableName, $pathToSQLFile);
-			}
-		}
-		else
-		{
-			$msg = JText::sprintf('COM_EASYSTAGING_JSON_COULDNT_FIND_SQL_FILE', $tableName, $pathToSQLFile);
-		}
-
-		// Update progress
-		if ($msg != $last_msg)
-		{
-			$this->_log($step, $msg);
-		}
-
-		return $finishing;
-	}
-
-	/**
-	 * Strips out just the field names from the assoc array provided by Joomla!
-	 *
-	 * @param   string     $table  The name of the table.
-	 *
-	 * @param   JDatabase  $db     The database to use.
-	 *
-	 * @return  array|bool         On success a single column list of field names, false on failure.
-	 */
-	private function _getArrayOfFieldNames($table, $db)
-	{
-		$tableFields = $db->getTableColumns($table);
-		$fieldNames = array();
-
-		$fn2 = array_keys($tableFields);
-
-		foreach ($tableFields as $aField => $aFieldType)
-		{
-			if (!is_numeric($aField) && ($thisFldName = $db->quoteName($aField)) && is_string($thisFldName))
-			{
-				$fieldNames[] = $thisFldName;
-			}
-			else
-			{
-				// Time to bail Joomla! considers the column name invalid for this DB.
-				return false;
-			}
-		}
-
-		return $fieldNames;
-	}
-
-	/**
-	 * Looks for table name in our hard-coded filters array.
-	 *
-	 * @param   string  $tablename  The table we're checking for a filter
-	 *
-	 * @return  array|bool  A filter if one exists | false if not.
-	 */
-	private function _filterTable($tablename)
-	{
-		// We don't want to remove the underscore
-		$localPrefix = $this->localPrefix;
-		$filters = array(
-			$localPrefix . 'assets'		=> array('name' => 'com_easystaging%'),
-			$localPrefix . 'extensions'	=> array('element' => 'com_easystaging'),
-			$localPrefix . 'menu'		=> array('alias' => 'easystaging'),
-		);
-
-		if (array_key_exists($tablename, $filters))
-		{
-			return $filters[$tablename];
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	/**
-	 * Replaces local prefix with remote prefix
-	 *
-	 * @param   string  $sql  The SQL to be changed.
-	 *
-	 * @return  mixed
-	 */
-	private function _changeToRemotePrefix($sql)
-	{
-		if ($this->localPrefix != $this->remotePrefix)
-		{
-			$sql = str_replace($this->localPrefix, $this->remotePrefix, $sql);
-		}
-
-		return $sql;
+		// Run the table copy
 	}
 
 	/**
@@ -1112,27 +502,18 @@ DEF;
 	 */
 	private function _writeToLog($logLine)
 	{
-		$logWriteResult = false;
-		$runDirectory = RunHelper::get_run_directory($this->runticket);
+		$logFileName = 'es-log-plan-run-' . $this->runticket . '.txt';
+		$fullPathToLogFile = JPATH_COMPONENT_ADMINISTRATOR . '/syncfiles/' . $this->runticket . '/' . $logFileName;
 
-		if (!is_array($runDirectory))
+		if ($logFile = fopen($fullPathToLogFile, 'ab'))
 		{
-			if (!isset($this->logFile) || ($this->logFile === false))
-			{
-				$logFileName = 'es-log-plan-run-' . $this->runticket . '.txt';
-				$fullPathToLogFile = JPATH_COMPONENT_ADMINISTRATOR . '/syncfiles/' . $this->runticket . '/' . $logFileName;
+			// 'ab' has 'b' for windows :D
+			$logWriteResult = fwrite($logFile, $logLine . "\n");
 
-				$this->logFile = fopen($fullPathToLogFile, 'ab');
-			}
-
-			if ($this->logFile)
-			{
-				// 'ab' has 'b' for windows :D
-				$logWriteResult = fwrite($this->logFile, $logLine . "\n");
-			}
+			return $logWriteResult;
 		}
 
-		return $logWriteResult;
+		return false;
 	}
 
 	/**
@@ -1186,7 +567,6 @@ DEF;
 			$result['status'] = 0;
 			$result['msg'] = JText::_('COM_EASYSTAGING_PLAN_JSON_NO_VALID_RUN_TICKET_1');
 		}
-
 		return $result;
 	}
 
@@ -1247,7 +627,6 @@ DEF;
 				}
 			}
 		}
-
 		return $this->plan_id;
 	}
 
@@ -1283,7 +662,6 @@ DEF;
 					}
 				}
 			}
-
 			$query = ltrim($query);
 			$argv = explode(' ', $query);
 			$argc = count($argv);
@@ -1309,7 +687,6 @@ DEF;
 					$name = $argument;
 					$value = null;
 				}
-
 				$currentName = $name;
 
 				if (!isset($options[$currentName]) || ($options[$currentName] == null))
@@ -1345,11 +722,9 @@ DEF;
 				{
 					$values[$key] = $value;
 				}
-
 				$options[$currentName] = $values;
 			}
 		}
-
 		return $options;
 	}
 
@@ -1390,16 +765,11 @@ DEF;
 		}
 	}
 
-	/**
-	 * Close off the run, update the last run timestamp.
-	 *
-	 * @param   int  $plan_id  The plan that's finishing.
-	 */
-	private function finishRun($plan_id)
+
+	private function finishRun($rootStep, $plan_id)
 	{
 		$exitMsg = JText::_('COM_EASYSTAGING_CLI_EXITED_NORMALLY');
-		$this->_log($this->rootStep, $exitMsg);
-		RunHelper::markCompleted($this->rootStep, '');
+		RunHelper::markCompleted($rootStep, $exitMsg);
 
 		/** @var $closingMsgStep EasyStagingTableSteps */
 		$closingMsgStep = JTable::getInstance('Steps', 'EasyStagingTable');
@@ -1417,14 +787,6 @@ DEF;
 		$updates = array('last_run' => $last_run->toSql(), 'published' => 1);
 		$thePlan->bind($updates);
 		$thePlan->store();
-
-		// Time to tidy up...
-		if (isset($this->logFile) && ($this->logFile !== false))
-		{
-			fclose($this->logFile);
-		}
-
-		unset($this->logFile);
 	}
 }
 

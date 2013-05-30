@@ -1097,12 +1097,61 @@ class EasyStagingControllerPlan extends JController
 		return false;
 	}
 
+	/**
+	 * Looks for table name in our hard-coded filters array.
+	 * @param string $tablename
+	 * @return array if filter exists | false if not
+	 */
+	private function _filterTable($tablename)
+	{
+		$localPrefix = PlanHelper::getLocalSite($this->_plan_id())->database_table_prefix; // we don't want to remove the underscore
+		$filters = array(
+			$localPrefix . 'assets'		=> array('name' => 'com_easystaging%'),
+			$localPrefix . 'extensions'	=> array('element' => 'com_easystaging'),
+			$localPrefix . 'menu'		=> array('alias' => 'easystaging'),
+		);
+
+		if (array_key_exists($tablename, $filters))
+		{
+			return $filters[$tablename];
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	private function _getRemoteDBTables($db)
 	{
 		/** @var $db JDatabase */
 		$tableList = $db->getTableList();
 
 		return $tableList;
+	}
+
+	/**
+	 * Strips out just the field names from the assoc array provided by Joomla!
+	 * @param   array  $tableFields
+	 * @return  array  single list of field names
+	 */
+	private function _getArrayOfFieldNames($tableFields)
+	{
+
+		$db = JFactory::getDbo();
+		$fieldNames = array();
+		foreach ($tableFields as $aField => $aFieldType)
+		{
+			if(!is_numeric($aField) && ($thisFldName = $db->quoteName($aField)) && is_string($thisFldName))
+			{
+				$fieldNames[] = $thisFldName;
+			}
+			else
+			{
+				// Time to bail Joomla! considers the column name invalid for this DB.
+				return false;
+			}
+		}
+		return $fieldNames;
 	}
 
 	private function _changeTablePrefix($sql)

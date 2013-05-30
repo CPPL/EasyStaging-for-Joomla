@@ -13,6 +13,11 @@ if (typeof(com_EasyStaging) === 'undefined')
             $('startFile' ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
             $('startDBase').addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
             $('startAll'  ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
+            $('allTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(); } );
+            $('skippedTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(0); } );
+            $('pushTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(1, 2); } );
+            $('ptpTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(3); } );
+            $('pullTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(4, 5); } );
 
             // Just in case we want to copy the status ouput...
             $('currentStatus').addEvent('click',
@@ -225,6 +230,8 @@ com_EasyStaging.setUp = function ()
     this.requestData.runticket = '';
 	this.requestData.plan_id   = cppl_tools.getID();
 	this.jsonURL               = 'index.php?option=com_easystaging&format=json';
+    this.tableFilter           = null;
+    this.tablesHidden          = 0;
 
 	if (cppl_tools.getID() == 0)
 	{
@@ -446,4 +453,34 @@ com_EasyStaging.fnDeSelectText = function ()
     {
         window.getSelection().removeAllRanges();
     }
+}
+
+com_EasyStaging.filterTables = function ()
+{
+    var tableRows = $$('tr.table-settings');
+    this.tableFilter = Array.clone(arguments);
+    this.tablesHidden = 0;
+
+    // Update each row
+    tableRows.each(function(row, index)
+        {
+            var theSelectValue = row.children[2].children[0].value;
+            var inFilter = this.tableFilter.indexOf(parseInt(theSelectValue));
+
+            if((inFilter >= 0) || (this.tableFilter.length ==0))
+            {
+                row.removeClass('hidden');
+            }
+            else
+            {
+                row.addClass('hidden');
+                this.tablesHidden++;
+            }
+
+            // Notify user of changes
+            var visibleTables = this.totalTables - this.tablesHidden;
+            jmsgs = [cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_FILTER_RESULTS'), visibleTables, this.totalTables, this.tablesHidden)];
+            Joomla.renderMessages({'message': jmsgs });
+        }, com_EasyStaging
+    );
 }

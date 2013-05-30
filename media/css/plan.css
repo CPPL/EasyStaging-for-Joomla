@@ -10,6 +10,10 @@
 	font-style: italic;
 }
 
+#com_easystaging_plan_tabs div.current .hidden {
+    display: none;
+}
+
 .table_name, .action {
 	width: 150px;
 }
@@ -76,6 +80,12 @@ div.toolbar-list.tb-off a:active {
 #statusBtn.com_easystaging_plan_btn_off button:hover {
     cursor: default;
     background-color: white;
+}
+
+/* Filter buttons */
+#table-filters {
+    float: right;
+    margin-right: 50px;
 }
 
 /* Message Areas */

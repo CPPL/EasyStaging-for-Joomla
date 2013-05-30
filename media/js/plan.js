@@ -13,7 +13,6 @@ if (typeof(com_EasyStaging) === 'undefined')
             $('startFile' ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
             $('startDBase').addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
             $('startAll'  ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
-            $('status'    ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
 
             // Just in case we want to copy the status ouput...
             $('currentStatus').addEvent('click',

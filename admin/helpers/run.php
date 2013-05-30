@@ -239,6 +239,7 @@ class RunHelper
 			$updateArray['reported'] = self::NOTREPORTED;
 		}
 		// Update the step record.
+		$theStep->refresh();
 		$theStep->bind($updateArray);
 		$theStep->store();
 	}

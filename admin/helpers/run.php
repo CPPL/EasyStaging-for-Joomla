@@ -244,8 +244,47 @@ class RunHelper
 	}
 
 	/**
-	 * Tools for zipping directories & files.
+	 * Tools for working with directories, files and zip.
 	 */
+
+	/**
+	 * Returns the run directory name in the nominated syncfile directory, creating one if it doesn't already exist.
+	 *
+	 * @param   string  $runTicket  The runticket.
+	 *
+	 * @return  array|string  String i.e. directory path if all is good, other array with error results.
+	 */
+	public static function get_run_directory($runTicket)
+	{
+		if ($runTicket)
+		{
+			// Get location files from this run will be saved in to.
+			$runDirectoryPath = JPATH_COMPONENT_ADMINISTRATOR . '/syncfiles/' . $runTicket;
+
+			if (!file_exists($runDirectoryPath))
+			{
+				if (mkdir($runDirectoryPath, 0777, true))
+				{
+					return $runTicket;
+				}
+				else
+				{
+					$result['status'] = 0;
+					$result['msg'] = JText::sprintf('COM_EASYSTAGING_PLAN_JSON_UNABLE_TO_CREAT_RUN_DIR', $runDirectoryPath);
+				}
+			}
+			else
+			{
+				return $runTicket;
+			}
+		}
+		else
+		{
+			$result['status'] = 0;
+			$result['msg'] = JText::_('COM_EASYSTAGING_PLAN_JSON_NO_VALID_RUN_TICKET_1');
+		}
+		return $result;
+	}
 
 	/**
 	 * Create a Zip file

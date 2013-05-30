@@ -1276,42 +1276,6 @@ class EasyStagingControllerPlan extends JController
 	{
 		return JPATH_ADMINISTRATOR . '/components/com_easystaging/syncfiles/';
 	}
-	private function _get_run_directory($runDirectory = NULL)
-	{
-		// Get location files from this run will be saved in to.
-		if ($runDirectory == NULL)
-		{
-			$runDirectory = $this->_getInputVar('runTicket') ;
-		}
-
-		$runDirectoryPath = JPATH_ADMINISTRATOR . '/components/com_easystaging/syncfiles/' . $runDirectory;
-
-		if ($runDirectory)
-		{
-			if (!file_exists($runDirectoryPath))
-			{
-				if (mkdir($runDirectoryPath, 0777, true))
-				{
-					return $runDirectory;
-				}
-				else
-				{
-					$result['status'] = 0;
-					$result['msg'] = JText::sprintf('COM_EASYSTAGING_PLAN_JSON_UNABLE_TO_CREAT_RUN_DIR', $runDirectoryPath);
-				}
-			}
-			else
-			{
-				return $runDirectory;
-			}
-		}
-		else
-		{
-			$result['status'] = 0;
-			$result['msg'] = JText::_('COM_EASYSTAGING_PLAN_JSON_NO_VALID_RUN_TICKET_1');
-		}
-		return $result;
-	}
 
 	private function _export_file_name($table)
 	{

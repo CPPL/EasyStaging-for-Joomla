@@ -56,7 +56,7 @@ Joomla.submitbutton = function (task) {
          }
          else
          {
-             var msg = '<strong>' + Joomla.JText._('COM_EASYSTAGING_JSON_REQUEST_MADE_PLEASE_WAIT') + '</strong>';
+             var msg = '<strong>' + Joomla.JText._('COM_EASYSTAGING_JS_REQUEST_MADE_PLEASE_WAIT') + '</strong>';
              this.runStage = msg;
              this.appendTextToCurrentStatus(msg, false);
              this.requestData.step = whatWeWant;
@@ -263,7 +263,7 @@ com_EasyStaging.checkJMessage = function(response)
         case 13:
         case 14:
         case 15:
-            this.runStage = Joomla.JText._('COM_EASYSTAGING_JS_FILE_SYNC_IN_PROG');
+            this.runStage = Joomla.JText._('COM_EASYSTAGING_JS_TABLE_SYNC_IN_PROG');
             break;
         default :
             this.runStage = Joomla.JText._('COM_EASYSTAGING_JS_IN_PROGRESS');

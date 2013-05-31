@@ -582,7 +582,7 @@ DEF;
 		$status = false;
 
 		// First we export the table
-		if ($this->createTableExportFile($step))
+		if ($this->createTableExportFile($step, $this->local_db))
 		{
 			// Run the table copy
 			$status = $this->runTableExport($step);
@@ -676,11 +676,13 @@ DEF;
 	/**
 	 * Create our export file for the table in this step.
 	 *
-	 * @param   EasyStagingTableSteps  $step  The current step.
+	 * @param   EasyStagingTableSteps  $step    The current step.
+	 *
+	 * @param   JDatabase              $src_db  The database we're exporting from...
 	 *
 	 * @return  bool
 	 */
-	private function createTableExportFile($step)
+	private function createTableExportFile($step, $src_db)
 	{
 		// If we can't create the export file we have to abort
 		$status = false;
@@ -707,9 +709,7 @@ DEF;
 			'SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0' .
 			"\n\n-- End of Statement --\n\n";
 
-		/** @var $ldb JDatabase */
-		$ldb = $this->local_db;
-		$dbTableName = $ldb->quoteName($table);
+		$dbTableName = $src_db->quoteName($table);
 
 		// Get any filter that may apply to this table.
 		$hasAFilter = $this->_filterTable($table);
@@ -727,13 +727,13 @@ DEF;
 		$buildTableSQL .= 'DROP TABLE IF EXISTS ' . $dbTableName . ";\n\n-- End of Statement --\n\n";
 
 		// 2. Then we create it again, except with a new prefix :D
-		$ldb->setQuery('SHOW CREATE TABLE ' . $dbTableName);
-		$createStatement = $ldb->loadRow();
+		$src_db->setQuery('SHOW CREATE TABLE ' . $dbTableName);
+		$createStatement = $src_db->loadRow();
 		$buildTableSQL .= str_replace("\r", "\n", $createStatement[1]) . ";\n\n-- End of Statement --\n\n";
 		$buildTableSQL = $this->_changeToRemotePrefix($buildTableSQL);
 
 		// 3. Next we try and get the records in the table (after all no point in creating an insert statement if there are no records :D )
-		$dbq = $ldb->getQuery(true);
+		$dbq = $src_db->getQuery(true);
 		$dbq->select('*');
 		$dbq->from($table);
 
@@ -741,17 +741,17 @@ DEF;
 		{
 			$fieldToCompare = key($hasAFilter);
 			$valueToAvoid = $hasAFilter[$fieldToCompare];
-			$condition = $ldb->quoteName($fieldToCompare) . 'NOT LIKE ' . $ldb->quote($valueToAvoid);
+			$condition = $src_db->quoteName($fieldToCompare) . 'NOT LIKE ' . $src_db->quote($valueToAvoid);
 			$dbq->where($condition);
 		}
 
-		$ldb->setQuery($dbq);
+		$src_db->setQuery($dbq);
 
-		if (($records = $ldb->loadRowList()) != null)
+		if (($records = $src_db->loadRowList()) != null)
 		{
 			// 4. Then we build the list of field/column names that we'll insert data into
 			// -- first we get the columns
-			$flds = $this->_getArrayOfFieldNames($table, $ldb);
+			$flds = $this->_getArrayOfFieldNames($table, $src_db);
 
 			// No problems getting the field names?
 			if ($flds)

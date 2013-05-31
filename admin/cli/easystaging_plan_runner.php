@@ -582,7 +582,7 @@ DEF;
 		$status = false;
 
 		// First we export the table
-		if ($this->createTableExportFile($step, $this->local_db))
+		if ($this->createCopyTable_ExportFile($step, $this->local_db))
 		{
 			// Run the table copy
 			$status = $this->runTableExport($step, $this->remote_db);
@@ -683,7 +683,7 @@ DEF;
 	 *
 	 * @return  bool
 	 */
-	private function createTableExportFile($step, $src_db)
+	private function createCopyTable_ExportFile($step, $src_db)
 	{
 		// If we can't create the export file we have to abort
 		$status = false;

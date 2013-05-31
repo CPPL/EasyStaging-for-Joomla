@@ -547,7 +547,7 @@ DEF;
 	/**
 	 * The main entry table copy steps.
 	 *
-	 * @param   array  $step  The table to be copied.
+	 * @param   EasyStagingTableSteps  $step  The table to be copied.
 	 *
 	 * @return bool
 	 */
@@ -572,7 +572,7 @@ DEF;
 	/**
 	 * The main entry table copy steps.
 	 *
-	 * @param   array  $step  The table to be copied.
+	 * @param   EasyStagingTableSteps  $step  The table to be copied.
 	 *
 	 * @return null
 	 */
@@ -594,13 +594,14 @@ DEF;
 	/**
 	 * The main entry table merge steps.
 	 *
-	 * @param   array  $step  The table to be copied.
+	 * @param   EasyStagingTableSteps  $step  The table to be copied.
 	 *
 	 * @return null
 	 */
 	private function performTableMerge($step)
 	{
 		// Run the table Merge
+
 	}
 
 

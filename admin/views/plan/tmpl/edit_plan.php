@@ -52,6 +52,29 @@ defined('_JEXEC') or die;
 				<?php endif; ?>
 			</ul>
 		</fieldset>
+	<?php echo JHtml::_('sliders.panel',JText::_('COM_EASYSTAGING_NOTES_LABEL'), 'notes'); ?>
+	<fieldset class="panelform">
+		<legend><br><?php echo JText::_('COM_EASYSTAGING_NOTES_TABLE_LABEL'); ?></legend>
+		<ul>
+			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION0'); ?></strong><br />
+				<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION0_DESC'); ?></li>
+			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION1'); ?></strong><br />
+				<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION1_DESC'); ?></li>
+			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION2'); ?></strong><br />
+				<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION2_DESC'); ?></li>
+			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION3'); ?></strong><br />
+				<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION3_DESC'); ?></li>
+			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION4'); ?></strong><br />
+				<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION4_DESC'); ?></li>
+			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION5'); ?></strong><br />
+				<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION5_DESC'); ?><br />
+			</li>
+		</ul>
+		<legend><br><?php echo JText::_('COM_EASYSTAGING_NOTES_RSYNC_LABEL'); ?></legend>
+		<ul>
+			<li><?php echo JText::_('COM_EASYSTAGING_NOTES_RSYNC_DESC'); ?></li>
+		</ul>
+	</fieldset>
 	<?php echo JHtml::_('sliders.end'); ?>
 </div>
 

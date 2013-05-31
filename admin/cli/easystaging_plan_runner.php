@@ -585,7 +585,7 @@ DEF;
 		if ($this->createTableExportFile($step, $this->local_db))
 		{
 			// Run the table copy
-			$status = $this->runTableExport($step);
+			$status = $this->runTableExport($step, $this->remote_db);
 		}
 
 		return $status;
@@ -911,11 +911,13 @@ DEF;
 	/**
 	 * Runs the exported tables SQL file.
 	 *
-	 * @param   EasystagingTableSteps  $step  The step.
+	 * @param   EasystagingTableSteps  $step     The step.
+	 *
+	 * @param   JDatabase              $trgt_db  The target database.
 	 *
 	 * @return  bool
 	 */
-	private function runTableExport($step)
+	private function runTableExport($step, $trgt_db)
 	{
 		$last_msg = '';
 		$tableName = $step->action;
@@ -938,11 +940,7 @@ DEF;
 			{
 				$rs = PlanHelper::getRemoteSite($this->plan_id);
 
-				// Get remote DB connection.
-				/** @var $rDBC JDatabase */
-				$rDBC = $this->remote_db;
-
-				if ($rDBC)
+				if ($trgt_db)
 				{
 					$last_word = '';
 
@@ -952,9 +950,9 @@ DEF;
 						if (!empty($query))
 						{
 							list($first_word) = explode(' ', trim($query));
-							$rDBC->setQuery($query);
+							$trgt_db->setQuery($query);
 
-							if ($rDBC->query())
+							if ($trgt_db->query())
 							{
 								if (($first_word == 'SET' && $last_word == 'UNLOCK') || ($first_word == 'SET' && $finishing))
 								{
@@ -973,7 +971,7 @@ DEF;
 							}
 							else
 							{
-								$msg = JText::sprintf('COM_EASYSTAGING_CLI_TABLE_FAILED_EXPORT_QUERY_' . strtoupper($first_word), $tableName, $rDBC->getErrorMsg());
+								$msg = JText::sprintf('COM_EASYSTAGING_CLI_TABLE_FAILED_EXPORT_QUERY_' . strtoupper($first_word), $tableName, $trgt_db->getErrorMsg());
 							}
 						}
 

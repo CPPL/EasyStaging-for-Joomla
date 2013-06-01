@@ -1,13 +1,13 @@
 .icon-48-easystaging {
-	background-image: url("../images/EasyStaging-48-icon.png");
+    background-image: url("../images/EasyStaging-48-icon.png");
 }
 
 #com_easystaging_plan_tabs div.current {
-	background-color: white;
+    background-color: white;
 }
 
 #com_easystaging_plan_tabs div.current p.tab-description {
-	font-style: italic;
+    font-style: italic;
 }
 
 #com_easystaging_plan_tabs div.current .hidden {
@@ -15,10 +15,11 @@
 }
 
 .table_name, .action {
-	width: 150px;
+    width: 150px;
 }
+
 .table_name, .action, .action_result {
-	font-weight: bold;
+    font-weight: bold;
 }
 
 /* Toolbar */
@@ -41,37 +42,42 @@ div.toolbar-list.tb-off a:active {
 
 /* Plan Run Buttons */
 #planControls {
-    width:60%;
-    float:left;
+    width: 60%;
+    float: left;
 }
 
 #startFileBtn {
-	background: url("../images/orange-1.png") no-repeat 0px 0px;
+    background: url("../images/orange-1.png") no-repeat 0px 0px;
 }
+
 #startDBaseBtn {
-	background: url("../images/blue-2.png") no-repeat 0px 0px;
+    background: url("../images/blue-2.png") no-repeat 0px 0px;
 }
+
 #startAllBtn {
-	background: url("../images/green-3.png") no-repeat 0px 0px;
+    background: url("../images/green-3.png") no-repeat 0px 0px;
 }
+
 #statusBtn {
     background: url("../images/Mushroom-Clown-Button.png") no-repeat 0px 0px;
 }
-#startFileBtn, #startDBaseBtn, #startAllBtn, #statusBtn{
-	height: 32px;
-	padding-top:10px;
-	padding-bottom:10px;
+
+#startFileBtn, #startDBaseBtn, #startAllBtn, #statusBtn {
+    height: 32px;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
-#startFile, #startDBase, #startAll, #status{
-	margin: 34px;
-	height: 32px;
+
+#startFile, #startDBase, #startAll, #status {
+    margin: 34px;
+    height: 32px;
 }
 
 #startFileBtn.com_easystaging_plan_btn_off,
 #startDBaseBtn.com_easystaging_plan_btn_off,
 #startAllBtn.com_easystaging_plan_btn_off,
 #statusBtn.com_easystaging_plan_btn_off {
-	background-position-y: 32px;
+    background-position-y: 32px;
 }
 
 #startFileBtn.com_easystaging_plan_btn_off button:hover,
@@ -101,46 +107,49 @@ div.toolbar-list.tb-off a:active {
 }
 
 .planUpdatesDiv, #lastRunStatus {
-    width:60%;
+    width: 60%;
     position: relative;
-    clear:both;
+    clear: both;
 }
 
 #rsyncErrors {
-	width:40%;
-	overflow:scroll;
-	max-height:140px;
-	background-color:#eeeeee;
-	display:none;
+    width: 40%;
+    overflow: scroll;
+    max-height: 140px;
+    background-color: #eeeeee;
+    display: none;
 }
 
 #rsyncErrors h3 {
-	margin-left:10px;
-	color:#ff0000;
+    margin-left: 10px;
+    color: #ff0000;
 }
 
 .cppl_es_error_list {
-	float:left;
-	clear:both;
-	list-style:none;
+    float: left;
+    clear: both;
+    list-style: none;
 }
+
 .cppl_es_error_list li {
-	margin: 5px;
+    margin: 5px;
 }
+
 .cppl_es_rsync_error_code {
-	font-weight:bold;
+    font-weight: bold;
 }
+
 .cppl_es_rsync_error_msg {
-	margin-left: 15px;
-	display: block;
-	margin-top: -12px;
+    margin-left: 15px;
+    display: block;
+    margin-top: -12px;
 }
 
 #currentStatus {
-	line-height: 1.5em;
-	overflow:scroll;
-	max-height: 250px;
-	padding: 5px 0px 50px 10px;
+    line-height: 1.5em;
+    overflow: scroll;
+    max-height: 250px;
+    padding: 5px 0px 50px 10px;
 }
 
 .payattention {
@@ -150,11 +159,12 @@ div.toolbar-list.tb-off a:active {
 #currentStatus p {
     margin: 0px;
 }
+
 .waiting {
-	background: url("../images/spinning.gif") no-repeat 50% 0%;
+    background: url("../images/spinning.gif") no-repeat 50% 0%;
 }
 
 .es_ajax_error_msg {
-	font-weight:bold;
-	color:red;
+    font-weight: bold;
+    color: red;
 }

@@ -1,28 +1,34 @@
 #editcell {
-	float:left;
-	width:60%;
+    float: left;
+    width: 60%;
 }
+
 #howitworkspanel {
-	float:right;
-	width:35%;
-	height: 142px;
-	overflow: hidden;
+    float: right;
+    width: 35%;
+    height: 142px;
+    overflow: hidden;
 }
+
 #howitworksbody {
-	maring: 5px;
+    maring: 5px;
 }
+
 #howitworksimage1, #howitworksimage2 {
-	margin-left: auto;
-	margin-right: auto;
-	width: 240px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 240px;
 }
+
 #howitworkstoggle {
-	width:20px;
-	float: right;
+    width: 20px;
+    float: right;
 }
+
 #es_version {
-    width:100%;
+    width: 100%;
 }
+
 #es_version p {
     text-align: center;
     font-size: 0.9em;
@@ -31,10 +37,10 @@
 }
 
 .com_easystaging_mgr_last_run {
-	font-style: italic;
-	color: silver;
+    font-style: italic;
+    color: silver;
 }
 
 .icon-48-easystaging {
-	background-image: url("../images/EasyStaging-48-icon.png");
+    background-image: url("../images/EasyStaging-48-icon.png");
 }

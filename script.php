@@ -104,24 +104,24 @@ class com_EasyStagingInstallerScript
 				{
 					if (JFile::copy($source_file, $cli_dir . '/easystaging_plan_runner.php'))
 					{
-						echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_POSTFLIGHT_' . strtoupper($type) . '_CLI_FILE_COPIED') . '</p>';
+						echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_CLI_FILE_COPIED') . '</p>';
 					}
 					else
 					{
-						echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_POSTFLIGHT_' . strtoupper($type) . '_CLI_FILE_COPY_FAIL') . '</p>';
+						echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_CLI_FILE_COPY_FAIL') . '</p>';
 						$preFlightOK = false;
 					}
 				}
 				else
 				{
-					echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_POSTFLIGHT_' . strtoupper($type) . '_NO_CLI_FILE_FOUND') . '</p>';
+					echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_NO_CLI_FILE_FOUND') . '</p>';
 					$preFlightOK = false;
 				}
 			}
 		}
 		else
 		{
-			echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_POSTFLIGHT_' . strtoupper($type) . '_NO_CLI_DIR_FOUND') . '</p>';
+			echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_NO_CLI_DIR_FOUND') . '</p>';
 			$preFlightOK = false;
 		}
 

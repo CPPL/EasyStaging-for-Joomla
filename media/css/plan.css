@@ -91,7 +91,48 @@ div.toolbar-list.tb-off a:active {
 /* Filter buttons */
 #table-filters {
     float: right;
-    margin-right: 50px;
+    margin-top: -35px;
+    height: 25px;
+    overflow: hidden;
+}
+#table-filters:hover {
+    background-color: #f5f5f5;
+    border: thin solid gainsboro;
+}
+#table-filters #tf-toggle {
+    float: right;
+    height: 10px;
+    width: 10px;
+    margin-right: 80px;
+    margin-top: 5px;
+    background: url("/administrator/templates/bluestork/images/j_arrow.png") no-repeat 0px 0px;
+    cursor: pointer;
+}
+
+#table-filters.open {
+    height: 100px;
+    border: thin solid gainsboro;
+}
+
+#table-filters input {
+    margin-top: 3px;
+}
+
+#table-filters.open #tf-toggle {
+    background: url("/administrator/templates/bluestork/images/j_arrow_down.png") no-repeat 0px 0px;
+}
+
+#table-filters #tf-text p {
+    float: left;
+    margin-top: 7px;
+    background-color: #ffffff;
+}
+
+#table-filters #tf-presets1, #table-filters #tf-presets2 {
+    width: 230px;
+    height: 30px;
+    margin-left: 5px;
+    clear: both;
 }
 
 /* Message Areas */

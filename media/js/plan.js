@@ -14,6 +14,7 @@ if (typeof(com_EasyStaging) === 'undefined')
             $('startDBase').addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
             $('startAll'  ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
             $('tableNamesFilter').addEvent('keyup', function (event) {setTimeout(com_EasyStaging.filterTableNames(), 0);})
+            $('tf-toggle').addEvent('click', function (event) {com_EasyStaging.toggleFilters();})
             $('allTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(); } );
             $('skippedTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(0); } );
             $('notSkippedTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions('N'); } );
@@ -456,6 +457,26 @@ com_EasyStaging.fnDeSelectText = function ()
         window.getSelection().removeAllRanges();
     }
 }
+
+com_EasyStaging.toggleFilters = function()
+{
+    var filtersDIV = document.id('table-filters');
+    var fDH = filtersDIV.getHeight();
+    var origHeight = 27;
+    var maxOrigHeifht = 29;
+
+    if ((fDH >= origHeight) && (fDH <= maxOrigHeifht))
+    {
+        filtersDIV.addClass('open');
+    }
+    else
+    {
+        filtersDIV.removeClass('open');
+    }
+
+    filtersDIV.morph(newClassToApply);
+}
+
 
 com_EasyStaging.filterTableActions = function ()
 {

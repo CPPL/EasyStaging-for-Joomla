@@ -13,12 +13,13 @@ if (typeof(com_EasyStaging) === 'undefined')
             $('startFile' ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
             $('startDBase').addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
             $('startAll'  ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
-            $('allTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(); } );
-            $('skippedTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(0); } );
-            $('notSkippedTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables('N'); } );
-            $('pushTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(1, 2); } );
-            $('ptpTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(3); } );
-            $('pullTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(4, 5, 6); } );
+            $('tableNamesFilter').addEvent('keyup', function (event) {setTimeout(com_EasyStaging.filterTableNames(), 0);})
+            $('allTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(); } );
+            $('skippedTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(0); } );
+            $('notSkippedTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions('N'); } );
+            $('pushTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(1, 2); } );
+            $('ptpTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(3); } );
+            $('pullTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(4, 5, 6); } );
 
             // Just in case we want to copy the status ouput...
             $('currentStatus').addEvent('click',
@@ -456,7 +457,7 @@ com_EasyStaging.fnDeSelectText = function ()
     }
 }
 
-com_EasyStaging.filterTables = function ()
+com_EasyStaging.filterTableActions = function ()
 {
     var tableRows = $$('tr.table-settings');
     this.tableFilter = Array.clone(arguments);
@@ -469,6 +470,37 @@ com_EasyStaging.filterTables = function ()
             var inFilter = this.tableFilter.indexOf(parseInt(theSelectValue));
 
             if((inFilter >= 0) || (this.tableFilter.length == 0) || ((theSelectValue != 0) && (this.tableFilter[0] == 'N')))
+            {
+                row.removeClass('hidden');
+            }
+            else
+            {
+                row.addClass('hidden');
+                this.tablesHidden++;
+            }
+
+            // Notify user of changes
+            var visibleTables = this.totalTables - this.tablesHidden;
+            jmsgs = [cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_FILTER_RESULTS'), visibleTables, this.totalTables, this.tablesHidden)];
+            Joomla.renderMessages({'message': jmsgs });
+        }, com_EasyStaging
+    );
+}
+
+com_EasyStaging.filterTableNames = function ()
+{
+    var tableRows = $$('tr.table-settings');
+    var tnf = document.getElementById('tableNamesFilter');
+    this.tableFilter = tnf.value;
+    this.tablesHidden = 0;
+
+    // Update each row
+    tableRows.each(function(row, index)
+        {
+            var theTableName = row.children[0].children[0].innerHTML;
+            var filterText = this.tableFilter;
+
+            if(theTableName.indexOf(filterText) >= 0)
             {
                 row.removeClass('hidden');
             }

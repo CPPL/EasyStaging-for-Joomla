@@ -63,7 +63,7 @@ foreach ($localTables as $tablename => $row)
 	$i++;
 ?>
 		<tr class="table-settings row<?php echo $i % 2; ?>" id="<?php echo $tablename; ?>">
-			<td><?php echo $tablename; ?>
+			<td><span><?php echo $tablename; ?></span>
 			<input type="hidden" name="<?php echo $controlName . '[origAction]" value="' . $actionCurrent; ?>">
 			<input type="hidden" name="<?php echo $controlName . '[id]" value="' . $id; ?>"></td>
 			<td><span class="com_easystaging_mgr_last_run"><?php echo $lastActionResult; ?></span></td>

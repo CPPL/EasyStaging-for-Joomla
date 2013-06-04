@@ -15,6 +15,7 @@ if (typeof(com_EasyStaging) === 'undefined')
             $('startAll'  ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
             $('allTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(); } );
             $('skippedTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(0); } );
+            $('notSkippedTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables('N'); } );
             $('pushTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(1, 2); } );
             $('ptpTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(3); } );
             $('pullTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(4, 5, 6); } );
@@ -467,7 +468,7 @@ com_EasyStaging.filterTables = function ()
             var theSelectValue = row.children[2].children[0].value;
             var inFilter = this.tableFilter.indexOf(parseInt(theSelectValue));
 
-            if((inFilter >= 0) || (this.tableFilter.length ==0))
+            if((inFilter >= 0) || (this.tableFilter.length == 0) || ((theSelectValue != 0) && (this.tableFilter[0] == 'N')))
             {
                 row.removeClass('hidden');
             }

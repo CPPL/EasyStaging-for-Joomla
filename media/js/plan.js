@@ -17,7 +17,7 @@ if (typeof(com_EasyStaging) === 'undefined')
             $('skippedTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(0); } );
             $('pushTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(1, 2); } );
             $('ptpTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(3); } );
-            $('pullTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(4, 5); } );
+            $('pullTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTables(4, 5, 6); } );
 
             // Just in case we want to copy the status ouput...
             $('currentStatus').addEvent('click',

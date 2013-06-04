@@ -135,12 +135,13 @@ class EasyStaging_PlanRunner extends JApplicationCli
 	/**
 	 * Table Actions
 	 */
-	const TABLE_DONT_COPY_IGNORE = 10;
-	const TABLE_COPY_2_LIVE_ONLY = 11;
-	const TABLE_COPY_IF_NOT_FND  = 12;
-	const TABLE_MERGE_BACK_COPY  = 13;
-	const TABLE_MERGE_BACK_ONLY  = 14;
-	const TABLE_MERGE_BACK_CLEAN = 13;
+	const TABLE_DONT_COPY_IGNORE  = 10;
+	const TABLE_COPY_2_LIVE_ONLY  = 11;
+	const TABLE_COPY_IF_NOT_FND   = 12;
+	const TABLE_MERGE_BACK_COPY   = 13;
+	const TABLE_MERGE_BACK_ONLY   = 14;
+	const TABLE_MERGE_BACK_CLEAN  = 15;
+	const TABLE_COPY_BACK_REPLACE = 16;
 
 	/**
 	 * Table Actions

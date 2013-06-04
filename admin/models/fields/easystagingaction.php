@@ -48,6 +48,7 @@ class JFormFieldEasyStagingAction extends JFormFieldList
 		$actionChoices[] = array('value' => '', 'text' => JText::_('COM_EASYSTAGING_TABLE_ACTION_PULL_DIV_LABEL'), 'disable' => 'true');
 		$actionChoices[] = array('value' => 4, 'text' => JText::_('COM_EASYSTAGING_TABLE_ACTION4'));
 		$actionChoices[] = array('value' => 5, 'text' => JText::_('COM_EASYSTAGING_TABLE_ACTION5'));
+		$actionChoices[] = array('value' => 6, 'text' => JText::_('COM_EASYSTAGING_TABLE_ACTION6'));
 
 		return $actionChoices;
 	}

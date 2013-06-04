@@ -58,16 +58,29 @@ defined('_JEXEC') or die;
 		<ul>
 			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION0'); ?></strong><br />
 				<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION0_DESC'); ?></li>
-			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION1'); ?></strong><br />
-				<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION1_DESC'); ?></li>
-			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION2'); ?></strong><br />
-				<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION2_DESC'); ?></li>
-			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION3'); ?></strong><br />
-				<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION3_DESC'); ?></li>
+			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION_PUSH_DIV_LABEL'); ?></strong>
+				<ul>
+					<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION1'); ?></strong><br />
+						<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION1_DESC'); ?></li>
+					<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION2'); ?></strong><br />
+						<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION2_DESC'); ?></li>
+				</ul>
+			</li>
+			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION_PULLPUSH_DIV_LABEL')?></strong>
+				<ul>
+					<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION3'); ?></strong><br />
+						<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION3_DESC'); ?></li>
+				</ul>
+			</li>
+			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION_PULL_DIV_LABEL')?></strong>
+				<ul>
 			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION4'); ?></strong><br />
 				<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION4_DESC'); ?></li>
 			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION5'); ?></strong><br />
-				<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION5_DESC'); ?><br />
+				<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION5_DESC'); ?></li>
+			<li><strong><?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION6'); ?></strong><br />
+				<?php echo JText::_('COM_EASYSTAGING_TABLE_ACTION6_DESC'); ?></li>
+				</ul>
 			</li>
 		</ul>
 		<legend><br><?php echo JText::_('COM_EASYSTAGING_NOTES_RSYNC_LABEL'); ?></legend>

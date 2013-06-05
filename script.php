@@ -78,7 +78,7 @@ class com_EasyStagingInstallerScript
 			$oldRelease = explode(' ', $this->getParam('version'));
 			$rel = $oldRelease[0] . ' to ' . $this->release;
 
-			if (version_compare($this->release, $oldRelease, '<'))
+			if (version_compare($this->release, $oldRelease[0], '<'))
 			{
 				Jerror::raiseWarning(null, JText::sprintf('COM_EASYSTAGING_INSTALLER_NO_DOWNGRADING_X', $rel));
 

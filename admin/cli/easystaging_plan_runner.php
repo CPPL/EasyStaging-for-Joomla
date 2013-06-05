@@ -763,7 +763,7 @@ DEF;
 		$src_db->setQuery('SHOW CREATE TABLE ' . $dbTableName);
 		$createStatement = $src_db->loadRow();
 		$buildTableSQL .= str_replace("\r", "\n", $createStatement[1]) . ";\n\n-- End of Statement --\n\n";
-		$buildTableSQL = $this->_changeToRemotePrefix($buildTableSQL);
+		$buildTableSQL = $this->swapTablePrefix($buildTableSQL);
 
 		// 3. Next we try and get the records in the table (after all no point in creating an insert statement if there are no records :D )
 		$dbq = $src_db->getQuery(true);
@@ -793,7 +793,7 @@ DEF;
 				$this->_log($step, $msg);
 
 				// -- then we implode them into a suitable statement
-				$columnInsertSQL = 'INSERT INTO ' . $this->_changeToRemotePrefix($dbTableName) . ' (' . implode(', ', $flds) . ') VALUES ';
+				$columnInsertSQL = 'INSERT INTO ' . $this->swapTablePrefix($dbTableName) . ' (' . implode(', ', $flds) . ') VALUES ';
 
 				// - keeping it intact for later user if the table is too big.
 
@@ -839,7 +839,7 @@ DEF;
 
 				// Time to unlock and restore keys to their enabled state
 				$endofSQL = $this->_end_of_export_SQL($table);
-				$endofSQL = $this->_changeToRemotePrefix($endofSQL);
+				$endofSQL = $this->swapTablePrefix($endofSQL);
 
 				$buildTableSQL .= $endofSQL;
 
@@ -882,7 +882,7 @@ DEF;
 		{
 			$msg = JText::sprintf('COM_EASYSTAGING_CLI_TABLE_X_IS_EMPTY_NO_INS_REQ', $table);
 			$endofSQL = $this->_end_of_export_SQL($table);
-			$endofSQL = $this->_changeToRemotePrefix($endofSQL);
+			$endofSQL = $this->swapTablePrefix($endofSQL);
 			$buildTableSQL .= $endofSQL;
 
 			if ($exportSQLFile = @fopen($pathToSQLFile, 'w'))
@@ -1101,15 +1101,22 @@ DEF;
 	/**
 	 * Replaces local prefix with remote prefix
 	 *
-	 * @param   string  $sql  The SQL to be changed.
+	 * @param   string  $sql          The SQL to be changed.
 	 *
+	 * @param   string  $orig_prefix  The prefix used in the supplied SQL, if empty defaults to localPrefix
+
+	 * @param   string  $new_prefix   The replacement prefix for the supplied SQL, if empty defaults to remotePrefix
+
 	 * @return  mixed
 	 */
-	private function _changeToRemotePrefix($sql)
+	private function swapTablePrefix($sql, $orig_prefix = '', $new_prefix = '')
 	{
-		if ($this->localPrefix != $this->remotePrefix)
+		$orig_prefix = $orig_prefix ? $orig_prefix : $this->localPrefix;
+		$new_prefix  = $new_prefix ? $new_prefix : $this->remotePrefix;
+
+		if ($orig_prefix != $new_prefix)
 		{
-			$sql = str_replace($this->localPrefix, $this->remotePrefix, $sql);
+			$sql = str_replace($orig_prefix, $new_prefix, $sql);
 		}
 
 		return $sql;

@@ -173,7 +173,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 	const REPORTED     = 1;
 
 	/**
-	 * Entry point for the script
+	 * Entry point for the plan funner (yes it's more fun)
 	 *
 	 * @return  void
 	 *
@@ -546,7 +546,7 @@ DEF;
 	}
 
 	/**
-	 * The main entry table copy steps.
+	 * Copies a table only if it doesn't exist on the target database
 	 *
 	 * @param   EasyStagingTableSteps  $step  The table to be copied.
 	 *
@@ -571,11 +571,11 @@ DEF;
 	}
 
 	/**
-	 * The main entry table copy steps.
+	 * The main table copying method.
 	 *
-	 * @param   EasyStagingTableSteps  $step  The table to be copied.
+	 * @param   EasyStagingTableSteps  $step  The step object for the table in question.
 	 *
-	 * @return null
+	 * @return  bool
 	 */
 	private function performTableCopy($step)
 	{
@@ -595,9 +595,9 @@ DEF;
 	/**
 	 * The main entry table merge steps.
 	 *
-	 * @param   EasyStagingTableSteps  $step  The table to be copied.
+	 * @param   EasyStagingTableSteps  $step  The step object for the table in question.
 	 *
-	 * @return null
+	 * @return  bool
 	 */
 	private function performTableMerge($step)
 	{

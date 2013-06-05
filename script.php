@@ -65,20 +65,20 @@ class com_EasyStagingInstallerScript
 
 
 		// Abort if the current Joomla release is older
-		if (version_compare($jversion->getShortVersion(), $this->minimum_joomla_release, 'lt') && $preFlightOK)
+		if (version_compare($jversion->getShortVersion(), $this->minimum_joomla_release, '<') && $preFlightOK)
 		{
 			Jerror::raiseWarning(null, JText::sprintf('COM_EASYSTAGING_INSTALLER_JOOMLA_VERSION_INCOMPATIBLE_X', $this->minimum_joomla_release));
 
 			$preFlightOK = false;
 		}
 
-		// Abort if the component being installed is not newer than the currently installed version
+		// Abort if the component being installed is not newer than||same as the currently installed version
 		if ($type == 'update' && $preFlightOK)
 		{
 			$oldRelease = explode(' ', $this->getParam('version'));
 			$rel = $oldRelease[0] . ' to ' . $this->release;
 
-			if (version_compare($this->release, $oldRelease, 'le'))
+			if (version_compare($this->release, $oldRelease, '<'))
 			{
 				Jerror::raiseWarning(null, JText::sprintf('COM_EASYSTAGING_INSTALLER_NO_DOWNGRADING_X', $rel));
 

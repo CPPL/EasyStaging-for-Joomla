@@ -84,24 +84,14 @@ class EasyStaging_PlanRunner extends JApplicationCli
 
 	/**
 	 * @var   bool       $db_status
-	 * @var   JDatabase  $remote_db
-	 * @var   JDatabase  $local_db
+	 * @var   JDatabase  $target_db
+	 * @var   JDatabase  $source_db
 	 */
 	private $db_status;
 
-	private $remote_db;
+	private $target_db;
 
-	private $local_db;
-
-	/**
-	 * @var   string  $localPrefix
-	 */
-	private $localPrefix;
-
-	/**
-	 * @var   string  $remotePrefix
-	 */
-	private $remotePrefix;
+	private $source_db;
 
 	/**
 	 * @var   int  $max_ps
@@ -109,9 +99,9 @@ class EasyStaging_PlanRunner extends JApplicationCli
 	private $max_ps;
 
 	/**
-	 * @var  array  $remoteTablesRetreived
+	 * @var  array  $targetTablesRetreived
 	 */
-	private $remoteTablesRetreived;
+	private $targetTablesRetreived;
 
 	private $logFile;
 
@@ -559,14 +549,14 @@ DEF;
 	 */
 	private function performTableCopyINF($step)
 	{
-		// It's not a problem if the table does or doesn't exist on the remote db.
+		// It's not a problem if the table does or doesn't exist on the target db.
 		$status = true;
 
-		// Create the remote name
-		$itsRemoteTableName = str_replace($this->localPrefix, $this->remotePrefix, $step->action);
+		// Create the target name
+		$itstargetTableName = $this->swapTablePrefix($step->action);
 
-		// Does the table exist on the remote db?
-		if (empty($this->remoteTablesRetreived) || !in_array($itsRemoteTableName, $this->remoteTablesRetreived))
+		// Does the table exist on the target db?
+		if (empty($this->targetTablesRetreived) || !in_array($itstargetTableName, $this->targetTablesRetreived))
 		{
 			// No matching table found, lets copy it!
 			$status = $this->performTableCopy($step);
@@ -588,10 +578,10 @@ DEF;
 		$status = false;
 
 		// First we export the table
-		if ($this->createCopyTable_ExportFile($step, $this->local_db))
+		if ($this->createCopyTable_ExportFile($step, $this->source_db))
 		{
 			// Run the table copy
-			$status = $this->runTableExport($step, $this->remote_db);
+			$status = $this->runTableExport($step, $this->target_db);
 		}
 
 		return $status;
@@ -611,7 +601,7 @@ DEF;
 	}
 
 	/**
-	 * REPLACES the local table with the matching remote table.
+	 * REPLACES the source table with the matching target table.
 	 *
 	 * @param   EasyStagingTableSteps  $step  The step object for the table in question.
 	 *
@@ -622,16 +612,21 @@ DEF;
 		// Assume failure
 		$status = false;
 
+		// We're running in reverse so we need to swap our source and target databases around
+		$ldb = $this->source_db;
+		$this->source_db = $this->target_db;
+		$this->target_db = $ldb;
+
 		/*
-		 * Using the same export method to push a table out we get create the remote tables export file
+		 * Using the same export method to push a table out we get create the target tables export file
 		 * Qs?
 		 * 1. Filters shouldn't apply really...
 		 * 2. Large tables?
 		 */
-		if ($this->createCopyTable_ExportFile($step, $this->remote_db))
+		if ($this->createCopyTable_ExportFile($step, $this->target_db))
 		{
 			// Run the table copy
-			$status = $this->runTableExport($step, $this->local_db);
+			$status = $this->runTableExport($step, $this->source_db);
 		}
 
 		return $status;
@@ -642,7 +637,7 @@ DEF;
 	 */
 
 	/**
-	 * Check the connection to the remote database ...
+	 * Check the connection to the target database ...
 	 *
 	 * @param   EasyStagingTableSteps  $theStep  The current step.
 	 *
@@ -656,7 +651,7 @@ DEF;
 		// Get our plan
 		$plan_id = $this->_plan_id();
 
-		// Get the remote site details
+		// Get the target site details
 		$rs = PlanHelper::getRemoteSite($plan_id);
 		$options = array(
 			'host'		=> $rs->database_host,
@@ -667,14 +662,14 @@ DEF;
 		);
 
 		// Get our DB objects
-		$this->remote_db = JDatabase::getInstance($options);
-		$this->local_db  = JFactory::getDbo();
+		$this->target_db = JDatabase::getInstance($options);
+		$this->source_db  = JFactory::getDbo();
 
-		if ($this->remote_db->getErrorNum() == 0)
+		if ($this->target_db->getErrorNum() == 0)
 		{
 			$q = "SHOW VARIABLES LIKE 'max_allowed_packet'";
-			$this->remote_db->setQuery($q);
-			$qr = $this->remote_db->loadRow();
+			$this->target_db->setQuery($q);
+			$qr = $this->target_db->loadRow();
 
 			if ($qr)
 			{
@@ -682,15 +677,11 @@ DEF;
 				$this->max_ps = (int) ($qr[1] * 0.95);
 				$msg = JText::_('COM_EASYSTAGING_DATABASE_STEP_01_CONNECTED');
 				$this->_log($theStep, $msg);
-				$this->remoteTablesRetreived = $this->remote_db->getTableList();
+				$this->targetTablesRetreived = $this->target_db->getTableList();
 
-				// Get the local & remote prefix
-				$this->localPrefix = PlanHelper::getLocalSite($plan_id)->database_table_prefix;
-				$this->remotePrefix = PlanHelper::getRemoteSite($plan_id)->database_table_prefix;
-
-				if ($this->remoteTablesRetreived)
+				if ($this->targetTablesRetreived)
 				{
-					$tableList = print_r($this->remoteTablesRetreived, true);
+					$tableList = print_r($this->targetTablesRetreived, true);
 
 					$this->_log($theStep, $tableList);
 					$status = true;
@@ -747,7 +738,7 @@ DEF;
 		// Get any filter that may apply to this table.
 		$hasAFilter = $this->_filterTable($table);
 
-		// Build our SQL to recreate the table on the remote server.
+		// Build our SQL to recreate the table on the target server.
 		// Disable keys and Lock our table before replacing it and then unlock and enable keys after.
 		$startSQL = 'LOCK TABLES ' . $dbTableName . " WRITE;\n" .
 			"\n\n-- End of Statement --\n\n" .
@@ -816,7 +807,7 @@ DEF;
 					// Convert our row to a suitable values string
 					$rowAsValues  = "('" . implode("', '", $row) . "')";
 
-					// First up we check to see if this row will put our SQL block size over our max_packet value on the remote server
+					// First up we check to see if this row will put our SQL block size over our max_packet value on the target server
 					$rowSize = strlen($rowAsValues);
 
 					// Have we reached our block size? If so, add the current data to the build SQL and reset for next block of SQL.
@@ -1081,11 +1072,11 @@ DEF;
 	private function _filterTable($tablename)
 	{
 		// We don't want to remove the underscore
-		$localPrefix = $this->localPrefix;
+		$sourcePrefix = $this->source_db->tablePrefix;
 		$filters = array(
-			$localPrefix . 'assets'		=> array('name' => 'com_easystaging%'),
-			$localPrefix . 'extensions'	=> array('element' => 'com_easystaging'),
-			$localPrefix . 'menu'		=> array('alias' => 'easystaging'),
+			$sourcePrefix . 'assets'		=> array('name' => 'com_easystaging%'),
+			$sourcePrefix . 'extensions'	=> array('element' => 'com_easystaging'),
+			$sourcePrefix . 'menu'		=> array('alias' => 'easystaging'),
 		);
 
 		if (array_key_exists($tablename, $filters))
@@ -1099,20 +1090,20 @@ DEF;
 	}
 
 	/**
-	 * Replaces local prefix with remote prefix
+	 * Replaces source prefix with target prefix
 	 *
 	 * @param   string  $sql          The SQL to be changed.
 	 *
-	 * @param   string  $orig_prefix  The prefix used in the supplied SQL, if empty defaults to localPrefix
+	 * @param   string  $orig_prefix  The prefix used in the supplied SQL, if empty defaults to sourcePrefix
 
-	 * @param   string  $new_prefix   The replacement prefix for the supplied SQL, if empty defaults to remotePrefix
+	 * @param   string  $new_prefix   The replacement prefix for the supplied SQL, if empty defaults to targetPrefix
 
 	 * @return  mixed
 	 */
 	private function swapTablePrefix($sql, $orig_prefix = '', $new_prefix = '')
 	{
-		$orig_prefix = $orig_prefix ? $orig_prefix : $this->localPrefix;
-		$new_prefix  = $new_prefix ? $new_prefix : $this->remotePrefix;
+		$orig_prefix = $orig_prefix ? $orig_prefix : $this->source_db->tablePrefix;
+		$new_prefix  = $new_prefix ? $new_prefix : $this->target_db->tablePrefix;
 
 		if ($orig_prefix != $new_prefix)
 		{

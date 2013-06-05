@@ -102,13 +102,13 @@ class com_EasyStagingInstallerScript
 
 				if (file_exists($source_file))
 				{
-					if (JFile::copy($source_file, $cli_dir . '/easystaging_plan_runner.php'))
+					if (JFile::move($source_file, $cli_dir . '/easystaging_plan_runner.php'))
 					{
-						echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_CLI_FILE_COPIED') . '</p>';
+						echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_CLI_FILE_MOVED') . '</p>';
 					}
 					else
 					{
-						echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_CLI_FILE_COPY_FAIL') . '</p>';
+						echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_CLI_FILE_MOVE_FAILED') . '</p>';
 						$preFlightOK = false;
 					}
 				}

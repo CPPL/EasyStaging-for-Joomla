@@ -45,7 +45,8 @@ class com_EasyStagingInstallerScript
 		$jversion = new JVersion;
 
 		// Installing component manifest file version
-		$this->release = $parent->get("manifest")->version;
+		$relVer = explode(' ', $parent->get("manifest")->version);
+		$this->release = $relVer[0];
 
 		// Our minimum PHP Version
 		$this->phpmin = $parent->get("manifest")->phpversion;
@@ -74,8 +75,8 @@ class com_EasyStagingInstallerScript
 		// Abort if the component being installed is not newer than the currently installed version
 		if ($type == 'update' && $preFlightOK)
 		{
-			$oldRelease = $this->getParam('version');
-			$rel = $oldRelease . ' to ' . $this->release;
+			$oldRelease = explode(' ', $this->getParam('version'));
+			$rel = $oldRelease[0] . ' to ' . $this->release;
 
 			if (version_compare($this->release, $oldRelease, 'le'))
 			{

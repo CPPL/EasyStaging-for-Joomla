@@ -109,20 +109,20 @@ class com_EasyStagingInstallerScript
 					}
 					else
 					{
-						echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_CLI_FILE_MOVE_FAILED') . '</p>';
+						Jerror::raiseWarning(null, JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_CLI_FILE_MOVE_FAILED'));
 						$preFlightOK = false;
 					}
 				}
 				else
 				{
-					echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_NO_CLI_FILE_FOUND') . '</p>';
+					Jerror::raiseWarning(null, JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_NO_CLI_FILE_FOUND'));
 					$preFlightOK = false;
 				}
 			}
 		}
 		else
 		{
-			echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_NO_CLI_DIR_FOUND') . '</p>';
+			Jerror::raiseWarning(null, JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_NO_CLI_DIR_FOUND'));
 			$preFlightOK = false;
 		}
 

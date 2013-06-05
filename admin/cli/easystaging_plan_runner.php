@@ -247,6 +247,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 							case self::TABLE_MERGE_BACK_COPY:
 							case self::TABLE_MERGE_BACK_ONLY:
 							case self::TABLE_MERGE_BACK_CLEAN:
+							case self::TABLE_COPY_BACK_REPLACE:
 								$this->status = $this->performTableStep($theStepObj);
 								break;
 
@@ -527,6 +528,10 @@ DEF;
 					$actiontype = 'MERGE';
 					$status = $this->performTableMerge($step);
 					break;
+				case self::TABLE_COPY_BACK_REPLACE:
+					$actiontype = 'COPYBACK';
+					$status = $this->performTableCopyBack($step);
+					break;
 			}
 		}
 
@@ -605,6 +610,32 @@ DEF;
 
 	}
 
+	/**
+	 * REPLACES the local table with the matching remote table.
+	 *
+	 * @param   EasyStagingTableSteps  $step  The step object for the table in question.
+	 *
+	 * @return  bool
+	 */
+	private function performTableCopyBack($step)
+	{
+		// Assume failure
+		$status = false;
+
+		/*
+		 * Using the same export method to push a table out we get create the remote tables export file
+		 * Qs?
+		 * 1. Filters shouldn't apply really...
+		 * 2. Large tables?
+		 */
+		if ($this->createCopyTable_ExportFile($step, $this->remote_db))
+		{
+			// Run the table copy
+			$status = $this->runTableExport($step, $this->local_db);
+		}
+
+		return $status;
+	}
 
 	/**
 	 * DATABASE SECTION

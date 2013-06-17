@@ -578,10 +578,10 @@ DEF;
 		$status = false;
 
 		// First we export the table
-		if ($this->createCopyTable_ExportFile($step, $this->source_db))
+		if ($this->createCopyTable_ExportFile($step))
 		{
 			// Run the table copy
-			$status = $this->runTableExport($step, $this->target_db);
+			$status = $this->runTableExport($step);
 		}
 
 		return $status;
@@ -613,9 +613,7 @@ DEF;
 		$status = false;
 
 		// We're running in reverse so we need to swap our source and target databases around
-		$ldb = $this->source_db;
-		$this->source_db = $this->target_db;
-		$this->target_db = $ldb;
+		$this->swapDBs();
 
 		/*
 		 * Using the same export method to push a table out we get create the target tables export file
@@ -623,11 +621,14 @@ DEF;
 		 * 1. Filters shouldn't apply really...
 		 * 2. Large tables?
 		 */
-		if ($this->createCopyTable_ExportFile($step, $this->target_db))
+		if ($this->createCopyTable_ExportFile($step))
 		{
 			// Run the table copy
-			$status = $this->runTableExport($step, $this->source_db);
+			$status = $this->runTableExport($step);
 		}
+
+		// Regardless of result we need to swap our db sources back.
+		$this->swapDBs();
 
 		return $status;
 	}
@@ -698,15 +699,25 @@ DEF;
 	}
 
 	/**
+	 * Utility method to swap the source and target db resources
+	 *
+	 * @return  null
+	 */
+	private function swapDBs()
+	{
+		$ldb = $this->source_db;
+		$this->source_db = $this->target_db;
+		$this->target_db = $ldb;
+	}
+
+	/**
 	 * Create our export file for the table in this step.
 	 *
-	 * @param   EasyStagingTableSteps  $step    The current step.
-	 *
-	 * @param   JDatabase              $src_db  The database we're exporting from...
+	 * @param   EasyStagingTableSteps  $step  The current step.
 	 *
 	 * @return  bool
 	 */
-	private function createCopyTable_ExportFile($step, $src_db)
+	private function createCopyTable_ExportFile($step)
 	{
 		// If we can't create the export file we have to abort
 		$status = false;
@@ -733,7 +744,7 @@ DEF;
 			'SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0' .
 			"\n\n-- End of Statement --\n\n";
 
-		$dbTableName = $src_db->quoteName($table);
+		$dbTableName = $this->source_db->quoteName($table);
 
 		// Get any filter that may apply to this table.
 		$hasAFilter = $this->_filterTable($table);
@@ -751,13 +762,13 @@ DEF;
 		$buildTableSQL .= 'DROP TABLE IF EXISTS ' . $dbTableName . ";\n\n-- End of Statement --\n\n";
 
 		// 2. Then we create it again, except with a new prefix :D
-		$src_db->setQuery('SHOW CREATE TABLE ' . $dbTableName);
-		$createStatement = $src_db->loadRow();
+		$this->source_db->setQuery('SHOW CREATE TABLE ' . $dbTableName);
+		$createStatement = $this->source_db->loadRow();
 		$buildTableSQL .= str_replace("\r", "\n", $createStatement[1]) . ";\n\n-- End of Statement --\n\n";
 		$buildTableSQL = $this->swapTablePrefix($buildTableSQL);
 
 		// 3. Next we try and get the records in the table (after all no point in creating an insert statement if there are no records :D )
-		$dbq = $src_db->getQuery(true);
+		$dbq = $this->source_db->getQuery(true);
 		$dbq->select('*');
 		$dbq->from($table);
 
@@ -765,17 +776,17 @@ DEF;
 		{
 			$fieldToCompare = key($hasAFilter);
 			$valueToAvoid = $hasAFilter[$fieldToCompare];
-			$condition = $src_db->quoteName($fieldToCompare) . 'NOT LIKE ' . $src_db->quote($valueToAvoid);
+			$condition = $this->source_db->quoteName($fieldToCompare) . 'NOT LIKE ' . $this->source_db->quote($valueToAvoid);
 			$dbq->where($condition);
 		}
 
-		$src_db->setQuery($dbq);
+		$this->source_db->setQuery($dbq);
 
-		if (($records = $src_db->loadRowList()) != null)
+		if (($records = $this->source_db->loadRowList()) != null)
 		{
 			// 4. Then we build the list of field/column names that we'll insert data into
 			// -- first we get the columns
-			$flds = $this->_getArrayOfFieldNames($table, $src_db);
+			$flds = $this->_getArrayOfFieldNames($table, $this->source_db);
 
 			// No problems getting the field names?
 			if ($flds)
@@ -934,13 +945,11 @@ DEF;
 	/**
 	 * Runs the exported tables SQL file.
 	 *
-	 * @param   EasystagingTableSteps  $step     The step.
-	 *
-	 * @param   JDatabase              $trgt_db  The target database.
+	 * @param   EasystagingTableSteps  $step  The step.
 	 *
 	 * @return  bool
 	 */
-	private function runTableExport($step, $trgt_db)
+	private function runTableExport($step)
 	{
 		$last_msg = '';
 		$tableName = $step->action;
@@ -963,7 +972,7 @@ DEF;
 			{
 				$rs = PlanHelper::getRemoteSite($this->plan_id);
 
-				if ($trgt_db)
+				if ($this->target_db)
 				{
 					$last_word = '';
 
@@ -973,9 +982,9 @@ DEF;
 						if (!empty($query))
 						{
 							list($first_word) = explode(' ', trim($query));
-							$trgt_db->setQuery($query);
+							$this->target_db->setQuery($query);
 
-							if ($trgt_db->query())
+							if ($this->target_db->query())
 							{
 								if (($first_word == 'SET' && $last_word == 'UNLOCK') || ($first_word == 'SET' && $finishing))
 								{
@@ -994,7 +1003,10 @@ DEF;
 							}
 							else
 							{
-								$msg = JText::sprintf('COM_EASYSTAGING_CLI_TABLE_FAILED_EXPORT_QUERY_' . strtoupper($first_word), $tableName, $trgt_db->getErrorMsg());
+								$msg = JText::sprintf(
+									'COM_EASYSTAGING_CLI_TABLE_FAILED_EXPORT_QUERY_' . strtoupper($first_word),
+									$tableName, $this->target_db->getErrorMsg()
+								);
 							}
 						}
 
@@ -1044,8 +1056,6 @@ DEF;
 		$tableFields = $db->getTableColumns($table);
 		$fieldNames = array();
 
-		$fn2 = array_keys($tableFields);
-
 		foreach ($tableFields as $aField => $aFieldType)
 		{
 			if (!is_numeric($aField) && ($thisFldName = $db->quoteName($aField)) && is_string($thisFldName))
@@ -1072,7 +1082,7 @@ DEF;
 	private function _filterTable($tablename)
 	{
 		// We don't want to remove the underscore
-		$sourcePrefix = $this->source_db->tablePrefix;
+		$sourcePrefix = $this->source_db->getPrefix();
 		$filters = array(
 			$sourcePrefix . 'assets'		=> array('name' => 'com_easystaging%'),
 			$sourcePrefix . 'extensions'	=> array('element' => 'com_easystaging'),
@@ -1102,8 +1112,8 @@ DEF;
 	 */
 	private function swapTablePrefix($sql, $orig_prefix = '', $new_prefix = '')
 	{
-		$orig_prefix = $orig_prefix ? $orig_prefix : $this->source_db->tablePrefix;
-		$new_prefix  = $new_prefix ? $new_prefix : $this->target_db->tablePrefix;
+		$orig_prefix = $orig_prefix ? $orig_prefix : $this->source_db->getPrefix();
+		$new_prefix  = $new_prefix ? $new_prefix : $this->target_db->getPrefix();
 
 		if ($orig_prefix != $new_prefix)
 		{

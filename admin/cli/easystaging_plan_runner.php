@@ -1423,6 +1423,8 @@ DEF;
 	 * Close off the run, update the last run timestamp.
 	 *
 	 * @param   int  $plan_id  The plan that's finishing.
+	 *
+	 * @return  null
 	 */
 	private function finishRun($plan_id)
 	{

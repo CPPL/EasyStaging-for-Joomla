@@ -32,7 +32,8 @@ class EasyStagingController extends JController
      * @return  JController  A JController object to support chaining.
      */
 	public function display($cachable = false, $urlparams =  false)
-	{	// Set the default view if required
+	{
+		// Set the default view if required
 		$jIn = JFactory::getApplication()->input;
 
 		// JRequest::setVar('view', JRequest::getCmd('view', 'Plans'));

@@ -35,6 +35,7 @@ if (typeof(com_EasyStaging) === 'undefined')
                 }
             );
             com_EasyStaging.setUp();
+            com_EasyStaging.filterTableActions('N');
         }
     );
 

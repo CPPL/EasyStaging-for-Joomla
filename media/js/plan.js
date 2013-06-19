@@ -234,6 +234,7 @@ com_EasyStaging.setUp = function ()
 	this.requestData.plan_id   = cppl_tools.getID();
 	this.jsonURL               = 'index.php?option=com_easystaging&format=json';
     this.tableFilter           = null;
+    this.totalTables           = 0;
     this.tablesHidden          = 0;
 
 	if (cppl_tools.getID() == 0)
@@ -483,6 +484,7 @@ com_EasyStaging.filterTableActions = function ()
     var tableRows = $$('tr.table-settings');
     this.tableFilter = Array.clone(arguments);
     this.tablesHidden = 0;
+    this.totalTables = tableRows.length;
 
     // Update each row
     tableRows.each(function(row, index)

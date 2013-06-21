@@ -607,7 +607,7 @@ DEF;
 		if ($this->createCopyTable_ExportFile($step))
 		{
 			// Run the table copy
-			$status = $this->runTableExport($step);
+			$status = $this->runTableCopyExport($step);
 		}
 
 		return $status;
@@ -650,7 +650,7 @@ DEF;
 		if ($this->createCopyTable_ExportFile($step))
 		{
 			// Run the table copy
-			$status = $this->runTableExport($step);
+			$status = $this->runTableCopyExport($step);
 		}
 
 		// Regardless of result we need to swap our db sources back.
@@ -975,7 +975,7 @@ DEF;
 	 *
 	 * @return  bool
 	 */
-	private function runTableExport($step)
+	private function runTableCopyExport($step)
 	{
 		$last_msg = '';
 		$tableName = $step->action;

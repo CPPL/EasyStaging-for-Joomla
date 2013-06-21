@@ -804,7 +804,7 @@ DEF;
 		// If we can't create the export file we have to abort
 		$status = false;
 		$table = $step->action;
-		$msg = JText::sprintf('COM_EASYSTAGING_CLI_CREATING_SQL_EXPORT_FOR_X', $table);
+		$msg = JText::sprintf('COM_EASYSTAGING_CLI_CREATING_SQL_EXPORT_FOR_X', $table) . "\n";
 
 		// Build our file path & file handle
 		$pathToSQLFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_export_file_name($table);
@@ -873,7 +873,7 @@ DEF;
 			// No problems getting the field names?
 			if ($flds)
 			{
-				$msg .= JText::sprintf('COM_EASYSTAGING_CREATING_INSERT_STATEMEN_DESC', count($records));
+				$msg .= JText::sprintf('COM_EASYSTAGING_CLI_CREATING_INSERT_STATEMEN_MSG_X', count($records));
 				$this->_log($step, $msg);
 
 				// -- then we implode them into a suitable statement

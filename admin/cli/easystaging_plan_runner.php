@@ -639,7 +639,7 @@ DEF;
 		$status = false;
 
 		// We're running in reverse so we need to swap our source and target databases around
-		$this->swapDBs();
+		$this->swapSrcTrg();
 
 		/*
 		 * Using the same export method to push a table out we get create the target tables export file
@@ -654,7 +654,7 @@ DEF;
 		}
 
 		// Regardless of result we need to swap our db sources back.
-		$this->swapDBs();
+		$this->swapSrcTrg();
 
 		return $status;
 	}
@@ -725,15 +725,21 @@ DEF;
 	}
 
 	/**
-	 * Utility method to swap the source and target db resources
+	 * Utility method to swap the source and target resources
 	 *
 	 * @return  null
 	 */
-	private function swapDBs()
+	private function swapSrcTrg()
 	{
+		// Swap the databases
 		$ldb = $this->source_db;
 		$this->source_db = $this->target_db;
 		$this->target_db = $ldb;
+
+		// Swat the sites
+		$ls = $this->source_site;
+		$this->source_site = $this->target_site;
+		$this->target_site = $ls;
 	}
 
 	/**

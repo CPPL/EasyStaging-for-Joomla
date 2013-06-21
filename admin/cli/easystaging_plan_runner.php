@@ -738,7 +738,7 @@ DEF;
 			'prefix'	=> $target_site->database_table_prefix,
 		);
 
-		// Get our DB objects
+		// Get our DB objects, assuming for now that we're dealing with PUSH action, so the source is local & target is remote
 		$this->target_db = JDatabase::getInstance($options);
 		$this->source_db  = JFactory::getDbo();
 
@@ -826,39 +826,41 @@ DEF;
 			'SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0' .
 			"\n\n-- End of Statement --\n\n";
 
-		$dbTableName = $this->source_db->quoteName($table);
+		$targetTableName = $this->target_db->quoteName($this->swapTablePrefix($table));
+		$sourceTableName = $this->source_db->quoteName($table);
 
 		// Get any filter that may apply to this table.
 		$hasAFilter = $this->_filterTable($table);
 
 		// Build our SQL to recreate the table on the target server.
 		// Disable keys and Lock our table before replacing it and then unlock and enable keys after.
-		$startSQL = 'LOCK TABLES ' . $dbTableName . " WRITE;\n" .
+		$startSQL = 'LOCK TABLES ' . $targetTableName . " WRITE;\n" .
 			"\n\n-- End of Statement --\n\n" .
-			'ALTER TABLE ' . $dbTableName . " DISABLE KEYS;\n" .
+			'ALTER TABLE ' . $targetTableName . " DISABLE KEYS;\n" .
 			"\n\n-- End of Statement --\n\n";
 
 		$buildTableSQL .= $startSQL;
 
 		// 1. First we drop the existing table
-		$buildTableSQL .= 'DROP TABLE IF EXISTS ' . $dbTableName . ";\n\n-- End of Statement --\n\n";
+		$buildTableSQL .= 'DROP TABLE IF EXISTS ' . $targetTableName . ";\n\n-- End of Statement --\n\n";
 
 		// 2. Then we create it again, except with a new prefix :D
-		$this->source_db->setQuery('SHOW CREATE TABLE ' . $dbTableName);
+		$this->source_db->setQuery('SHOW CREATE TABLE ' . $sourceTableName);
 		$createStatement = $this->source_db->loadRow();
+		$createStatement = $this->swapTablePrefix($createStatement);
 		$buildTableSQL .= str_replace("\r", "\n", $createStatement[1]) . ";\n\n-- End of Statement --\n\n";
-		$buildTableSQL = $this->swapTablePrefix($buildTableSQL);
 
 		// 3. Next we try and get the records in the table (after all no point in creating an insert statement if there are no records :D )
+		/** @var $dbq JDatabaseQuery */
 		$dbq = $this->source_db->getQuery(true);
 		$dbq->select('*');
-		$dbq->from($table);
+		$dbq->from($sourceTableName);
 
 		if ($hasAFilter)             // If our table has an exclusion filter we need to add a 'where' element to our query.
 		{
 			$fieldToCompare = key($hasAFilter);
 			$valueToAvoid = $hasAFilter[$fieldToCompare];
-			$condition = $this->source_db->quoteName($fieldToCompare) . 'NOT LIKE ' . $this->source_db->quote($valueToAvoid);
+			$condition = $this->source_db->quoteName($fieldToCompare) . ' NOT LIKE ' . $this->source_db->quote($valueToAvoid);
 			$dbq->where($condition);
 		}
 
@@ -877,7 +879,7 @@ DEF;
 				$this->_log($step, $msg);
 
 				// -- then we implode them into a suitable statement
-				$columnInsertSQL = 'INSERT INTO ' . $this->swapTablePrefix($dbTableName) . ' (' . implode(', ', $flds) . ') VALUES ';
+				$columnInsertSQL = 'INSERT INTO ' . $targetTableName . ' (' . implode(', ', $flds) . ') VALUES ';
 
 				// - keeping it intact for later user if the table is too big.
 
@@ -1071,6 +1073,9 @@ DEF;
 			$msg .= JText::sprintf('COM_EASYSTAGING_CLI_EXPORT_FILE_X_HAS_Y_STATEMENTS', $tableName, count($exportSQLQuery));
 			$this->_log($step, $msg);
 
+			// New Tablename
+			$newTableName = $this->swapTablePrefix($tableName);
+
 			if (count($exportSQLQuery))
 			{
 				$target_site = $this->target_site;
@@ -1108,7 +1113,7 @@ DEF;
 							{
 								$msg = JText::sprintf(
 									'COM_EASYSTAGING_CLI_TABLE_FAILED_EXPORT_QUERY_' . strtoupper($first_word),
-									$tableName, $this->target_db->getErrorMsg()
+									$newTableName, $this->target_db->getErrorMsg()
 								);
 							}
 						}

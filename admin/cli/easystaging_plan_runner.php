@@ -622,8 +622,54 @@ DEF;
 	 */
 	private function performTableMerge($step)
 	{
-		// Run the table Merge
+		// Setup some defaults
+		$table = $step->action;
+		$at = $step->actionType;
 
+		// Perform the pull back
+		$status = $this->performTableMergeBack($step);
+
+		if ($status)
+		{
+			// Perform the push out
+			if ($at == TABLE_MERGE_BACK_COPY)
+			{
+				$status = $this->performTableCopy($step);
+
+				if ($status)
+				{
+					$msg = JText::sprintf('COM_EASYSTAGING_CLI_MERGE_BACK_COPY_SUCCESSFUL_X', $table);
+				}
+				else
+				{
+					$msg = JText::sprintf('COM_EASYSTAGING_CLI_MERGE_BACK_COPY_FAILED_X', $table);
+				}
+			}
+			elseif (($at == TABLE_MERGE_BACK_CLEAN))
+			{
+				$this->swapSrcTrg();
+				$deletedRows = $this->emptyTable($step);
+
+				if ($deletedRows >= 0)
+				{
+					$msg = JText::sprintf('COM_EASYSTAGING_CLI_REMOTE_TABLE_EMPTIED_X_Y', $table, $deletedRows);
+				}
+				else
+				{
+					$msg = JText::sprintf('COM_EASYSTAGING_CLI_REMOTE_TABLE_FAILED_TO_EMPTY_X_Y', $table, $deletedRows);
+				}
+
+				$this->swapSrcTrg();
+			}
+		}
+		else
+		{
+			$msg = JText::sprintf('COM_EASYSTAGING_CLI_MERGE_FROM_X_FAILED_Y', $table, $status);
+		}
+
+		$this->_log($step, $msg);
+
+		return $status;
 	}
 
 	/**
@@ -638,7 +684,11 @@ DEF;
 		// Assume failure
 		$status = false;
 
-		// We're running in reverse so we need to swap our source and target databases around
+		// We're running in reverse so we need to swap our table prefix to that of the source i.e. remote table
+		$step->action = $this->swapTablePrefix($step->action);
+		$step->store();
+
+		// Then we need to swap our source and target databases around
 		$this->swapSrcTrg();
 
 		/*

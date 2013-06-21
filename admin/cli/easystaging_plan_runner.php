@@ -975,6 +975,27 @@ DEF;
 	}
 
 	/**
+	 * Empties the target table. (We don't use truncate as we don't want the index's to reset.
+	 *
+	 * @param   EasyStagingTableSteps  $step  The step.
+	 *
+	 * @return  int|mixed
+	 */
+	private function emptyTable($step)
+	{
+		$table = $step->action;
+		$targetTableName = $this->target_db->quoteName($this->swapTablePrefix($table));
+
+		/** @var $query JDatabaseQuery */
+		$query = $this->target_db->getQuery(true);
+		$query->delete($targetTableName);
+
+		$this->target_db->setQuery($query);
+
+		return $this->target_db->execute();
+	}
+
+	/**
 	 * Runs the exported tables SQL file.
 	 *
 	 * @param   EasystagingTableSteps  $step  The step.

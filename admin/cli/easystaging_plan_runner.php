@@ -84,13 +84,17 @@ class EasyStaging_PlanRunner extends JApplicationCli
 
 	/**
 	 * @var   bool       $db_status
-	 * @var   JDatabase  $target_db
-	 * @var   JDatabase  $source_db
 	 */
 	private $db_status;
 
+	/**
+	 * @var   JDatabaseMySQL  $target_db
+	 */
 	private $target_db;
 
+	/**
+	 * @var   JDatabaseMySQL  $source_db
+	 */
 	private $source_db;
 
 	/**

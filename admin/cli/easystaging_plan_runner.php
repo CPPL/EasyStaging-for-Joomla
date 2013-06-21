@@ -98,6 +98,16 @@ class EasyStaging_PlanRunner extends JApplicationCli
 	private $source_db;
 
 	/**
+	 * @var EasyStagingTableSites
+	 */
+	private $target_site;
+
+	/**
+	 * @var EasyStagingTableSites
+	 */
+	private $source_site;
+
+	/**
 	 * @var   int  $max_ps
 	 */
 	private $max_ps;
@@ -211,6 +221,9 @@ class EasyStaging_PlanRunner extends JApplicationCli
 
 				// If we have steps lets process them
 				if ($steps)
+				$this->plan_id = $this->_plan_id();
+				$this->target_site = PlanHelper::getRemoteSite($this->plan_id);
+				$this->source_site = PlanHelper::getLocalSite($this->plan_id);
 				{
 					// Process each step
 					foreach ($steps as $step)
@@ -657,13 +670,13 @@ DEF;
 		$plan_id = $this->_plan_id();
 
 		// Get the target site details
-		$rs = PlanHelper::getRemoteSite($plan_id);
+		$target_site = $this->target_site;
 		$options = array(
-			'host'		=> $rs->database_host,
-			'user'		=> $rs->database_user,
-			'password'	=> $rs->database_password,
-			'database'	=> $rs->database_name,
-			'prefix'	=> $rs->database_table_prefix,
+			'host'		=> $target_site->database_host,
+			'user'		=> $target_site->database_user,
+			'password'	=> $target_site->database_password,
+			'database'	=> $target_site->database_name,
+			'prefix'	=> $target_site->database_table_prefix,
 		);
 
 		// Get our DB objects
@@ -974,7 +987,7 @@ DEF;
 
 			if (count($exportSQLQuery))
 			{
-				$rs = PlanHelper::getRemoteSite($this->plan_id);
+				$target_site = $this->target_site;
 
 				if ($this->target_db)
 				{
@@ -1000,7 +1013,7 @@ DEF;
 									|| ($first_word == 'UNSET' && $last_word != 'UNSET')
 									|| ($first_word != 'SET' && $first_word != 'UNSET'))
 								{
-									$msg = JText::sprintf('COM_EASYSTAGING_CLI_TABLE_EXPORT_QUERY_' . strtoupper($first_word), $tableName, $rs->database_name);
+									$msg = JText::sprintf('COM_EASYSTAGING_CLI_TABLE_EXPORT_QUERY_' . strtoupper($first_word), $newTableName, $target_site->database_name);
 								}
 
 								$last_word = $first_word;

@@ -46,7 +46,7 @@ class PlanHelper
 	 *
 	 * @param   int  $plan_id  Plan identity
 	 *
-	 * @return  object
+	 * @return  EasyStagingTableSite|bool
 	 */
 	public static function getLocalSite($plan_id = 0)
 	{
@@ -58,7 +58,7 @@ class PlanHelper
 	 *
 	 * @param   int  $plan_id  Plan identity
 	 *
-	 * @return  object
+	 * @return  EasyStagingTableSite|bool
 	 */
 	public static function getRemoteSite($plan_id = 0)
 	{
@@ -72,7 +72,7 @@ class PlanHelper
 	 *
 	 * @param   int  $type     Local (1) or Remote (2) site.
 	 *
-	 * @return  object
+	 * @return  EasyStagingTableSite|bool
 	 */
 	private static function _loadSiteRecord($plan_id, $type)
 	{

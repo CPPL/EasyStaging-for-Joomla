@@ -217,64 +217,73 @@ class EasyStaging_PlanRunner extends JApplicationCli
 				$overrides = $this->getOption('override', array(), false);
 
 				// Get some basics
-				$steps = RunHelper::getRunSteps($this->runticket);
-
-				// If we have steps lets process them
-				if ($steps)
 				$this->plan_id = $this->_plan_id();
 				$this->target_site = PlanHelper::getRemoteSite($this->plan_id);
 				$this->source_site = PlanHelper::getLocalSite($this->plan_id);
+				if($this->target_site && $this->source_site)
 				{
-					// Process each step
-					foreach ($steps as $step)
+					$steps = RunHelper::getRunSteps($this->runticket);
+
+					// If we have steps lets process them
+					if ($steps)
 					{
-						// Get our matching EasyStagingTableSteps Obj
-						$theStepObj = RunHelper::getStep($step['id']);
-
-						switch ($step['action_type'])
+						// Process each step
+						foreach ($steps as $step)
 						{
-							case self::RUN_ROOT:
-								// Keep the root step for closing off the run
-								$this->rootStep = $theStepObj;
-								$this->status = true;
-								break;
+							// Get our matching EasyStagingTableSteps Obj
+							$theStepObj = RunHelper::getStep($step['id']);
 
-							case self::RSYNC_PUSH:
-							case self::RSYNC_PULL:
-							case self::RSYNC_CLEAR:
-								$this->status = $this->performRSYNC($theStepObj);
-								break;
+							switch ($step['action_type'])
+							{
+								case self::RUN_ROOT:
+									// Keep the root step for closing off the run
+									$this->rootStep = $theStepObj;
+									$this->status = true;
+									break;
 
-							case self::TABLE_DONT_COPY_IGNORE:
-								// Nothing to do here...
-								break;
+								case self::RSYNC_PUSH:
+								case self::RSYNC_PULL:
+								case self::RSYNC_CLEAR:
+									$this->status = $this->performRSYNC($theStepObj);
+									break;
 
-							case self::TABLE_COPY_2_LIVE_ONLY:
-							case self::TABLE_COPY_IF_NOT_FND:
-							case self::TABLE_MERGE_BACK_COPY:
-							case self::TABLE_MERGE_BACK_ONLY:
-							case self::TABLE_MERGE_BACK_CLEAN:
-							case self::TABLE_COPY_BACK_REPLACE:
-								$this->status = $this->performTableStep($theStepObj);
-								break;
+								case self::TABLE_DONT_COPY_IGNORE:
+									// Nothing to do here...
+									break;
 
-							default:
-								// Anything else we discard, who knows what crazyness caused this... best to avoid potential damage by doing nothing!
+								case self::TABLE_COPY_2_LIVE_ONLY:
+								case self::TABLE_COPY_IF_NOT_FND:
+								case self::TABLE_MERGE_BACK_COPY:
+								case self::TABLE_MERGE_BACK_ONLY:
+								case self::TABLE_MERGE_BACK_CLEAN:
+								case self::TABLE_COPY_BACK_REPLACE:
+									$this->status = $this->performTableStep($theStepObj);
+									break;
+
+								default:
+									// Anything else we discard, who knows what crazyness caused this... best to avoid potential damage by doing nothing!
+							}
+
+							if (!$this->status)
+							{
+								// We've had a serious failure, no point in continuing with the loop.
+								break;
+							}
 						}
 
-						if (!$this->status)
-						{
-							// We've had a serious failure, no point in continuing with the loop.
-							break;
-						}
+						// Time to mark this as done
+						$this->finishRun($this->_plan_id());
 					}
-
-					// Time to mark this as done
-					$this->finishRun($this->_plan_id());
+					else
+					{
+						// Else we simply exit.
+						$this->out('No steps found.');
+					}
 				}
 				else
 				{
-					// Else we simply exit.
+					// Time to go boom!
+					$this->out('Couldn\'t get local/remote site details.' );
 				}
 			}
 		}

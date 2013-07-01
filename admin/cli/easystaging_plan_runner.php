@@ -220,7 +220,8 @@ class EasyStaging_PlanRunner extends JApplicationCli
 				$this->plan_id = $this->_plan_id();
 				$this->target_site = PlanHelper::getRemoteSite($this->plan_id);
 				$this->source_site = PlanHelper::getLocalSite($this->plan_id);
-				if($this->target_site && $this->source_site)
+
+				if ($this->target_site && $this->source_site)
 				{
 					$steps = RunHelper::getRunSteps($this->runticket);
 
@@ -807,7 +808,7 @@ DEF;
 		$msg = JText::sprintf('COM_EASYSTAGING_CLI_CREATING_SQL_EXPORT_FOR_X', $table) . "\n";
 
 		// Build our file path & file handle
-		$pathToSQLFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_export_file_name($table);
+		$pathToSQLFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_export_copy_file_name($table);
 
 
 		// For each table we need to treat it like a database dump so that forgein keys etc don't cause issues
@@ -1059,7 +1060,7 @@ DEF;
 		$last_msg = '';
 		$tableName = $step->action;
 		$finishing = false;
-		$pathToSQLFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_export_file_name($tableName);
+		$pathToSQLFile = $this->_sync_files_path() . $this->_get_run_directory() . '/' . $this->_export_copy_file_name($tableName);
 
 		// Make sure our file exists
 		if (($pathToSQLFile != '') && (file_exists($pathToSQLFile)))
@@ -1348,13 +1349,13 @@ DEF;
 	}
 
 	/**
-	 * Central point for creating the SQL exports file name for a table.
+	 * Central point for creating the SQL copy exports file name for a table.
 	 *
 	 * @param   string  $table  The name of the table.
 	 *
 	 * @return string
 	 */
-	private function _export_file_name($table)
+	private function _export_copy_file_name($table)
 	{
 		return ('plan-' . $this->_plan_id() . '-' . $table . '-export.sql');
 	}

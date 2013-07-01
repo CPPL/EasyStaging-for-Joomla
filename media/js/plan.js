@@ -502,13 +502,13 @@ com_EasyStaging.filterTableActions = function ()
                 row.addClass('hidden');
                 this.tablesHidden++;
             }
-
-            // Notify user of changes
-            var visibleTables = this.totalTables - this.tablesHidden;
-            jmsgs = [cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_FILTER_RESULTS'), visibleTables, this.totalTables, this.tablesHidden)];
-            Joomla.renderMessages({'message': jmsgs });
         }, com_EasyStaging
     );
+
+    // Notify user of changes
+    var visibleTables = this.totalTables - this.tablesHidden;
+    jmsgs = [cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_FILTER_RESULTS'), visibleTables, this.totalTables, this.tablesHidden)];
+    cppl_tools.addMessages({'message': jmsgs });
 }
 
 com_EasyStaging.filterTableNames = function ()
@@ -534,10 +534,10 @@ com_EasyStaging.filterTableNames = function ()
                 this.tablesHidden++;
             }
 
-            // Notify user of changes
-            var visibleTables = this.totalTables - this.tablesHidden;
-            jmsgs = [cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_FILTER_RESULTS'), visibleTables, this.totalTables, this.tablesHidden)];
-            Joomla.renderMessages({'message': jmsgs });
         }, com_EasyStaging
     );
 }
+        // Notify user of changes
+        var visibleTables = this.totalTables - this.tablesHidden;
+        jmsgs = [cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_FILTER_RESULTS'), visibleTables, this.totalTables, this.tablesHidden)];
+        Joomla.renderMessages({'message': jmsgs });

@@ -309,15 +309,8 @@ class EasyStagingModelPlan extends JModelAdmin
 				
 				$table->load($tableRow['id']);
 					
-				// Bind the row.
-				if (!$table->bind($tableRow))
-				{
-					$this->setError($table->getError());
-					return false;
-				}
-				
-				// Store the data
-				if (!$table->store())
+				// Save the row.
+				if (!$table->save($tableRow))
 				{
 					$this->setError($table->getError());
 					return false;

@@ -647,7 +647,7 @@ DEF;
 			}
 			elseif (($at == TABLE_MERGE_BACK_CLEAN))
 			{
-				$this->swapSrcTrg();
+				$this->swapSourceTarget();
 				$deletedRows = $this->emptyTable($step);
 
 				if ($deletedRows >= 0)
@@ -659,7 +659,7 @@ DEF;
 					$msg = JText::sprintf('COM_EASYSTAGING_CLI_REMOTE_TABLE_FAILED_TO_EMPTY_X_Y', $table, $deletedRows);
 				}
 
-				$this->swapSrcTrg();
+				$this->swapSourceTarget();
 			}
 		}
 		else
@@ -689,7 +689,7 @@ DEF;
 		$step->store();
 
 		// Then we need to swap our source and target databases around
-		$this->swapSrcTrg();
+		$this->swapSourceTarget();
 
 		/*
 		 * Using the same export method to push a table out we get create the target tables export file
@@ -704,7 +704,7 @@ DEF;
 		}
 
 		// Regardless of result we need to swap our db sources back.
-		$this->swapSrcTrg();
+		$this->swapSourceTarget();
 
 		return $status;
 	}
@@ -779,7 +779,7 @@ DEF;
 	 *
 	 * @return  null
 	 */
-	private function swapSrcTrg()
+	private function swapSourceTarget()
 	{
 		// Swap the databases
 		$ldb = $this->source_db;

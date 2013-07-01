@@ -518,26 +518,28 @@ com_EasyStaging.filterTableNames = function ()
     this.tableFilter = tnf.value;
     this.tablesHidden = 0;
 
-    // Update each row
-    tableRows.each(function(row, index)
-        {
-            var theTableName = row.children[0].children[0].innerHTML;
-            var filterText = this.tableFilter;
-
-            if(theTableName.indexOf(filterText) >= 0)
+    if (this.tableFilter.length > 2)
+    {
+        // Update each row
+        tableRows.each(function(row, index)
             {
-                row.removeClass('hidden');
-            }
-            else
-            {
-                row.addClass('hidden');
-                this.tablesHidden++;
-            }
+                var theTableName = row.children[0].children[0].innerHTML;
+                var filterText = this.tableFilter;
 
-        }, com_EasyStaging
-    );
-}
+                if(theTableName.indexOf(filterText) >= 0)
+                {
+                    row.removeClass('hidden');
+                }
+                else
+                {
+                    row.addClass('hidden');
+                    this.tablesHidden++;
+                }
+            }, com_EasyStaging
+        );
         // Notify user of changes
         var visibleTables = this.totalTables - this.tablesHidden;
         jmsgs = [cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_FILTER_RESULTS'), visibleTables, this.totalTables, this.tablesHidden)];
         Joomla.renderMessages({'message': jmsgs });
+    }
+ }

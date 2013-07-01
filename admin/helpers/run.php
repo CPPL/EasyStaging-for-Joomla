@@ -446,5 +446,84 @@ class RunHelper
 		}
 		rmdir($directory);
 	}
+
+	/**
+	 * Yuck. In theory every thing will be correctly quoted per the supplied database.
+	 *
+	 * @param   string          $table   The name of the table
+	 * @param   string          $dbName  Name of the database
+	 * @param   JDatabaseMySQL  $db      The Joomla DB connection object.
+	 *
+	 * @return string
+	 */
+	public static function buildTableProfileQuery ($table, $dbName, $db)
+	{
+		$tableSizeQueryTemplate = 'SELECT ROUND((%1$s + %2$s), 2) %3$s, %4$s FROM %5$s WHERE %6$s = %7$s AND %8$s = %9$s';
+		/**
+		 * 1. DATA_LENGTH
+		 * 2. INDEX_LENGTH
+		 * 3. table_size
+		 * 4. AVG_ROW_LENGTH
+		 * 5. information_schema.TABLES
+		 * 6. table_schema
+		 * 7. The target database's name
+		 * 8. $table
+		 */
+		$query = sprintf(
+			$tableSizeQueryTemplate,
+			$db->quoteName('DATA_LENGTH'),                // 1
+			$db->quoteName('INDEX_LENGTH'),               // 2
+			$db->quoteName('table_size'),                 // 3
+			$db->quoteName('AVG_ROW_LENGTH'),             // 4
+			$db->quoteName('information_schema.TABLES'),  // 5
+			$db->quoteName('table_schema'),               // 6
+			$db->quote($dbName),                          // 7
+			$db->quoteName('table_name'),                 // 8
+			$db->quote($table)                            // 9
+		);
+
+
+		return $query;
+	}
+
+	/**
+	 * Yuck again. Utility method to build our SQL to retreive the PK of a table.
+	 *
+	 * @param   string  $dbName     The name of the database.
+	 *
+	 * @param   string  $tableName  The table name.
+	 *
+	 * @return string
+	 */
+	public static function buildTablePkQuery($dbName, $tableName)
+	{
+		$db = JFactory::getDbo();
+
+		/**
+		 *
+		 * IT's probably a waste of time doing this as Joomla's DB's support really is MYSQL centric despite
+		 * efforts to make multi-db-platform friendly, but, I'm doing it anyway.
+		 *
+		 * Add value quotes
+		 */
+		$dbName = $db->quote($dbName);
+		$tableName = $db->quote($tableName);
+		$pri       = $db->quote('PRI');
+
+		// Quote the column, table and database names
+		$info_schema  = $db->quoteName('information_schema');
+		$column_name  = $db->quoteName('COLUMN_NAME');
+		$pk_label     = $db->quoteName('pk');
+		$columns      = $db->quoteName('COLUMNS');
+		$table_schema = $db->quoteName('TABLE_SCHEMA');
+		$table_name   = $db->quoteName('TABLE_NAME');
+		$column_key   = $db->quoteName('COLUMN_KEY');
+
+		// Build the query string
+		$tablePKQuery  = "SELECT $column_name $pk_label FROM $info_schema.$columns WHERE ($table_schema = $dbName) ";
+		$tablePKQuery .= "AND ($table_name = $tableName) AND ($column_key = $pri)";
+
+		return $tablePKQuery;
+	}
 }
 

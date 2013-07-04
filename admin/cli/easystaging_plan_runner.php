@@ -711,6 +711,68 @@ DEF;
 	}
 
 	/**
+	/**
+	 * Gather the profile of the table in the step for both the target and source db's.
+	 *
+	 * @param   EasyStagingTableSteps  $step  This step.
+	 *
+	 * @return array|bool
+	 */
+	private function getTableProfile($step)
+	{
+		// Lets setup
+		$profile = array('target' => array(), 'source' => array());
+		$srcPrefix = $this->source_site->database_table_prefix;
+		$trgPrefix = $this->target_site->database_table_prefix;
+
+		// Start with our source DB first (i.e. the one we're getting our records)
+		$db = $this->source_db;
+		$tableName = $this->swapTablePrefix($step->action, $trgPrefix, $srcPrefix);
+		$query = RunHelper::buildTableProfileQuery($tableName, $this->source_site->database_name, $db);
+		$db->setQuery($query);
+
+		if ($tableProfile = $db->loadAssoc())
+		{
+			$msg = JText::sprintf('COM_EASYSTAGING_CLI_GETTING_TABLE_PROFILE_FOR_X', $tableName);
+
+			// Now we need the primary key for the table...
+			$pkQuery = RunHelper::buildTablePkQuery($this->source_site->database_name, $tableName);
+			$db->setQuery($pkQuery);
+			$pk = $db->loadRow();
+			$tableProfile['pk'] = $pk[0];
+
+			// Now the record count.
+			$rowcountQuery = sprintf("SELECT COUNT(*) FROM %s", $db->quoteName($tableName));
+			$db->setQuery($rowcountQuery);
+			$rowCount = $db->loadRow();
+			$tableProfile['rowCount'] = $rowCount[0];
+			$profile['source'] = $tableProfile;
+
+			// Ok get the target table size details (i.e. the table that will receive the records)
+			$db = $this->target_db;
+			$tableName = $this->swapTablePrefix($tableName);
+			$query = RunHelper::buildTableProfileQuery($tableName, $this->target_site->database_name, $db);
+			$db->setQuery($query);
+			$tableProfile = $db->loadAssoc();
+
+			// Now the record count.
+			$rowcountQuery = sprintf("SELECT COUNT(*) FROM %s", $tableName);
+			$db->setQuery($rowcountQuery);
+			$rowCount = $db->loadRow();
+			$tableProfile['rowCount'] = $rowCount[0];
+			$profile['target'] = $tableProfile;
+		}
+		else
+		{
+			$msg = JText::sprintf('COM_EASYSTAGING_CLI_FAILED_TO_GET_PROFILE_FOR_X', $tableName);
+			$profile = false;
+		}
+
+		$this->_log($step, $msg);
+
+		return $profile;
+	}
+
 	 * DATABASE SECTION
 	 */
 

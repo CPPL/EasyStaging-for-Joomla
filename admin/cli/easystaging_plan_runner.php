@@ -712,6 +712,146 @@ DEF;
 
 	/**
 	/**
+	 * Takes the table and it profile and builds up an SQL to perform the merge.
+	 *
+	 * @param   EasyStagingTableSteps  $step           The current step.
+	 *
+	 * @param   array                  $tableProfiles  Array of useful details about the table
+	 *
+	 * @return null
+	 */
+	private function doMergeRecords($step, $tableProfiles)
+	{
+		// Assume the world works
+		$mergeResult = true;
+
+		// Is our data size greater than connection limits?
+		$sourceSize = $tableProfiles['source']['table_size'];
+
+		if ($this->max_ps < $sourceSize)
+		{
+			$exportSteps = (int) $sourceSize / $this->max_ps;
+			$exportSteps = ($exportSteps <= 1) ? 2 : $exportSteps;
+		}
+		else
+		{
+			$exportSteps = 1;
+		}
+
+		// We need to limit each request to fit (for small table limit will be row count + 1)
+		$start = 0;
+		$limit = (int) ($tableProfiles['target']['rowCount'] / $exportSteps) + 1;
+
+		// Setup our basics
+		$trgPrefix = $this->target_site->database_table_prefix;
+		$srcPrefix = $this->source_site->database_table_prefix;
+		$srcDB = $this->source_db;
+		$trgDB = $this->target_db;
+		$srcTableName = $this->swapTablePrefix($step->action, $trgPrefix, $srcPrefix);
+		$trgTableName = $step->action;
+		$srcPk = $tableProfiles['source']['pk'];
+
+
+		// Drop any previous temporary table
+		$tempTable = $trgPrefix . 'easystaging_temp';
+		$trgDB->dropTable($tempTable, true);
+
+		// Create a temporary table to store the source data in
+		$createStatement = $srcDB->getTableCreate($srcTableName);
+		$trgQuery = str_replace($srcTableName, $tempTable, $createStatement[$srcTableName]);
+		$trgDB->setQuery($trgQuery);
+
+		if ($createTempResult = $trgDB->execute())
+		{
+			/** @var $query JDatabaseQuery */
+			$query = $srcDB->getQuery(true);
+			$query->select('*')->from($srcTableName);
+			$query->order($srcPk);
+
+			// Loop through our select's and process each block of data
+			for ($i = 1; $i <= $exportSteps; $i++)
+			{
+				$srcDB->setQuery($query, $start, $limit);
+				$rows = $srcDB->loadAssocList();
+
+				// ADD the records to the local temporary table.
+				if (!$this->insertRows($rows, $trgDB, $tempTable))
+				{
+					$mergeResult = false;
+					$this->_log($step, JText::sprintf('COM_EASYSTAGING_CLI_MERGE_BACK_FAILED_FOR_X', $srcTableName));
+					break;
+				}
+
+				// Increment starting point for next block of rows
+				$start += $limit;
+			}
+
+			if ($mergeResult)
+			{
+				$qTrgTableName = $trgDB->quoteName($trgTableName);
+				$qTempTableName = $trgDB->quoteName($tempTable);
+				$mergeQuery = "REPLACE INTO $qTrgTableName SELECT * FROM $qTempTableName;";
+				$trgDB->setQuery($mergeQuery);
+
+				if (!$trgDB->execute())
+				{
+					$mergeResult = false;
+					$this->_log($step, JText::sprintf('COM_EASYSTAGING_CLI_INSERT_IGNORE_FAILED_FOR_X', $srcTableName));
+				}
+			}
+		}
+
+		// Finally clear out our temp table — best not to leave a mess
+		$trgDB->dropTable($tempTable, true);
+
+		return $mergeResult;
+	}
+
+	/**
+	 * Inserts rows into the table.
+	 *
+	 * @param   array      $rows   Array of the rows to be inserted.
+	 *
+	 * @param   JDatabase  $db     The target database.
+	 *
+	 * @param   string     $table  The table name.
+	 *
+	 * @return  bool
+	 */
+	private function insertRows($rows, $db, $table)
+	{
+		// Get our columns
+		$firstRow = $rows[0];
+		$columns = array_keys($firstRow);
+
+		// Build our query
+		$query = $db->getQuery(true);
+		$query->insert($table);
+		$query->columns($columns);
+
+		// Assemble our values
+		foreach ($rows as $row)
+		{
+			// Process each row for slashes, new lines.
+			foreach ($row as $field => $value)
+			{
+				$row[$field] = addslashes($value);
+				$row[$field] = str_replace("\n", "\\n", $row[$field]);
+			}
+
+			// Convert our row to a suitable values string
+			$rowAsValues  = "'" . implode("', '", $row) . "'";
+
+			$query->values($rowAsValues);
+		}
+
+		// Set our query and return the result
+		$db->setQuery($query);
+
+		return $db->execute();
+	}
+
+	/**
 	 * Gather the profile of the table in the step for both the target and source db's.
 	 *
 	 * @param   EasyStagingTableSteps  $step  This step.

@@ -63,6 +63,11 @@ else
 class EasyStaging_PlanRunner extends JApplicationCli
 {
 	/**
+	 * @var   JRegistry  $params
+	 */
+	private $params;
+
+	/**
 	 * @var   int  $_status
 	 */
 	private $status = 0;
@@ -195,6 +200,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 		$component = JComponentHelper::getComponent('com_easystaging');
 
 		$params = $component->params;
+		$this->params = $params;
 
 		// Let Joomla know where to look for JTables
 		JTable::addIncludePath(JPATH_COMPONENT_ADMINISTRATOR . '/tables');
@@ -730,7 +736,7 @@ DEF;
 
 		if ($this->max_ps < $sourceSize)
 		{
-			$exportSteps = (int) $sourceSize / $this->max_ps;
+			$exportSteps = intval($sourceSize / $this->max_ps);
 			$exportSteps = ($exportSteps <= 1) ? 2 : $exportSteps;
 		}
 		else
@@ -740,7 +746,7 @@ DEF;
 
 		// We need to limit each request to fit (for small table limit will be row count + 1)
 		$start = 0;
-		$limit = (int) ($tableProfiles['target']['rowCount'] / $exportSteps) + 1;
+		$limit = intval($tableProfiles['source']['rowCount'] / $exportSteps) + 1;
 
 		// Setup our basics
 		$trgPrefix = $this->target_site->database_table_prefix;
@@ -955,6 +961,13 @@ DEF;
 			{
 				// Use slightly less than actual max to avoid the CSUA doublebyte issue...
 				$this->max_ps = (int) ($qr[1] * 0.95);
+
+				// Get our max Kb set by preferences, convert to bytes
+				$prefMax = $this->params->get('max_allowed_packet', 2000) * 1024;
+
+				// Is our max_ps > max_allowed_packet set in preference?
+				$this->max_ps = ($this->max_ps > $prefMax) ? $prefMax : $this->max_ps;
+
 				$msg = JText::_('COM_EASYSTAGING_DATABASE_STEP_01_CONNECTED');
 				$this->_log($theStep, $msg);
 				$this->targetTablesRetreived = $this->target_db->getTableList();

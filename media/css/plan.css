@@ -135,8 +135,29 @@ div.toolbar-list.tb-off a:active {
     clear: both;
 }
 
+/* Rsyncs Tab */
+.rsyncs_label_th {
+    width: 310px;
+}
+.rsyncs_direction_th {
+    width: 130px;
+}
+.com_easystaging_rsync_label {
+    margin-top: 8px;
+    margin-bottom: 5px;
+}
+.com_easystaging_rsync_last_run {
+    margin-top: 3px;
+}
+.com_easystaging_rsync_direction {
+    margin-top: 8px;
+}
+.com_easystaging_rsync_source_path, .com_easystaging_rsync_target_path {
+    margin-top: 8px;
+}
+
 /* Message Areas */
-.com_easystaging_mgr_last_run {
+.com_easystaging_mgr_last_run, .com_easystaging_rsync_last_run {
     font-style: italic;
     color: silver;
 }

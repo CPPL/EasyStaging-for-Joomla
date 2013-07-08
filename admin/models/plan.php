@@ -149,6 +149,10 @@ class EasyStagingModelPlan extends JModelAdmin
 			}
 
 			$item->remoteSite = $remoteSite;
+
+			// Get the fileCopyActions (Rsyncs)
+			$fileCopyActions= $this->_getFileCopyActions($plan_id);
+			$item->fileCopyActions = $fileCopyActions;
 		}
 
 		if (count($this->_forms) && !$this->getState('easystaging.clean',1))
@@ -174,6 +178,7 @@ class EasyStagingModelPlan extends JModelAdmin
 	public function save($data)
 	{
 		$data['tableSettings'] = JRequest::getVar('tableSettings', array(), 'post', 'array');
+		$data['fileCopyActions'] = JRequest::getVar('fileCopyActions', array(), 'post', 'array');
 		
 		if (parent::save($data))
 		{
@@ -191,6 +196,9 @@ class EasyStagingModelPlan extends JModelAdmin
 			
 			// Store the table settings
 			$tableSettingsResult = $this->_saveTableSettings($data['id'], $data['tableSettings']);
+
+			// Store the file copy actions
+			$fileCopyActionsResult = $this->_saveFileCopyActions($data['id'], $data['fileCopyActions']);
 			
 			if ($localSiteResult && $remoteSiteResult && $tableSettingsResult)
 			{
@@ -299,8 +307,7 @@ class EasyStagingModelPlan extends JModelAdmin
 	private function _saveTableSettings($pk, $tableSettings)
 	{
 		$table = JTable::getInstance('Tables','EasyStagingTable');
-		$isNew = true;
-		
+
 		foreach ($tableSettings as $tableName => $tableRow)
 		{
 			try {
@@ -324,6 +331,56 @@ class EasyStagingModelPlan extends JModelAdmin
 			}
 		}
 		
+		return true;
+	}
+
+	private function _saveFileCopyActions($pk, $fileCopyActions)
+	{
+		$table = JTable::getInstance('Rsyncs','EasyStagingTable');
+
+		foreach ($fileCopyActions as $tableRow)
+		{
+			try {
+				$tableRow['plan_id'] = $pk;
+				$id = $tableRow['id'];
+
+				// If it's an existing action
+				if ($id)
+				{
+					$table->load($id);
+
+					if (($tableRow['label'] == '') || ($tableRow['source_path'] == '') || ($tableRow['target_path'] == '') )
+					{
+						// We delete rows that have missing elements
+						$table->delete($id);
+						continue;
+					}
+				}
+				else
+				{
+					$tableRow['id'] = '';
+					if (($tableRow['label'] == '') || ($tableRow['source_path'] == '') || ($tableRow['target_path'] == '') )
+					{
+						// No label we don't save it.
+						continue;
+					}
+				}
+
+				// Save the row.
+				if (!$table->save($tableRow))
+				{
+					$this->setError($table->getError());
+					return false;
+				}
+			}
+			catch (Exception $e)
+			{
+				$this->setError($e->getMessage());
+
+				return false;
+			}
+		}
+
 		return true;
 	}
 
@@ -523,6 +580,81 @@ class EasyStagingModelPlan extends JModelAdmin
 
 		return true;
 	}
+
+	/**
+	 * Returns the tables previously recorded for this site
+	 * in an array suitable for the 'tables' table.
+	 *
+	 * @param $plan_id - used to key the tables table against
+	 *
+	 * @return array
+	 */
+	private function _getFileCopyActions($plan_id=0)
+	{
+		// Our proto rsync action
+		$newRsync = array(
+			'id' => '0',
+			'plan_id' => $plan_id,
+			'direction' => '',
+			'label' => '',
+			'source_path' => '',
+			'target_path' => '',
+			'last' => '',
+			'last_result' => '',
+		);
+
+		// Get the db
+		$db = $this->getDbo();
+		// Set the query
+		$query = $db->getQuery(true);
+		$query->select('*');
+		$query->from($db->quoteName('#__easystaging_rsyncs'));
+		$query->where($db->quoteName('plan_id') . ' = ' . $db->quote($plan_id));
+		$query->order('id');
+		$db->setQuery($query);
+
+		$rsyncs = $db->loadAssocList();
+
+		if (is_array($rsyncs) && count($rsyncs) == 0)
+		{
+			// An Empty array means no rsyncs yet
+			$rsyncs = array($newRsync);
+		}
+		elseif (is_array($rsyncs) && count($rsyncs) > 0)
+		{
+			// Add a blank to the end
+			$rsyncs[] = $newRsync;
+
+			// Process our array for display
+			foreach ($rsyncs as &$row)
+			{
+				$last = $row['last'];
+				$lastResult = $row['last_result'];
+
+				if ($last == '0000-00-00 00:00:00')
+				{
+					$row['lastActionResult'] = JText::_('COM_EASYSTAGING_RSYNCS_NO_LAST_ACTION_RESULT');
+				}
+				elseif ($last == '')
+				{
+					$row['last'] = JText::_('COM_EASYSTAGING_RSYNCS_NEW_RSYNC_ACTION');
+				}
+				else
+				{
+					$row['last'] = strtotime($last);
+					$row['last_result'] = ($lastResult ? JText::_('COM_EASYSTAGING_TABLE_LAST_RESULT_SUCCESS') : JText::_('COM_EASYSTAGING_TABLE_LAST_RESULT_FAIL'));
+					$row['lastActionResult'] = JText::sprintf('COM_EASYSTAGING_TABLE_LAST_ACTION_RESULT', $row['last'], $row['last_result']);
+				}
+			}
+		}
+		else
+		{
+			$rsyncs = false;
+		}
+
+		return $rsyncs;
+	}
+
 	/**
 	 * Strips elements from the first array and returns it
 	 *

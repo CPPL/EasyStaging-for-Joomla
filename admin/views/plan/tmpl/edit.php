@@ -37,6 +37,8 @@ if (!$this->canDo->get('core.edit'))
 				echo $this->loadTemplate('remote');
 				echo JHtml::_('tabs.panel', JText::_('COM_EASYSTAGING_TABLESETTINGS_TAB'), 'table_settings');
 				echo $this->loadTemplate('tables');
+				echo JHtml::_('tabs.panel', JText::_('COM_EASYSTAGING_RSYNCS_TAB'), 'fileCopyActions');
+				echo $this->loadTemplate('rsyncs');
 			}
 		?>
 	<?php echo JHtml::_('tabs.end');?> 

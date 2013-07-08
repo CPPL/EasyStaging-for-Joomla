@@ -86,6 +86,22 @@ defined('_JEXEC') or die;
 		<legend><br><?php echo JText::_('COM_EASYSTAGING_NOTES_RSYNC_LABEL'); ?></legend>
 		<ul>
 			<li><?php echo JText::_('COM_EASYSTAGING_NOTES_RSYNC_DESC'); ?></li>
+			<li><strong><?php echo JText::_('COM_EASYSTAGING_NOTES_DIRECTION_LABEL'); ?></strong>
+				<ul>
+					<li><strong><?php echo JText::_('COM_EASYSTAGING_RSYNC_DIRECTION0') . ':'?></strong><br />
+						<?php echo JText::_('COM_EASYSTAGING_RSYNC_DIRECTION0_DESC'); ?></li>
+					<li><strong><?php echo JText::_('COM_EASYSTAGING_RSYNC_DIRECTION1') . ':'?></strong><br />
+						<?php echo JText::_('COM_EASYSTAGING_RSYNC_DIRECTION1_DESC'); ?></li>
+				</ul>
+			</li>
+			<li><strong><?php echo JText::_('COM_EASYSTAGING_NOTES_RSYNC_DIRECTORY_LABEL'); ?></strong>
+				<ul>
+					<li><strong><?php echo JText::_('COM_EASYSTAGING_RSYNCS_TARGET_TH'); ?></strong><br />
+						<?php echo JText::_('COM_EASYSTAGING_RSYNCS_TARGET_PATH_DESC'); ?></li>
+					<li><strong><?php echo JText::_('COM_EASYSTAGING_RSYNCS_SOURCE_TH'); ?></strong><br />
+						<?php echo JText::_('COM_EASYSTAGING_RSYNCS_SOURCE_PATH_DESC'); ?></li>
+				</ul>
+			</li>
 		</ul>
 	</fieldset>
 	<?php echo JHtml::_('sliders.end'); ?>

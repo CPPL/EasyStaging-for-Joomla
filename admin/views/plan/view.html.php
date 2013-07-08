@@ -224,4 +224,16 @@ JS;
 
 		return $actionMenu;
 	}
+
+	protected function _getDirectionMenu($selectedDirection, $controlName, $rowId)
+	{
+		// Get custom field
+		JFormHelper::addFieldPath(JPATH_COMPONENT . '/models/fields');
+		$directionChoices2 = JFormHelper::loadFieldType('EasyStagingRsyncDirection', false);
+		$directionOptions = $directionChoices2->getOptions();
+
+		$directionMenu = JHtml::_('select.genericlist', $directionOptions, $controlName, 'class="inputbox"', 'value', 'text', $selectedDirection, $rowId);
+
+		return $directionMenu;
+	}
 }

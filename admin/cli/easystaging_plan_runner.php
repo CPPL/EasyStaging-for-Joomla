@@ -726,6 +726,50 @@ DEF;
 	}
 
 	/**
+	 * Get the records from the remote DB's equivalent table and merges them with the local version.
+	 *
+	 * @param   EasyStagingTableSteps  $step  The current step.
+	 *
+	 * @return  bool
+	 */
+	private function performTableMergeBack($step)
+	{
+		// Assume the world works as expected.
+		$status = true;
+
+		// We need to swap our source and target databases because the merge step makes the remote the source
+		$this->swapSourceTarget();
+
+		// Get the table profiles
+		$tableProfiles = $this->getTableProfile($step);
+
+		if ($tableProfiles)
+		{
+			// Merge our table back
+			if ($status = $this->doMergeRecords($step, $tableProfiles))
+			{
+				$msg = JText::sprintf('COM_EASYSTAGING_CLI_SUCCESSFULL_MERGE_FOR_TABLE_X', $step->action);
+			}
+			else
+			{
+				$msg = JText::sprintf('COM_EASYSTAGING_CLI_FAILED_TO_MERGE_TABLE_X', $step->action);
+			}
+		}
+		else
+		{
+			$msg = JText::_('COM_EASYSTAGING_CLI_FAILED_TO_GET_TABLE_PROFILES');
+			$status = false;
+		}
+
+		$this->_log($step, $msg);
+
+		// We need to swap our source and target databases BACK
+		$this->swapSourceTarget();
+
+		// Return our status
+		return $status;
+	}
+
 	/**
 	 * Takes the table and it profile and builds up an SQL to perform the merge.
 	 *
@@ -743,10 +787,13 @@ DEF;
 		// Is our data size greater than connection limits?
 		$sourceSize = $tableProfiles['source']['table_size'];
 
-		if ($this->max_ps < $sourceSize)
+		// Yes I hate magic numbers too but this works for the majority of MySQL hosts we've encountered @todo Magic Number run around, scream and panic
+		$magicInsertNumberThatStopsMySQLGoingAway = 256000;
+
+		if ( $sourceSize > $magicInsertNumberThatStopsMySQLGoingAway)
 		{
-			$exportSteps = intval($sourceSize / $this->max_ps);
-			$exportSteps = ($exportSteps <= 1) ? 2 : $exportSteps;
+			$exportSteps = intval($sourceSize / $magicInsertNumberThatStopsMySQLGoingAway);
+			$exportSteps = ($exportSteps > 1) ? $exportSteps : 2;
 		}
 		else
 		{
@@ -788,13 +835,18 @@ DEF;
 			{
 				$srcDB->setQuery($query, $start, $limit);
 				$rows = $srcDB->loadAssocList();
+				$rowsRetreived = count($rows);
 
 				// ADD the records to the local temporary table.
-				if (!$this->insertRows($rows, $trgDB, $tempTable))
+				if (!$insertResult = $this->insertRows($rows, $trgDB, $tempTable))
 				{
 					$mergeResult = false;
 					$this->_log($step, JText::sprintf('COM_EASYSTAGING_CLI_MERGE_BACK_FAILED_FOR_X', $srcTableName));
 					break;
+				}
+				else
+				{
+					$this->_log($step, JText::sprintf('COM_EASYSTAGING_CLI_MERGE_BACK_RETREIVED_X_RECORDS_STARTING_AT_Y_FROM_Z', $rowsRetreived, $start, $srcTableName));
 				}
 
 				// Increment starting point for next block of rows
@@ -851,7 +903,7 @@ DEF;
 			foreach ($row as $field => $value)
 			{
 				$row[$field] = addslashes($value);
-				$row[$field] = str_replace("\n", "\\n", $row[$field]);
+				$row[$field] = str_replace("\n", '\n', $row[$field]);
 			}
 
 			// Convert our row to a suitable values string

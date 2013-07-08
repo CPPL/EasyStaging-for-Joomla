@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS `#__easystaging_tables` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
-CREATE TABLE `#__easystaging_steps` (
+CREATE TABLE IF NOT EXISTS `#__easystaging_steps` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `runticket` char(128) NOT NULL DEFAULT '',
   `action_type` int(11) DEFAULT NULL,
@@ -56,4 +56,4 @@ CREATE TABLE `#__easystaging_steps` (
   `reported` int(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `runticket` (`runticket`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;

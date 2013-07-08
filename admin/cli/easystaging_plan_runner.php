@@ -638,7 +638,7 @@ DEF;
 	{
 		// Setup some defaults
 		$table = $step->action;
-		$at = $step->actionType;
+		$at = $step->action_type;
 
 		// Perform the pull back
 		$status = $this->performTableMergeBack($step);
@@ -646,7 +646,7 @@ DEF;
 		if ($status)
 		{
 			// Perform the push out
-			if ($at == TABLE_MERGE_BACK_COPY)
+			if ($at == self::TABLE_MERGE_BACK_COPY)
 			{
 				$status = $this->performTableCopy($step);
 
@@ -659,9 +659,8 @@ DEF;
 					$msg = JText::sprintf('COM_EASYSTAGING_CLI_MERGE_BACK_COPY_FAILED_X', $table);
 				}
 			}
-			elseif (($at == TABLE_MERGE_BACK_CLEAN))
+			elseif (($at == self::TABLE_MERGE_BACK_CLEAN))
 			{
-				$this->swapSourceTarget();
 				$deletedRows = $this->emptyTable($step);
 
 				if ($deletedRows >= 0)
@@ -672,8 +671,11 @@ DEF;
 				{
 					$msg = JText::sprintf('COM_EASYSTAGING_CLI_REMOTE_TABLE_FAILED_TO_EMPTY_X_Y', $table, $deletedRows);
 				}
-
-				$this->swapSourceTarget();
+			}
+			else
+			{
+				// TABLE_MERGE_BACK_ONLY
+				$msg = JText::sprintf('COM_EASYSTAGING_CLI_MERGE_BACK_ONLY_SUCCESSFUL_X', $table);
 			}
 		}
 		else

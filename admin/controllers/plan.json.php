@@ -323,7 +323,7 @@ class EasyStagingControllerPlan extends JController
 		$totalSteps = 0;
 
 		// Get our Rsync steps
-		if (($stepsRequired == 'startFile') || ($stepsRequired == 'startAll' || ($stepsRequired == 'status')))
+		if (($stepsRequired == 'startFile') || ($stepsRequired == 'startAll'))
 		{
 			$rsyncStep = $this->createRsyncSteps($runticket, $localSite, $remoteSite);
 

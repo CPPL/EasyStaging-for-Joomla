@@ -144,12 +144,19 @@ class EasyStaging_PlanRunner extends JApplicationCli
 	/**
 	 * Table Actions
 	 */
+	// Skip this Table
 	const TABLE_DONT_COPY_IGNORE  = 10;
+	// Copy to Live
 	const TABLE_COPY_2_LIVE_ONLY  = 11;
+	// Copy to Live, Only if not found.
 	const TABLE_COPY_IF_NOT_FND   = 12;
+	// Copy to Live, After Merge From Live
 	const TABLE_MERGE_BACK_COPY   = 13;
+	// Copy From Live (merges with existing)
 	const TABLE_MERGE_BACK_ONLY   = 14;
+	// Move From Live (merges with existing)
 	const TABLE_MERGE_BACK_CLEAN  = 15;
+	// Replace With Live (REPLACES existing with remote)
 	const TABLE_COPY_BACK_REPLACE = 16;
 
 	/**
@@ -919,6 +926,7 @@ DEF;
 		return $profile;
 	}
 
+	/**
 	 * DATABASE SECTION
 	 */
 
@@ -1069,6 +1077,8 @@ DEF;
 		// 3. Next we try and get the records in the table (after all no point in creating an insert statement if there are no records :D )
 		/** @var $dbq JDatabaseQuery */
 		$dbq = $this->source_db->getQuery(true);
+
+		// @todo really? all of the records — lets fix this.
 		$dbq->select('*');
 		$dbq->from($sourceTableName);
 

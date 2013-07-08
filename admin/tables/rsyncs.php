@@ -8,7 +8,7 @@ jimport('joomla.database.table');
 /**
  * Hello Table class
  */
-class EasyStagingTableTables extends JTable
+class EasyStagingTableRsyncs extends JTable
 {
 	/**
 	 * Constructor

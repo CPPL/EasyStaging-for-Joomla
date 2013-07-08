@@ -4,14 +4,14 @@ defined('_JEXEC') or die('Restricted Access');
 ?>
 
 <div><!-- Plan Controls -->
-	<?php if ($this->item->published) : ?>
 	<div id="planControls" >
+		<?php if ($this->item->published) : ?>
 		<input type="hidden" name=<?php echo JUtility::getToken(); ?> value="1" id="esTokenForJSON" >
 		<span id="startFileBtn" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_STATUS_START_FILE_DESC'); ?>"><button id="startFile" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_STATUS_START_FILE_BTN'); ?></button></span>
 		<span id="startDBaseBtn" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_STATUS_START_DBASE_DESC'); ?>"><button id="startDBase" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_STATUS_START_DBASE_BTN'); ?></button></span>
 		<span id="startAllBtn" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_STATUS_START_ALL_DESC'); ?>"><button id="startAll" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_STATUS_START_ALL_BTN'); ?></button></span>
+		<?php endif; ?>
 	</div>
-	<?php endif; ?>
 	<div id="rsyncErrors"><?php echo JText::_('COM_EASYSTAGING_RSYNC_RUN_ERROR_CODES'); ?></div>
 	<div id="lastRunStatus" ><?php
 		$last_run = $this->item->last_run;

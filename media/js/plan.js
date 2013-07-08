@@ -10,9 +10,15 @@ if (typeof(com_EasyStaging) === 'undefined')
 	window.addEvent('domready',
         function () {
             cppl_tools.setUp('com_easystaging');
-            $('startFile' ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
-            $('startDBase').addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
-            $('startAll'  ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
+            var publishedStatus = $('jform_published').value;
+
+            if(publishedStatus == 1)
+            {
+                $('startFile' ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
+                $('startDBase').addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
+                $('startAll'  ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
+            }
+
             $('tableNamesFilter').addEvent('keyup', function (event) {setTimeout(com_EasyStaging.filterTableNames(), 0);})
             $('tf-toggle').addEvent('click', function (event) {com_EasyStaging.toggleFilters();})
             $('allTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(); } );

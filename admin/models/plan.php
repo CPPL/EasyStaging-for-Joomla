@@ -525,15 +525,18 @@ class EasyStagingModelPlan extends JModelAdmin
 	}
 	/**
 	 * Strips elements from the first array and returns it
+	 *
+	 * @param   array  $origArray      The original array
+	 *
+	 * @param   array  $itemsToDelete  The array of keys to remove from the original array
 	 * 
 	 * @return array
 	 */
 	private function _reduceArray($origArray, $itemsToDelete)
 	{
-// Enter
 		foreach ($itemsToDelete as $key => $value)
 		{
-			if (key_exists($key, $origArray)) unset($origArray[$key]);
+			if (array_key_exists($key, $origArray)) unset($origArray[$key]);
 		}
 		return $origArray;
 	}

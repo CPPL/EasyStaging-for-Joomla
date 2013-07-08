@@ -318,19 +318,19 @@ class EasyStagingControllerPlan extends JController
 			'msg' => JText::_('COM_EASYSTAGING_JSON_CREATING_RUN_STEPS')
 		);
 		$this->_writeMsgToLog($response['msg'], $runticket);
-		$rsyncStep  = false;
+		$rsyncSteps  = false;
 		$tableSteps = false;
 		$totalSteps = 0;
 
 		// Get our Rsync steps
 		if (($stepsRequired == 'startFile') || ($stepsRequired == 'startAll'))
 		{
-			$rsyncStep = $this->createRsyncSteps($runticket, $localSite, $remoteSite);
+			$rsyncSteps = $this->createRsyncSteps($runticket, $localSite, $remoteSite);
 
-			if (is_array($rsyncStep))
+			if (is_array($rsyncSteps))
 			{
-				$steps = array_merge($steps, array(0 => $rsyncStep));
-				$totalSteps = count($rsyncStep);
+				$steps = array_merge($steps, $rsyncSteps);
+				$totalSteps = count($rsyncSteps);
 			}
 			else
 			{
@@ -380,7 +380,7 @@ class EasyStagingControllerPlan extends JController
 		}
 
 		// Did we actually create any steps?s
-		if (!$rsyncStep && !$tableSteps)
+		if (!$rsyncSteps && !$tableSteps)
 		{
 			$response['status'] = self::NOTRUNNING;
 			$response['error']  = JText::_('COM_EASYSTAGING_JSON_NO_STEPS_CREATED_FOR_PLAN');
@@ -416,27 +416,64 @@ class EasyStagingControllerPlan extends JController
 		// Setup our Rsync step, if we have local and remote paths
 		if (($localSite->site_path != '') && ($remoteSite->site_path != ''))
 		{
-			// Create the step in here...
-			$action = array(
-				'local_site_path'  => $localSite->site_path,
-				'remote_site_path' => $remoteSite->site_path,
-				'rsync_options'     => $localSite->rsync_options,
-				'file_exclusions'   => $localSite->file_exclusions,
-			);
-			$result = array(
-				'runticket' => $runticket,
-				'action_type' => 1,
-				'action' => json_encode($action),
-				'result_text' => JText::_('COM_EASYSTAGING_JSON_RSYNC_STEP_ADDED')
-			);
-			$this->_writeMsgToLog($result['result_text'], $runticket);
+			// Get our FileCopy Actions
+			// Setup query to retreive our tables settings for this plan
+			$db    = JFactory::getDbo();
+			$query = $db->getQuery(true);
+			$query->select($db->quoteName('id'));
+			$query->select($db->quoteName('label'));
+			$query->select($db->quoteName('direction'));
+			$query->select($db->quoteName('source_path'));
+			$query->select($db->quoteName('target_path'));
+			$query->from($db->quoteName('#__easystaging_rsyncs'));
+			$query->where($db->quoteName('plan_id') . ' = ' . $db->quote($this->_plan_id()));
+			$db->setQuery($query);
+
+			// Finally we can get our list of tables for this plan
+			$steps = array();
+
+			if ($fileCopyActions = $db->loadAssocList())
+			{
+				// To each returned row we need to add a runticket and covert the raw action upto a plan action
+				foreach ($fileCopyActions as $row)
+				{
+					// Build our file copy aciton
+					$newAction['id']               = $row['id'];
+					$newAction['local_site_path']  = $localSite->site_path;
+					$newAction['remote_site_path'] = $remoteSite->site_path;
+					$newAction['rsync_options']    = $localSite->rsync_options;
+					$newAction['file_exclusions']  = $localSite->file_exclusions;
+					$newAction['label']            = $row['label'];
+					$newAction['direction']        = $row['direction'];
+					$newAction['source_path']      = $row['source_path'];
+					$newAction['target_path']      = $row['target_path'];
+
+					// Bundle it into our plan step
+					$step = array(
+						'runticket' => $runticket,
+						'action_type' => intval($row['direction']) + 1,
+						'action' => json_encode($newAction),
+						'result_text' => JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_X_ADDED', $row['label'])
+					);
+
+					// Add it to our collection of steps
+					$steps[] = $step;
+
+					// Log it
+					$this->_writeMsgToLog($step['result_text'], $runticket);
+				}
+			}
+
+			// Now all we have to do is return the steps
+			$steps = count($steps) ? $steps : false;
+
 		}
 		else
 		{
-			$result = false;
+			$steps = false;
 		}
 
-		return $result;
+		return $steps;
 	}
 
 	/**

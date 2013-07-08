@@ -324,6 +324,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 			$msg = JText::sprintf('COM_EASYSTAGING_JSON_RSYNC_STEP_SUCCEEDED', $rsResult['fileName']);
 			$this->_log($theStep, $msg);
 			$status = $this->runRsync($theStep, $rsResult['fullPathToExclusionFile']);
+			RunHelper::markCompleted($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_PROCESS_COMPLETED'));
 		}
 		else
 		{
@@ -346,23 +347,92 @@ class EasyStaging_PlanRunner extends JApplicationCli
 	 */
 	protected function runRsync($theStep, $filename)
 	{
-		$status = false;
+		$status = true;
 		$details = json_decode($theStep->action);
 
 		// First we add the rsync options
-		$rsyncCmd = 'rsync ' . $details->rsync_options;
+		$rsyncAction = $theStep->action_type;
+		if (($rsyncAction == self::RSYNC_PULL) || ($rsyncAction == self::RSYNC_PUSH))
+		{
+			$rsyncCmd = 'rsync ' . $details->rsync_options;
+		}
+		elseif ($rsyncAction == self::RSYNC_CLEAR)
+		{
+			$rsyncCmd = 'rsync -avr';
+		}
+		else
+		{
+			$status = false;
+		}
 
-		// Then we add the exclusions file name
-		$rsyncCmd .= ' --exclude-from=' . $filename;
+		if ($status)
+		{
+			// Then we add the exclusions file name
+			$rsyncCmd .= ' --exclude-from=' . $filename;
 
-		// Add the source
-		$rsyncCmd .= ' ' . $details->local_site_path;
+			// Figure out our source site
+			if($rsyncAction == self::RSYNC_PUSH)
+			{
+				$source_path = $details->local_site_path . $details->source_path;
+				$target_path = $details->remote_site_path . $details->target_path;
+			}
+			else
+			{
+				$source_path = $details->remote_site_path . $details->source_path;
+				$target_path = $details->local_site_path . $details->target_path;
+			}
 
-		// Add the destination
-		$rsyncCmd .= ' ' . $details->remote_site_path;
+			// Add the source
+			$rsyncCmd .= ' ' . $source_path;
 
-		// Update the steps results
-		$this->_log($theStep, JText::sprintf('COM_EASYSTAGING_CLI_RSYNC_CMD_X', $rsyncCmd));
+			// Add the destination
+			$rsyncCmd .= ' ' . $target_path;
+
+			// Update the steps results
+			$this->_log($theStep, JText::sprintf('COM_EASYSTAGING_CLI_RSYNC_CMD_X_Y', $details->label, $rsyncCmd));
+
+			$rsyncResult = $this->runRsyncCmd($rsyncCmd, $theStep);
+			// Did it end cleanly?
+			if (($rsyncResult != false) && ($rsyncResult == 0))
+			{
+				// It ended cleanly.
+				$status = true;
+				$this->_log($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_INDICATES_SUCCESS'));
+
+				// Is it a MOVE file action?
+				if ($rsyncAction == self::RSYNC_CLEAR)
+				{
+					$this->_log($theStep, JText::sprintf('COM_EASYSTAGING_CLI_RSYNC_CLEAN_X', $details->label));
+					// We make an empty directory
+					$emptyDir = $this->_run_files_path() . '/empty';
+					mkdir($emptyDir, 0777, true);
+
+					// We create our source (the empty dir) and the target (the original source on the remote)
+					$source_path = $emptyDir . '/';
+					$target_path = $details->remote_site_path . $details->source_path;
+
+					// Build our rsync command
+					$rsyncCmd = 'rsync -dv --delete ' . $source_path . ' ' . $target_path;
+
+					// Run the command
+					$rsyncResult = $this->runRsyncCmd($rsyncCmd, $theStep);
+					$status = (($rsyncResult != false) && ($rsyncResult == 0)) ? true : false;
+				}
+			}
+			else
+			{
+				$this->_log($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_INDICATES_FAILURE'));
+			}
+		}
+
+		return $status;
+	}
+
+
+	private function runRsyncCmd($rsyncCmd, $theStep)
+	{
+		// Assume failure
+		$rsyncResult = false;
 
 		// As this is a long running process we want to update the results text as we go...
 		$descriptorspec = array(
@@ -393,27 +463,13 @@ class EasyStaging_PlanRunner extends JApplicationCli
 
 			$rsyncResult = end($rsyncOutput);
 			proc_close($rsync_process);
-
-			// Did it end cleanly?
-			if (($rsyncResult != false) && ($rsyncResult == 0))
-			{
-				// It ended cleanly.
-				$status = true;
-				$this->_log($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_INDICATES_SUCCESS'));
-			}
-			else
-			{
-				$this->_log($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_INDICATES_FAILURE'));
-			}
 		}
 		else
 		{
 			$this->_log($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_PROC_OPEN_FAILED'));
 		}
 
-		RunHelper::markCompleted($theStep, JText::_('COM_EASYSTAGING_CLI_RSYNC_PROCESS_COMPLETED'));
-
-		return $status;
+		return $rsyncResult;
 	}
 
 	/**
@@ -429,7 +485,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 		$decoded_details = json_decode($theStep->action);
 
 		// Build our file path & file handle
-		$pathToExclusionsFile = $this->_get_run_directory() . '/' . $this->_excl_file_name();
+		$pathToExclusionsFile = $this->_get_run_directory() . '/' . $this->_excl_file_name($decoded_details->id);
 		$result = array(
 			'fileName' => $pathToExclusionsFile,
 		);
@@ -1572,6 +1628,10 @@ DEF;
 		return JPATH_COMPONENT_ADMINISTRATOR . '/syncfiles/';
 	}
 
+	private function _run_files_path()
+	{
+		return JPATH_COMPONENT_ADMINISTRATOR . '/syncfiles/' . $this->_get_run_directory();
+	}
 	/**
 	 * Returns the run directory name in the nominated syncfile directory, creating one if it doesn't already exist.
 	 *
@@ -1620,11 +1680,13 @@ DEF;
 	/**
 	 * Central pont for defining the name of the exclusions file for the rsync call, later this will use a preference setting.
 	 *
+	 * @param   int  $rsyncId  ID of the File Copy Action.
+	 *
 	 * @return string
 	 */
-	private function _excl_file_name()
+	private function _excl_file_name($rsyncId)
 	{
-		return ('plan-' . $this->_plan_id() . '-exclusions.txt');
+		return ('plan-' . $this->_plan_id() . '-' . $rsyncId . '-exclusions.txt');
 	}
 
 	/**

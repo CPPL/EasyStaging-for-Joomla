@@ -92,6 +92,8 @@ defined('_JEXEC') or die;
 						<?php echo JText::_('COM_EASYSTAGING_RSYNC_DIRECTION0_DESC'); ?></li>
 					<li><strong><?php echo JText::_('COM_EASYSTAGING_RSYNC_DIRECTION1') . ':'?></strong><br />
 						<?php echo JText::_('COM_EASYSTAGING_RSYNC_DIRECTION1_DESC'); ?></li>
+					<li><strong><?php echo JText::_('COM_EASYSTAGING_RSYNC_DIRECTION2') . ':'?></strong><br />
+						<?php echo JText::_('COM_EASYSTAGING_RSYNC_DIRECTION2_DESC'); ?></li>
 				</ul>
 			</li>
 			<li><strong><?php echo JText::_('COM_EASYSTAGING_NOTES_RSYNC_DIRECTORY_LABEL'); ?></strong>

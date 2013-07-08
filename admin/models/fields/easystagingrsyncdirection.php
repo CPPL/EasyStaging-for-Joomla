@@ -40,6 +40,7 @@ class JFormFieldEasyStagingRsyncDirection extends JFormFieldList
 		$actionChoices = array( );
 		$actionChoices[] = array('value' => 0, 'text' => JText::_('COM_EASYSTAGING_RSYNC_DIRECTION0'));
 		$actionChoices[] = array('value' => 1, 'text' => JText::_('COM_EASYSTAGING_RSYNC_DIRECTION1'));
+		$actionChoices[] = array('value' => 2, 'text' => JText::_('COM_EASYSTAGING_RSYNC_DIRECTION2'));
 
 		return $actionChoices;
 	}

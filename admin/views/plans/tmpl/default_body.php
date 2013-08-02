@@ -5,6 +5,8 @@ require_once JPATH_COMPONENT . '/helpers/plan.php';
 
 // User permissions
 $canDo	= PlanHelper::getActions();
+$user		= JFactory::getUser();
+$userId		= $user->get('id');
 
 foreach ($this->items as $i => &$row)
 {
@@ -12,12 +14,14 @@ foreach ($this->items as $i => &$row)
 	$checked = JHTML::_('grid.id', $i, $row->id);
 	$published = '';
 	$published = JHtml::_('jgrid.published', $row->published, $i, 'plans.', $canDo->get('core.edit.state'), 'cb', $row->publish_up, $row->publish_down);
+	$canCheckin	= $user->authorise('core.manage',		'com_checkin') || $row->checked_out == $userId || $row->checked_out == 0;
+	$canChange	= $user->authorise('core.edit.state',	'com_easystaging.plan.'.$row->id) && $canCheckin;
 
-	if ($canDo->get('core.edit'))
+	if ($canDo->get('core.edit') && $canCheckin && $canChange)
 	{
 		$plan = '<a href="' . JRoute::_('index.php?option=com_easystaging&task=plan.edit&id=' . $row->id) . '">' . $row->name . '</a>';
 	}
-	elseif ($canDo->get('easystaging.run'))
+	elseif ($canDo->get('easystaging.run') && !$row->checked_out && $row->published)
 	{
 		$plan = '<a href="' . JRoute::_('index.php?option=com_easystaging&task=plan.run&id=' . $row->id) . '">' . $row->name . '</a>';
 	}
@@ -29,6 +33,11 @@ foreach ($this->items as $i => &$row)
 	$last_run = ($row->last_run == '0000-00-00 00:00:00')
 		? JText::_('COM_EASYSTAGING_NOT_RUN')
 		: JText::sprintf('COM_EASYSTAGING_LAST_RUN', JHtml::_('date', $row->last_run, JText::_('DATE_FORMAT_LC1')));
+	if ($row->checked_out)
+	{
+		$plan = JHtml::_('jgrid.checkedout', $i, $row->editor, $row->checked_out_time, 'plans.', $canCheckin) . ' ' . $plan;
+	}
+
 
 ?>
 		<tr class="<?php echo 'row' . $i % 2; ?>">

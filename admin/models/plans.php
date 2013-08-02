@@ -18,6 +18,31 @@ jimport( 'joomla.application.component.modellist' );
 class EasyStagingModelPlans extends JModelList
 {
 	/**
+	 * Method to get an array of data items.
+	 *
+	 * @return  mixed  An array of data items on success, false on failure.
+	 *
+	 * @since   11.1
+	 */
+	public function getItems()
+	{
+		// Let the parent do the heavy lifting
+		$items = parent::getItems();
+
+		foreach ($items as &$item)
+		{
+			if($item->checked_out)
+			{
+				$editor = JFactory::getUser($item->checked_out);
+				$item->editor = JText::sprintf('COM_EASYSTAGING_PLANS_CHECKED_OUT_BY_X_AKA_Y', $editor->username, $editor->name);
+			}
+		}
+
+			// Return our items
+		return $items;
+	}
+
+	/**
 	 * Method to build an SQL query to load the list data.
 	 *
 	 * @return	string	An SQL query

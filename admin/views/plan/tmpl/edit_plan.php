@@ -7,7 +7,16 @@ defined('_JEXEC') or die;
 <legend><?php echo JText::_( 'COM_EASYSTAGING_PLAN_DETAILS' ); ?></legend>
 		<ul class="adminformlist">
 			<li><?php echo $this->form->getLabel('name'); ?> <?php echo $this->form->getInput('name'); ?></li>
-			<li><?php echo $this->form->getLabel('description'); ?> <?php echo $this->form->getInput('description'); ?></li>
+			<li><?php echo $this->form->getLabel('description'); ?> <?php
+				if(!$this->runOnly)
+				{
+					echo $this->form->getInput('description');
+				}
+				else
+				{
+					echo '<div class="fltlft">' . $this->form->getValue('description') . '</div>';
+				}
+				?></li>
 			<li><?php echo $this->form->getLabel('published'); ?> <?php echo $this->form->getInput('published'); ?></li>
 			<li><?php echo $this->form->getLabel('id'); ?> <?php echo $this->form->getInput('id'); ?></li>
 

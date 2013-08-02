@@ -182,6 +182,7 @@ JS;
 			$this->form->setFieldAttribute('name', 'readonly', 'true');
 			$this->form->setFieldAttribute('description', 'class', 'readonly');
 			$this->form->setFieldAttribute('description', 'disabled', 'true');
+			$this->form->setFieldAttribute('description', 'type', 'text');
 			$this->form->setFieldAttribute('published', 'class', 'readonly');
 			$this->form->setFieldAttribute('published', 'readonly', 'true');
 			$this->form->setFieldAttribute('publish_up', 'class', 'readonly');

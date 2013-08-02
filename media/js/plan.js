@@ -11,6 +11,7 @@ if (typeof(com_EasyStaging) === 'undefined')
         function () {
             cppl_tools.setUp('com_easystaging');
             var publishedStatus = $('jform_published').value;
+            var runOnlyMode = $('runOnlyMode').value;
 
             if(publishedStatus == 1)
             {
@@ -19,14 +20,17 @@ if (typeof(com_EasyStaging) === 'undefined')
                 $('startAll'  ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
             }
 
-            $('tableNamesFilter').addEvent('keyup', function (event) {setTimeout(com_EasyStaging.filterTableNames(), 0);})
-            $('tf-toggle').addEvent('click', function (event) {com_EasyStaging.toggleFilters();})
-            $('allTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(); } );
-            $('skippedTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(0); } );
-            $('notSkippedTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions('N'); } );
-            $('pushTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(1, 2); } );
-            $('ptpTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(3); } );
-            $('pullTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(4, 5, 6); } );
+            if(runOnlyMode != 1)
+            {
+                $('tableNamesFilter').addEvent('keyup', function (event) {setTimeout(com_EasyStaging.filterTableNames(), 0);})
+                $('tf-toggle').addEvent('click', function (event) {com_EasyStaging.toggleFilters();})
+                $('allTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(); } );
+                $('skippedTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(0); } );
+                $('notSkippedTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions('N'); } );
+                $('pushTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(1, 2); } );
+                $('ptpTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(3); } );
+                $('pullTablesFilter').addEvent('click', function (event) { com_EasyStaging.filterTableActions(4, 5, 6); } );
+            }
 
             // Just in case we want to copy the status ouput...
             $('currentStatus').addEvent('click',
@@ -42,6 +46,7 @@ if (typeof(com_EasyStaging) === 'undefined')
             );
             com_EasyStaging.setUp();
             com_EasyStaging.filterTableActions('N');
+            com_EasyStaging.runOnlyMode = runOnlyMode;
         }
     );
 

@@ -65,6 +65,7 @@ if (!$this->canDo->get('core.edit'))
 
 	<div>
 		<input type="hidden" id="id" name="id" value="<?php echo $this->form->getValue('id'); ?>">
+		<input type="hidden" id="runOnlyMode" value="<?php echo $this->runOnly; ?>">
 		<input type="hidden" name="task" value="plan.edit" />
 		<?php echo JHtml::_('form.token'); ?>
 	</div>

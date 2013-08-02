@@ -53,9 +53,13 @@ if (typeof(com_EasyStaging) === 'undefined')
 Joomla.submitbutton = function (task) {
 	if (task === 'plan.cancel' || document.formvalidator.isValid(document.id('easystaging-form')))
 	{
-		/* Trim file exclusions */
-		lfex = $('jform_localSite_file_exclusions');
-		lfex.value = lfex.value.trim();
+		if(task != 'plan.cancel')
+        {
+            /* Trim file exclusions */
+            lfex = $('jform_localSite_file_exclusions');
+            lfex.value = lfex.value.trim();
+        }
+
 		/* Call Joomla's submit */
 		Joomla.submitform(task, document.id('easystaging-form'));
 	}

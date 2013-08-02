@@ -31,6 +31,8 @@ class EasyStagingModelPlans extends JModelList
 
 		foreach ($items as &$item)
 		{
+			$item->lastRunDTS = JHtml::_('date.relative', $item->last_run);
+
 			if($item->checked_out)
 			{
 				$editor = JFactory::getUser($item->checked_out);

@@ -30,14 +30,28 @@ foreach ($this->items as $i => &$row)
 		$plan = $row->name;
 	}
 
-	$last_run = ($row->last_run == '0000-00-00 00:00:00')
-		? JText::_('COM_EASYSTAGING_NOT_RUN')
-		: JText::sprintf('COM_EASYSTAGING_LAST_RUN', JHtml::_('date', $row->last_run, JText::_('DATE_FORMAT_LC1')));
 	if ($row->checked_out)
 	{
 		$plan = JHtml::_('jgrid.checkedout', $i, $row->editor, $row->checked_out_time, 'plans.', $canCheckin) . ' ' . $plan;
 	}
 
+	$last_run = JHtml::_('date', $row->last_run, JText::_('DATE_FORMAT_LC1'));
+	if($row->last_run == '0000-00-00 00:00:00')
+	{
+		$last_run = JText::_('COM_EASYSTAGING_NOT_RUN');
+	}
+	else
+	{
+		if ($last_run != $row->lastRunDTS)
+		{
+			$relDate = ' (' . $row->lastRunDTS . ')';
+		}
+		else
+		{
+			$relDate = '';
+		}
+		$last_run = JText::sprintf('COM_EASYSTAGING_LAST_RUN', $last_run) . $relDate;
+	}
 
 ?>
 		<tr class="<?php echo 'row' . $i % 2; ?>">

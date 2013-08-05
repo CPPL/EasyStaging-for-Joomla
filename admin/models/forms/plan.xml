@@ -24,7 +24,7 @@
 				name="published"
 				type="list"
 				label="COM_EASYSTAGING_PUBLISHED_LABEL" description="COM_EASYSTAGING_PUBLISHED_DESC"
-				default="1"
+				default="0"
 			>
 				<option value="1">JPUBLISHED</option>
 				<option value="0">JUNPUBLISHED</option>

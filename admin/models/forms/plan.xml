@@ -148,7 +148,7 @@
 			<field
 				name="database_password"
 				label="COM_EASYSTAGING_LOCALSITE_DATABASE_PASSWORD" description="COM_EASYSTAGING_LOCALSITE_DATABASE_PASSWORD_DESC"
-				type="text"
+				type="password"
 				class="inputbox"
 				default=""
 			/>
@@ -227,7 +227,7 @@
 			<field
 				name="database_password"
 				label="COM_EASYSTAGING_REMOTESITE_DATABASE_PASSWORD" description="COM_EASYSTAGING_REMOTESITE_DATABASE_PASSWORD_DESC"
-				type="text"
+				type="password"
 				class="inputbox"
 				default=""
 			/>

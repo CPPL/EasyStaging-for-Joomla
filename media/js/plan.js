@@ -10,10 +10,10 @@ if (typeof(com_EasyStaging) === 'undefined')
 	window.addEvent('domready',
         function () {
             cppl_tools.setUp('com_easystaging');
-            var publishedStatus = $('jform_published').value;
+            var publishedStatus = ($('jform_published').value == 1);
             var runOnlyMode = $('runOnlyMode').value;
 
-            if(publishedStatus == 1)
+            if(publishedStatus)
             {
                 $('startFile' ).addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
                 $('startDBase').addEvent('click', function (event) { com_EasyStaging.start(event.target.id); } );
@@ -44,7 +44,7 @@ if (typeof(com_EasyStaging) === 'undefined')
                     lrs.innerHTML = com_EasyStaging.lrs + Joomla.JText._('COM_EASYSTAGING_JS_COPY_INSTRUCTIONS');
                 }
             );
-            com_EasyStaging.setUp();
+            com_EasyStaging.setUp(publishedStatus);
             com_EasyStaging.filterTableActions('N');
             com_EasyStaging.runOnlyMode = runOnlyMode;
         }
@@ -231,8 +231,9 @@ com_EasyStaging.runEnded = function (successfullRun)
      Old 1.0 series functions follow
      */
 
-com_EasyStaging.setUp = function ()
+com_EasyStaging.setUp = function (isPublished)
 {
+    isPublished = typeof(isPublished) !== 'undefined' ? isPublished : true;
 	this.currentStatusScroller = new Fx.Scroll($('currentStatus'));
 	this.last_response         = 0;
 	this.last_notification     = 0;
@@ -253,7 +254,7 @@ com_EasyStaging.setUp = function ()
     this.totalTables           = 0;
     this.tablesHidden          = 0;
 
-	if (cppl_tools.getID() == 0)
+	if (cppl_tools.getID() == 0 && isPublished)
 	{
         this.lockOutBtns(false);
     }

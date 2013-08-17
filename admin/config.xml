@@ -51,7 +51,7 @@
               description="COM_EASYSTAGING_SETTINGS_GLOBAL_ADVANCED_DESCR" >
         <field name="path_to_php"
                type="text"
-               default="/usr/bin/php"
+               default=""
                label="COM_EASYSTAGING_SETTINGS_GLOBAL_PATH_TO_PHP_LABEL"
                description="COM_EASYSTAGING_SETTINGS_GLOBAL_PATH_TO_PHP_DESCR" />
         <field name="background_timeout"

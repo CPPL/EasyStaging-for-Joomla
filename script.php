@@ -173,18 +173,32 @@ class com_EasyStagingInstallerScript
 	 */
 	public function postflight($type, $parent)
 	{
-		/* Always create or modify these parameters
-		$params['my_param0'] = 'Component version ' . $this->release;
-		$params['my_param1'] = 'Another value';
+		/* Get the current path to PHP */
+		$pathToPHP = $this->getExistingParam('path_to_php','');
 
-		/* Define the following parameters only if it is an original install
-		if ($type == 'install') {
-			$params['my_param2'] = '4';
-			$params['my_param3'] = 'Star';
+		/* Get the PHP executable */
+		if (($type == 'install') || ($type == 'update' && empty($pathToPHP)))
+		{
+			if((version_compare(phpversion(), '5.4.0')) >= 0)
+			{
+				$pathToPHP = PHP_BINARY;
+			}
+			else
+			{
+				if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+				{
+					$pathToPHP = '';
+				}
+				else
+				{
+					$pathToPHP = `which php`;
+				}
+			}
+
+			$params['path_to_php'] = $pathToPHP;
 		}
 
 		$this->setParams($params);
-		*/
 
 		echo '<p>' . JText::sprintf('COM_EASYSTAGING_INSTALLER_POSTFLIGHT_' . strtoupper($type) . '_VERSION_X', $this->release) . '</p>';
 	}
@@ -198,6 +212,7 @@ class com_EasyStagingInstallerScript
 	 */
 	public function uninstall($parent)
 	{
+		// Get our version data
 		$relVer = explode(' ', $parent->get("manifest")->version);
 		$this->release = $relVer[0];
 
@@ -235,16 +250,46 @@ class com_EasyStagingInstallerScript
 	 *
 	 * @return mixed
 	 */
-	public function getParam($name)
+	private function getParam($name)
 	{
 		$db = JFactory::getDbo();
 		$query = $db->getQuery(true);
 		$query->select($db->quoteName('manifest_cache'))->from($db->quoteName('#__extensions'));
-		$query->where($db->quoteName('name') . ' = ' . $db->quote($this->extension));
+		$query->where($db->quoteName('name') . ' = ' . $db->quote($this->ext_name));
 		$db->setQuery($query);
 		$manifest = json_decode($db->loadResult(), true);
 
 		return $manifest[ $name ];
+	}
+
+	/**
+	 * Gets parameter values in the component's row of the extension table
+	 *
+	 * @param   array  $name  The name of the specific
+	 *
+	 * @return  mixed | null
+	 */
+	private function getExistingParam($name)
+	{
+		$result = null;
+
+		if (!empty($name))
+		{
+			// Read the existing component value(s)
+			$db = JFactory::getDbo();
+			$query = $db->getQuery(true);
+			$query->select($db->quoteName('params'))->from($db->quoteName('#__extensions'));
+			$query->where($db->quoteName('name') . ' = ' . $db->quote($this->ext_name));
+			$db->setQuery($query);
+
+			if($params = json_decode($db->loadResult(), true)){
+				if(isset($params[$name]))
+				{
+					$result = $params[$name];
+				}
+			}
+		}
+		return $result;
 	}
 
 	/**
@@ -262,7 +307,7 @@ class com_EasyStagingInstallerScript
 			$db = JFactory::getDbo();
 			$query = $db->getQuery(true);
 			$query->select($db->quoteName('params'))->from($db->quoteName('#__extensions'));
-			$query->where($db->quoteName('name') . ' = ' . $db->quote($this->extension));
+			$query->where($db->quoteName('name') . ' = ' . $db->quote($this->ext_name));
 			$db->setQuery($query);
 
 			$params = json_decode($db->loadResult(), true);
@@ -276,7 +321,7 @@ class com_EasyStagingInstallerScript
 			// Store the combined new and existing values back as a JSON string
 			$paramsString = json_encode($params);
 			$query = $db->getQuery(true);
-			$query->update($db->quoteName('#__extensions'))->where($db->quoteName('name') . ' = ' . $db->quote($this->extension));
+			$query->update($db->quoteName('#__extensions'))->where($db->quoteName('name') . ' = ' . $db->quote($this->ext_name));
 			$query->set($db->quoteName('params') . ' = ' . $db->quote($paramsString));
 			$db->setQuery($query);
 			$db->query();

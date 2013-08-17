@@ -201,7 +201,30 @@ class com_EasyStagingInstallerScript
 		$relVer = explode(' ', $parent->get("manifest")->version);
 		$this->release = $relVer[0];
 
-		echo '<p>' . JText::sprintf('COM_EASYSTAGING_INSTALLER_UNINSTALL_VERSION_X', $this->release) . '</p>';
+		// Check we have a CLI directory
+		$cli_dir = JPATH_ROOT . '/cli';
+
+		// Start our messages list
+		echo '<ul>';
+
+		if (is_dir($cli_dir))
+		{
+			$targetFile = $cli_dir . '/easystaging_plan_runner.php';
+			if(JFile::delete($targetFile))
+			{
+				echo '<li>' . JText::_('COM_EASYSTAGING_INSTALLER_UNINSTALL_CLI_REMOVED') . '</li>';
+			}
+			else
+			{
+				echo '<li>' . JText::_('COM_EASYSTAGING_INSTALLER_UNINSTALL_CLI_REMOVE_FAILED') . '</li>';
+			}
+		}
+
+		echo '<li>' . JText::sprintf('COM_EASYSTAGING_INSTALLER_UNINSTALL_VERSION_X', $this->release) . '</li>';
+
+		// Close our messages list
+		echo '<ul>';
+		// Say goodbye
 		echo JText::_('COM_EASYSTAGING_INSTALLER_UNINSTALL_FAREWELL');
 	}
 

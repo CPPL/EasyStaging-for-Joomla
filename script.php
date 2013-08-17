@@ -202,6 +202,7 @@ class com_EasyStagingInstallerScript
 		$this->release = $relVer[0];
 
 		echo '<p>' . JText::sprintf('COM_EASYSTAGING_INSTALLER_UNINSTALL_VERSION_X', $this->release) . '</p>';
+		echo JText::_('COM_EASYSTAGING_INSTALLER_UNINSTALL_FAREWELL');
 	}
 
 	/**

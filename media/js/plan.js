@@ -491,8 +491,6 @@ com_EasyStaging.toggleFilters = function()
     {
         filtersDIV.removeClass('open');
     }
-
-    filtersDIV.morph(newClassToApply);
 }
 
 

@@ -815,7 +815,8 @@ class EasyStagingControllerPlan extends JController
 	 */
 	private function _runScriptInBackground($pathToScript)
 	{
-		$cmdPath = "/usr/bin/php -q $pathToScript";
+		$pathToPHP = $this->params->get('path_to_php','');
+		$cmdPath = $pathToPHP . ' -q ' . $pathToScript;
 
 		// We need '2>&1' so we have something to pass back
 		$cmd     = 'echo "' . $cmdPath . '" | at now 2>&1';

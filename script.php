@@ -198,6 +198,9 @@ class com_EasyStagingInstallerScript
 	 */
 	public function uninstall($parent)
 	{
+		$relVer = explode(' ', $parent->get("manifest")->version);
+		$this->release = $relVer[0];
+
 		echo '<p>' . JText::sprintf('COM_EASYSTAGING_INSTALLER_UNINSTALL_VERSION_X', $this->release) . '</p>';
 	}
 

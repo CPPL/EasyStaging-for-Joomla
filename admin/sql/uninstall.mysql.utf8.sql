@@ -8,4 +8,4 @@ DROP TABLE IF EXISTS `#__easystaging_tables`;
 
 DROP TABLE IF EXISTS `#__easystaging_upshot`;
 
-DROP TABLE IF EXISTS `#_easystaging_rsyncs`;
+DROP TABLE IF EXISTS `#__easystaging_rsyncs`;

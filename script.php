@@ -196,9 +196,9 @@ class com_EasyStagingInstallerScript
 			}
 
 			$params['path_to_php'] = $pathToPHP;
-		}
 
-		$this->setParams($params);
+			$this->setParams($params);
+		}
 
 		echo '<p>' . JText::sprintf('COM_EASYSTAGING_INSTALLER_POSTFLIGHT_' . strtoupper($type) . '_VERSION_X', $this->release) . '</p>';
 	}

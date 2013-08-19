@@ -815,11 +815,22 @@ class EasyStagingControllerPlan extends JController
 	 */
 	private function _runScriptInBackground($pathToScript)
 	{
+		// Get the path to php from defined settings
 		$pathToPHP = $this->params->get('path_to_php','');
 		$cmdPath = $pathToPHP . ' -q ' . $pathToScript;
 
-		// We need '2>&1' so we have something to pass back
-		$cmd     = 'echo "' . $cmdPath . '" | at now 2>&1';
+		// Which way are we going to launch this?
+		$run_script_with = $this->params->get('run_script_with','at');
+
+		if($run_script_with == 'at')
+		{
+			// We need '2>&1' so we have something to pass back
+			$cmd = sprintf('echo "%s" | at now 2>&1', $cmdPath);
+		}
+		else
+		{
+			$cmd = sprintf('%s 2>&1 &', $cmdPath);
+		}
 		$result = shell_exec($cmd);
 
 		return $result;

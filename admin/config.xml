@@ -54,6 +54,16 @@
                default=""
                label="COM_EASYSTAGING_SETTINGS_GLOBAL_PATH_TO_PHP_LABEL"
                description="COM_EASYSTAGING_SETTINGS_GLOBAL_PATH_TO_PHP_DESCR" />
+        <field
+        		name="run_script_with"
+        		type="list"
+        		label="COM_EASYSTAGING_SETTINGS_GLOBAL_RUN_SCRIPT_WITH_LABEL"
+        		description="COM_EASYSTAGING_SETTINGS_GLOBAL_RUN_SCRIPT_WITH_DESC"
+        		default="AT"
+			>
+				<option value="AT">COM_EASYSTAGING_SETTINGS_GLOBAL_RUN_SCRIPT_WITH_AT</option>
+				<option value="DIRECT">COM_EASYSTAGING_SETTINGS_GLOBAL_RUN_SCRIPT_DIRECT</option>
+		</field>
         <field name="background_timeout"
                type="text"
                default="2"

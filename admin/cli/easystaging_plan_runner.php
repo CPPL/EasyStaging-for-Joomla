@@ -496,12 +496,15 @@ class EasyStaging_PlanRunner extends JApplicationCli
 			// Create the content for our exclusions file
 			$defaultExclusions = <<< DEF
 - com_easystaging/
-- /administrator/language/en-GB/en-GB.com_easystaging.ini
-- /tmp/
-- /logs/
-- /cache/
-- /administrator/cache/
 - /configuration.php
+- /administrator/.htaccess
+- /administrator/cache/
+- /administrator/language/en-GB/en-GB.com_easystaging.ini
+- /administrator/language/en-GB/en-GB.com_easystaging.sys.ini
+- /cache/
+- /cli/easystaging_plan_runner.php
+- /logs/
+- /tmp/
 - /.htaccess
 - .DS_Store
 

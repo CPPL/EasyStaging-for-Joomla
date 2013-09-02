@@ -224,6 +224,9 @@ com_EasyStaging.runEnded = function (successfullRun)
         this.setLastRunStatus();
     }
 
+    window.clearTimeout(com_EasyStaging.statusTimeout);
+    this.statusTimeout = null;
+
     this.notWaiting();
     this.enableBtns();
 }

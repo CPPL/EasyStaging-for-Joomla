@@ -820,9 +820,9 @@ class EasyStagingControllerPlan extends JController
 		$cmdPath = $pathToPHP . ' -q ' . $pathToScript;
 
 		// Which way are we going to launch this?
-		$run_script_with = $this->params->get('run_script_with','at');
+		$run_script_with = $this->params->get('run_script_with','AT');
 
-		if($run_script_with == 'at')
+		if($run_script_with == 'AT')
 		{
 			// We need '2>&1' so we have something to pass back
 			$cmd = sprintf('echo "%s" | at now 2>&1', $cmdPath);

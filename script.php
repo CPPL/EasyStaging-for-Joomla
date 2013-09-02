@@ -76,7 +76,7 @@ class com_EasyStagingInstallerScript
 		if ($type == 'update' && $preFlightOK)
 		{
 			$oldRelease = explode(' ', $this->getParam('version'));
-			$rel = $oldRelease[0] . ' to ' . $this->release;
+			$rel = JText::sprintf('COM_EASYSTAGING_INSTALLER_REL_X_TO_Y',$oldRelease[0], $this->release);
 
 			if (version_compare($this->release, $oldRelease[0], '<'))
 			{

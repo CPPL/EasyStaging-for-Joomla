@@ -231,8 +231,11 @@ class EasyStagingControllerPlan extends JController
 					if ($response['status'])
 					{
 						// Finally we launch our server side cli app
-						$runnerPath=JPATH_SITE . '/cli/easystaging_plan_runner.php --runticket=' . $runticket;
-						$ok = $this->_runScriptInBackground($runnerPath);
+						$cmdPath = JPATH_SITE . '/cli/easystaging_plan_runner.php --runticket=' . $runticket;
+						$runSIBResult = $this->_runScriptInBackground($cmdPath);
+						$runnerCMD=$runSIBResult['cmd'];
+						$ok = $runSIBResult['status'];
+						$output = $runSIBResult['output'];
 
 						if ($ok)
 						{
@@ -242,15 +245,17 @@ class EasyStagingControllerPlan extends JController
 							}
 							else
 							{
-								$resultText = JText::sprintf('COM_EASYSTAGING_PLAN_RUNNER_LAUNCHED_X', $runnerPath);
+								$resultText = JText::sprintf('COM_EASYSTAGING_PLAN_RUNNER_LAUNCHED_X_Y_Z', $runnerCMD, $ok, implode('|',$output));
 							}
 							$steps[] = array('action_type' => 99, 'result_text' => $resultText);
 						}
 						else
 						{
 							// Oh no couldn't launch the Plan Runner
+							$lastline = $runSIBResult['lastline'];
+							$cmdPath = $runSIBResult['cmdpath'];
 							$response['status'] = 0;
-							$response['error']  = JText::_('COM_EASYSTAGING_PLAN_RUNNER_LAUNCH_FAILED');
+							$response['error']  = JText::sprintf('COM_EASYSTAGING_PLAN_RUNNER_LAUNCH_FAILED_X_Y_Z', $ok, implode('|',$output), $lastline, $runnerCMD, $cmdPath, $runticket);
 
 							// Set the plan back to published
 							$thePlan->published = self::PUBLISHED;
@@ -846,7 +851,27 @@ class EasyStagingControllerPlan extends JController
 		{
 			$cmd = sprintf('%s 2>&1 &', $cmdPath);
 		}
-		$result = shell_exec($cmd);
+
+		/**
+		 * On some versions of PHP if you don't define $output and $returnValue before hand
+		 * the exec() call will not give you output or return values (even if the damm examples
+		 * say otherwise on php.net)
+		 */
+		$output = array();
+		$returnValue = '';
+		$lastLine = exec($cmd, $output, $returnValue);
+
+		if(($run_script_with == 'AT') && ($returnValue == 0))
+		{
+			// All good anything else is bad
+			$returnValue = true;
+		}
+		elseif($run_script_with == 'AT')
+		{
+			$returnValue = false;
+		}
+
+		$result = array('cmd' => $cmd, 'cmdpath' => $cmdPath, 'status' => $returnValue, 'output' => $output, 'lastline' => $lastLine);
 
 		return $result;
 	}

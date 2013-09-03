@@ -881,7 +881,7 @@ class EasyStagingControllerPlan extends JController
 
 		if(JDEBUG)
 		{
-			JLog::add('Last Line: ' . $lastline, JLog::WARNING);
+			JLog::add('Last Line: ' . $lastLine, JLog::WARNING);
 			JLog::add('Return Value: ' . $returnValue, JLog::WARNING);
 			JLog::add('Output: ' . print_r($output, true), JLog::WARNING);
 		}

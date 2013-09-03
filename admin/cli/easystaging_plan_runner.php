@@ -44,6 +44,8 @@ require_once JPATH_CONFIGURATION . '/configuration.php';
 
 // Set the root path to EasyStaging
 define('JPATH_COMPONENT_ADMINISTRATOR', JPATH_ADMINISTRATOR . '/components/com_easystaging');
+_write_pr_log('JPATH_COMPONENT_ADMINISTRATOR: ' . JPATH_COMPONENT_ADMINISTRATOR);
+_write_pr_log(print_r($argv, true));
 
 // Load our run helper
 if (file_exists(JPATH_COMPONENT_ADMINISTRATOR . '/helpers/run.php'))
@@ -54,6 +56,18 @@ else
 {
 	die("EasyStaging isn't installed correctly.");
 }
+
+/**
+ * A basic function to dump out details if everything goes wrong.
+ */
+ function _write_pr_log($log)
+ {
+	$logWriteResult = false;
+ 	$prlogfilepath = JPATH_COMPONENT_ADMINISTRATOR . '/syncfiles/planrunner.txt';
+	$prlogfile = fopen($prlogfilepath, 'ab');
+
+	$logWriteResult = fwrite($prlogfile, $log . "\n");
+ }
 
 /**
  * This script will load the specified plan steps that remaining and execute them.
@@ -222,13 +236,14 @@ class EasyStaging_PlanRunner extends JApplicationCli
 		}
 
 		// Ok, we're under way...
-		$this->out('Plan Runner loaded...');
+		_write_pr_log('Plan Runner loaded...');
+		_write_pr_log('Path to EasyStaing: ' . JPATH_COMPONENT_ADMINISTRATOR);
 
 
 		// Lets load any steps for the nominated plan run
 		if ($this->runticket == '')
 		{
-			$this->out('No run ticket provided.');
+			_write_pr_log('No run ticket provided.');
 		}
 		else
 		{
@@ -299,13 +314,13 @@ class EasyStaging_PlanRunner extends JApplicationCli
 					else
 					{
 						// Else we simply exit.
-						$this->out('No steps found.');
+						_write_pr_log('No steps found.');
 					}
 				}
 				else
 				{
 					// Time to go boom!
-					$this->out('Couldn\'t get local/remote site details.' );
+					_write_pr_log('Couldn\'t get local/remote site details.' );
 				}
 			}
 		}
@@ -1625,6 +1640,10 @@ DEF;
 				// 'ab' has 'b' for windows :D
 				$logWriteResult = fwrite($this->logFile, $logLine . "\n");
 			}
+		}
+		else
+		{
+			$logWriteResult = _write_pr_log($logLine);
 		}
 
 		return $logWriteResult;

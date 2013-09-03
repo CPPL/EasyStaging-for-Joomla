@@ -1625,7 +1625,7 @@ DEF;
 		$logWriteResult = false;
 		$runDirectory = RunHelper::get_run_directory($this->runticket);
 
-		if (!is_array($runDirectory))
+		if (!is_array($runDirectory) && $this->runticket)
 		{
 			if (!isset($this->logFile) || ($this->logFile === false))
 			{

@@ -212,10 +212,17 @@ class EasyStaging_PlanRunner extends JApplicationCli
 		// Let Joomla know where to look for JTables
 		JTable::addIncludePath(JPATH_COMPONENT_ADMINISTRATOR . '/tables');
 
+		// Get our runticket
+		$this->runticket = $this->input->getCmd('runticket', '', 'string');
+		if(!$this->runticket)
+		{
+			// Joomla failed lets try a more robust approach
+			$this->runticket = $this->getOption('runticket', '');
+		}
+
 		// Ok, we're under way...
 		$this->out('Plan Runner loaded...');
 
-		$this->runticket = $this->input->getCmd('runticket', '', 'string');
 
 		// Lets load any steps for the nominated plan run
 		if ($this->runticket == '')

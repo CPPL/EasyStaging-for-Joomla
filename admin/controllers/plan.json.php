@@ -829,6 +829,12 @@ class EasyStagingControllerPlan extends JController
 	 */
 	private function _runScriptInBackground($pathToScript)
 	{
+		if(JDEBUG)
+		{
+			jimport('joomla.log.log');
+			JLog::addLogger(array('text_file' => 'com_easystaging.log.php'), JLog::ALL, 'com_easystaging');
+		}
+
 		// Get the path to php from defined settings
 		$php_quiet = $this->params->get('php_quiet','');
 		$php_file = $this->params->get('php_file','');
@@ -838,6 +844,11 @@ class EasyStagingControllerPlan extends JController
 		$cmdPath .= $php_quiet ? ' ' . $php_quiet : '';
 		$cmdPath .= $php_file ? ' ' . $php_quiet : '';
 		$cmdPath .= ' ' . $pathToScript;
+
+		if(JDEBUG)
+		{
+			JLog::add('CmdPath: ' . $cmdPath, JLog::WARNING);
+		}
 
 		// Which way are we going to launch this?
 		$run_script_with = $this->params->get('run_script_with','AT');
@@ -852,6 +863,11 @@ class EasyStagingControllerPlan extends JController
 			$cmd = sprintf('%s 2>&1 &', $cmdPath);
 		}
 
+		if(JDEBUG)
+		{
+			JLog::add('Cmd: ' . $cmd, JLog::WARNING);
+		}
+
 		/**
 		 * On some versions of PHP if you don't define $output and $returnValue before hand
 		 * the exec() call will not give you output or return values (even if the damm examples
@@ -861,6 +877,13 @@ class EasyStagingControllerPlan extends JController
 		$returnValue = '';
 		$lastLine = exec($cmd, $output, $returnValue);
 
+		if(JDEBUG)
+		{
+			JLog::add('Last Line: ' . $lastline, JLog::WARNING);
+			JLog::add('Return Value: ' . $returnValue, JLog::WARNING);
+			JLog::add('Output: ' . print_r($output, true), JLog::WARNING);
+		}
+		
 		if(($run_script_with == 'AT') && ($returnValue == 0))
 		{
 			// All good anything else is bad

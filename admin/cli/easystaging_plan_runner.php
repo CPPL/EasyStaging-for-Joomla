@@ -11,7 +11,8 @@
  */
 
 // Make sure we're being called from the command line, not a web interface
-if (array_key_exists('REQUEST_METHOD', $_SERVER)) die("Direct Web Request refused");
+// if (array_key_exists('REQUEST_METHOD', $_SERVER)) die("Direct Web Request refused");
+// So, it turns out that on badly setup CentOS servers at hosts that aren't that cluey this check will fail when a php-cli is setup for setups using fcgi
 
 // Set flag that this is a parent file.
 define('_JEXEC', 1);

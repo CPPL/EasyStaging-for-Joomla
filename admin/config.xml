@@ -70,6 +70,14 @@
         	<option value="-f">JYES</option>
          	<option value="">JNO</option>
          </field>
+        <field name="php_out_captured"
+               label="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_OUT_CAPTURED_LABEL"
+               description="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_OUT_CAPTURED_DESC"
+               type="radio"
+                >
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
         <field
         		name="run_script_with"
         		type="list"

@@ -839,6 +839,7 @@ class EasyStagingControllerPlan extends JController
 		$php_quiet = $this->params->get('php_quiet','');
 		$php_file = $this->params->get('php_file','');
 		$pathToPHP = $this->params->get('path_to_php','');
+		$capture_PHP_out_from_AT = $this->params->get('php_out_captured',0);
 
 		$cmdPath = $pathToPHP;
 		$cmdPath .= $php_quiet ? ' ' . $php_quiet : '';
@@ -855,8 +856,9 @@ class EasyStagingControllerPlan extends JController
 
 		if($run_script_with == 'AT')
 		{
+			$cap_php_out = $capture_PHP_out_from_AT ? " > components/com_easystaging/syncfiles/pr.log.txt" : "";
 			// We need '2>&1' so we have something to pass back
-			$cmd = sprintf('echo "%s" | at now 2>&1', $cmdPath);
+			$cmd = sprintf('echo "%s' . $cap_php_out . '" | at now 2>&1', $cmdPath);
 		}
 		else
 		{

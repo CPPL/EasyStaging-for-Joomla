@@ -887,7 +887,7 @@ class EasyStagingControllerPlan extends JController
 		if(($run_script_with == 'AT') && ($returnValue == 0))
 		{
 			// All good anything else is bad
-			$returnValue = true;
+			$returnValue = $output[0];
 		}
 		elseif($run_script_with == 'AT')
 		{

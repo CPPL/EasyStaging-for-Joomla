@@ -825,8 +825,14 @@ class EasyStagingControllerPlan extends JController
 	private function _runScriptInBackground($pathToScript)
 	{
 		// Get the path to php from defined settings
+		$php_quiet = $this->params->get('php_quiet','');
+		$php_file = $this->params->get('php_file','');
 		$pathToPHP = $this->params->get('path_to_php','');
-		$cmdPath = $pathToPHP . ' -q ' . $pathToScript;
+
+		$cmdPath = $pathToPHP;
+		$cmdPath .= $php_quiet ? ' ' . $php_quiet : '';
+		$cmdPath .= $php_file ? ' ' . $php_quiet : '';
+		$cmdPath .= ' ' . $pathToScript;
 
 		// Which way are we going to launch this?
 		$run_script_with = $this->params->get('run_script_with','AT');

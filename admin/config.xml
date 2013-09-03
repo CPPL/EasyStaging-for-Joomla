@@ -54,6 +54,22 @@
                default=""
                label="COM_EASYSTAGING_SETTINGS_GLOBAL_PATH_TO_PHP_LABEL"
                description="COM_EASYSTAGING_SETTINGS_GLOBAL_PATH_TO_PHP_DESCR" />
+        <field name="php_quiet"
+        	label="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_QUIET_LABEL"
+        	description="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_QUIET_DESC"
+        	type="radio"
+        >
+        	<option value="-q">JYES</option>
+         	<option value="">JNO</option>
+         </field>
+        <field name="php_file"
+        	label="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_FILE_LABEL"
+        	description="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_FILE_DESC"
+        	type="radio"
+        >
+        	<option value="-f">JYES</option>
+         	<option value="">JNO</option>
+         </field>
         <field
         		name="run_script_with"
         		type="list"

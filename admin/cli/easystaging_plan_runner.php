@@ -512,6 +512,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 - /cache/
 - /cli/easystaging_plan_runner.php
 - /logs/
+- /media/com_easystaging
 - /tmp/
 - /.htaccess
 - .DS_Store

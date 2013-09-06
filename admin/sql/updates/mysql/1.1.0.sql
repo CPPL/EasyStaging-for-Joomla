@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS `#__easystaging_upshot`
+DROP TABLE IF EXISTS `#__easystaging_upshot`;
 
 CREATE TABLE IF NOT EXISTS `#__easystaging_steps` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

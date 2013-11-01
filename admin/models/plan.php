@@ -533,7 +533,7 @@ class EasyStagingModelPlan extends JModelAdmin
 		
 		
 		// Find any tables that no longer exist on the local server
-		$removedTables = array_diff_assoc($existingTables, $localTables);
+		$removedTables = array_diff_key($existingTables, $localTables);
 		if (count($removedTables))
 		{
 			// Trim the tables no longer available from the array
@@ -550,7 +550,7 @@ class EasyStagingModelPlan extends JModelAdmin
 		}
 		
 		// Find any new tables
-		$newTables = array_diff_assoc($localTables, $existingTables);
+		$newTables = array_diff_key($localTables, $existingTables);
 		if (count($newTables))
 		{
 			$existingTables = array_merge($existingTables, $newTables);

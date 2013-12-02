@@ -59,14 +59,16 @@ else
 
 /**
  * A basic function to dump out details if everything goes wrong.
+ *
+ * @param string $log String to write
  */
- function _write_pr_log($log)
+function _write_pr_log($log)
  {
-	$logWriteResult = false;
- 	$prlogfilepath = JPATH_COMPONENT_ADMINISTRATOR . '/syncfiles/planrunner.txt';
+	$prlogfilepath = JPATH_COMPONENT_ADMINISTRATOR . '/syncfiles/planrunner.txt';
 	$prlogfile = fopen($prlogfilepath, 'ab');
 
 	$logWriteResult = fwrite($prlogfile, $log . "\n");
+	return $logWriteResult;
  }
 
 /**
@@ -161,16 +163,22 @@ class EasyStaging_PlanRunner extends JApplicationCli
 	 */
 	// Skip this Table
 	const TABLE_DONT_COPY_IGNORE  = 10;
+
 	// Copy to Live
 	const TABLE_COPY_2_LIVE_ONLY  = 11;
+
 	// Copy to Live, Only if not found.
 	const TABLE_COPY_IF_NOT_FND   = 12;
+
 	// Copy to Live, After Merge From Live
 	const TABLE_MERGE_BACK_COPY   = 13;
+
 	// Copy From Live (merges with existing)
 	const TABLE_MERGE_BACK_ONLY   = 14;
+
 	// Move From Live (merges with existing)
 	const TABLE_MERGE_BACK_CLEAN  = 15;
+
 	// Replace With Live (REPLACES existing with remote)
 	const TABLE_COPY_BACK_REPLACE = 16;
 
@@ -229,7 +237,8 @@ class EasyStaging_PlanRunner extends JApplicationCli
 
 		// Get our runticket
 		$this->runticket = $this->input->getCmd('runticket', '', 'string');
-		if(!$this->runticket)
+
+		if (!$this->runticket)
 		{
 			// Joomla failed lets try a more robust approach
 			$this->runticket = $this->getOption('runticket', '');
@@ -320,7 +329,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 				else
 				{
 					// Time to go boom!
-					_write_pr_log('Couldn\'t get local/remote site details.' );
+					_write_pr_log('Couldn\'t get local/remote site details.');
 				}
 			}
 		}
@@ -375,6 +384,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 
 		// First we add the rsync options
 		$rsyncAction = $theStep->action_type;
+
 		if (($rsyncAction == self::RSYNC_PULL) || ($rsyncAction == self::RSYNC_PUSH))
 		{
 			$rsyncCmd = 'rsync ' . $details->rsync_options;
@@ -394,7 +404,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 			$rsyncCmd .= ' --exclude-from=' . $filename;
 
 			// Figure out our source site
-			if($rsyncAction == self::RSYNC_PUSH)
+			if ($rsyncAction == self::RSYNC_PUSH)
 			{
 				$source_path = $details->local_site_path . $details->source_path;
 				$target_path = $details->remote_site_path . $details->target_path;
@@ -415,6 +425,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 			$this->_log($theStep, JText::sprintf('COM_EASYSTAGING_CLI_RSYNC_CMD_X_Y', $details->label, $rsyncCmd));
 
 			$rsyncResult = $this->runRsyncCmd($rsyncCmd, $theStep);
+
 			// Did it end cleanly?
 			if (($rsyncResult != false) && ($rsyncResult == 0))
 			{
@@ -426,6 +437,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 				if ($rsyncAction == self::RSYNC_CLEAR)
 				{
 					$this->_log($theStep, JText::sprintf('COM_EASYSTAGING_CLI_RSYNC_CLEAN_X', $details->label));
+
 					// We make an empty directory
 					$emptyDir = $this->_run_files_path() . '/empty';
 					mkdir($emptyDir, 0777, true);
@@ -452,6 +464,15 @@ class EasyStaging_PlanRunner extends JApplicationCli
 	}
 
 
+	/**
+	 * Executes the rsync command after paths and exlusions have been built, returning output to the _log.
+	 *
+	 * @param   string  $rsyncCmd  The rsync cmd string.
+	 *
+	 * @param   object  $theStep   The step that's being executed.
+	 *
+	 * @return bool|mixed
+	 */
 	private function runRsyncCmd($rsyncCmd, $theStep)
 	{
 		// Assume failure
@@ -929,7 +950,15 @@ DEF;
 				}
 				else
 				{
-					$this->_log($step, JText::sprintf('COM_EASYSTAGING_CLI_MERGE_BACK_RETREIVED_X_RECORDS_STARTING_AT_Y_FROM_Z', $rowsRetreived, $start, $srcTableName));
+					$this->_log(
+						$step,
+						JText::sprintf(
+							'COM_EASYSTAGING_CLI_MERGE_BACK_RETREIVED_X_RECORDS_STARTING_AT_Y_FROM_Z',
+							$rowsRetreived,
+							$start,
+							$srcTableName
+						)
+					);
 				}
 
 				// Increment starting point for next block of rows

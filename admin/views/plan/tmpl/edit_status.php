@@ -21,11 +21,11 @@ defined('_JEXEC') or die('Restricted Access');
 		{
 			echo JText::_('COM_EASYSTAGING_NOT_RUN_LONG');
 		}
-		elseif($this->item->published)
+		elseif ($this->item->published)
 		{
 			echo JText::sprintf('COM_EASYSTAGING_LAST_RUN', JFactory::getDate($last_run)->format(JText::_('DATE_FORMAT_LC2'), true));
 		}
-		elseif(!$this->item->published)
+		elseif (!$this->item->published)
 		{
 			echo JText::_('COM_EASYSTAGING_CANT_RUN_NOT_PUBLSIHED');
 		}

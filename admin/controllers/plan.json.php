@@ -829,24 +829,24 @@ class EasyStagingControllerPlan extends JController
 	 */
 	private function _runScriptInBackground($pathToScript)
 	{
-		if(JDEBUG)
+		if (JDEBUG)
 		{
 			jimport('joomla.log.log');
 			JLog::addLogger(array('text_file' => 'com_easystaging.log.php'), JLog::ALL, 'com_easystaging');
 		}
 
 		// Get the path to php from defined settings
-		$php_quiet = $this->params->get('php_quiet','');
-		$php_file = $this->params->get('php_file','');
-		$pathToPHP = $this->params->get('path_to_php','');
-		$capture_PHP_out_from_AT = $this->params->get('php_out_captured',0);
+		$php_quiet = $this->params->get('php_quiet', '');
+		$php_file = $this->params->get('php_file', '');
+		$pathToPHP = $this->params->get('path_to_php', '');
+		$capture_PHP_out_from_AT = $this->params->get('php_out_captured', 0);
 
 		$cmdPath = $pathToPHP;
 		$cmdPath .= $php_quiet ? ' ' . $php_quiet : '';
 		$cmdPath .= $php_file ? ' ' . $php_quiet : '';
 		$cmdPath .= ' ' . $pathToScript;
 
-		if(JDEBUG)
+		if (JDEBUG)
 		{
 			JLog::add('CmdPath: ' . $cmdPath, JLog::WARNING);
 		}

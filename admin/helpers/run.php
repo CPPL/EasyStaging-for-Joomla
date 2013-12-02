@@ -286,6 +286,7 @@ class RunHelper
 			$result['status'] = 0;
 			$result['msg'] = JText::_('COM_EASYSTAGING_PLAN_JSON_NO_VALID_RUN_TICKET_1');
 		}
+
 		return $result;
 	}
 
@@ -435,6 +436,7 @@ class RunHelper
 			{
 				continue;
 			}
+
 			if (is_dir("$directory/$file"))
 			{
 				self::remove_this_directory("$directory/$file");
@@ -444,6 +446,7 @@ class RunHelper
 				unlink("$directory/$file");
 			}
 		}
+
 		rmdir($directory);
 	}
 
@@ -471,15 +474,15 @@ class RunHelper
 		 */
 		$query = sprintf(
 			$tableSizeQueryTemplate,
-			$db->quoteName('DATA_LENGTH'),                // 1
-			$db->quoteName('INDEX_LENGTH'),               // 2
-			$db->quoteName('table_size'),                 // 3
-			$db->quoteName('AVG_ROW_LENGTH'),             // 4
-			$db->quoteName('information_schema.TABLES'),  // 5
-			$db->quoteName('table_schema'),               // 6
-			$db->quote($dbName),                          // 7
-			$db->quoteName('table_name'),                 // 8
-			$db->quote($table)                            // 9
+			$db->quoteName('DATA_LENGTH'),
+			$db->quoteName('INDEX_LENGTH'),
+			$db->quoteName('table_size'),
+			$db->quoteName('AVG_ROW_LENGTH'),
+			$db->quoteName('information_schema.TABLES'),
+			$db->quoteName('table_schema'),
+			$db->quote($dbName),
+			$db->quoteName('table_name'),
+			$db->quote($table)
 		);
 
 

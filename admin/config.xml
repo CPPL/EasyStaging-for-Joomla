@@ -93,6 +93,21 @@
                default="2"
                label="COM_EASYSTAGING_SETTINGS_GLOBAL_BACKGROUND_TIMEOUT_LABEL"
                description="COM_EASYSTAGING_SETTINGS_GLOBAL_BACKGROUND_TIMEOUT_DESCR" />
+        <field name="port_to_test_remotedb"
+               type="text"
+               default="3306"
+               label="COM_EASYSTAGING_SETTINGS_GLOBAL_REMOTE_DB_PORT_LABEL"
+               description="COM_EASYSTAGING_SETTINGS_GLOBAL_REMOTE_DB_PORT_DESCR" />
+        <field name="port_to_test_remote_host"
+               type="text"
+               default="80"
+               label="COM_EASYSTAGING_SETTINGS_GLOBAL_REMOTE_HOST_PORT_LABEL"
+               description="COM_EASYSTAGING_SETTINGS_GLOBAL_REMOTE_HOST_PORT_DESCR" />
+        <field name="timeout_for_connection_tests"
+               type="text"
+               default="3"
+               label="COM_EASYSTAGING_SETTINGS_GLOBAL_TIMEOUT_LABEL"
+               description="COM_EASYSTAGING_SETTINGS_GLOBAL_TIMEOUT_DESCR" />
     </fieldset>
 
 </config>

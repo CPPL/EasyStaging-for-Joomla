@@ -233,20 +233,21 @@ class EasyStagingControllerPlan extends JController
 						// Finally we launch our server side cli app
 						$cmdPath = JPATH_SITE . '/cli/easystaging_plan_runner.php --runticket=' . $runticket;
 						$runSIBResult = $this->_runScriptInBackground($cmdPath);
-						$runnerCMD=$runSIBResult['cmd'];
+						$runnerCMD = $runSIBResult['cmd'];
 						$ok = $runSIBResult['status'];
 						$output = $runSIBResult['output'];
 
 						if ($ok)
 						{
-							if($this->params->get('run_script_with','AT') == 'AT')
+							if ($this->params->get('run_script_with', 'AT') == 'AT')
 							{
 								$resultText = JText::sprintf('COM_EASYSTAGING_PLAN_RUNNER_LAUNCHED_AT_ID_X', $ok);
 							}
 							else
 							{
-								$resultText = JText::sprintf('COM_EASYSTAGING_PLAN_RUNNER_LAUNCHED_X_Y_Z', $runnerCMD, $ok, implode('|',$output));
+								$resultText = JText::sprintf('COM_EASYSTAGING_PLAN_RUNNER_LAUNCHED_X_Y_Z', $runnerCMD, $ok, implode('|', $output));
 							}
+
 							$steps[] = array('action_type' => 99, 'result_text' => $resultText);
 						}
 						else
@@ -431,7 +432,7 @@ class EasyStagingControllerPlan extends JController
 		if (($localSite->site_path != '') && ($remoteSite->site_path != ''))
 		{
 			// Get our FileCopy Actions
-			// Setup query to retreive our tables settings for this plan
+			// Setup query to retreive our rsync settings for this plan
 			$db    = JFactory::getDbo();
 			$query = $db->getQuery(true);
 			$query->select($db->quoteName('id'));
@@ -443,7 +444,7 @@ class EasyStagingControllerPlan extends JController
 			$query->where($db->quoteName('plan_id') . ' = ' . $db->quote($this->_plan_id()));
 			$db->setQuery($query);
 
-			// Finally we can get our list of tables for this plan
+			// Finally we can get our list of file copy actions for this plan
 			$steps = array();
 
 			if ($fileCopyActions = $db->loadAssocList())

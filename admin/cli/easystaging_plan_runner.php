@@ -559,7 +559,6 @@ DEF;
 			$allExclusions = $defaultExclusions . trim($this->_checkExclusionField($decoded_details->file_exclusions));
 			$result['fileData'] = $allExclusions;
 
-			// Insert <br>'s into exclusions for display in browser
 			$this->_log($theStep, $allExclusions . "\n");
 
 			// Attempt to write the file
@@ -1692,6 +1691,7 @@ DEF;
 	{
 		return JPATH_COMPONENT_ADMINISTRATOR . '/syncfiles/' . $this->_get_run_directory();
 	}
+
 	/**
 	 * Returns the run directory name in the nominated syncfile directory, creating one if it doesn't already exist.
 	 *

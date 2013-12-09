@@ -30,6 +30,17 @@ defined('_JEXEC') or die('Restricted Access');
 			echo JText::_('COM_EASYSTAGING_CANT_RUN_NOT_PUBLSIHED');
 		}
 	?></div>
+	<div class="clearfix"></div>
+	<div id="es_testing">
+		<div id="es_dbtest">
+			<p><img id="dbTest-icon"src="/media/com_easystaging/images/Test-Icon-for-EasyStaging-48.png"><?php echo JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_DESC'); ?></p>
+			<button name="testDBConnection" type="button" onclick="com_EasyStaging.checkDBSettings()"><?php echo JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE'); ?></button>
+		</div>
+		<div id="es_rstest">
+			<p><img id="RSTest-icon"src="/media/com_easystaging/images/Rsync-Test-icon-48.png"><?php echo JText::_('COM_EASYSTAGING_JSON_TEST_RSYNC_DESC'); ?></p>
+			<button name="testDBConnection" type="button" onclick="com_EasyStaging.checkRsyncWorks()"><?php echo JText::_('COM_EASYSTAGING_JSON_TEST_RSYNC'); ?></button>
+		</div>
+	</div>
 	<div style="clear:left;"></div>
 	<div class="planUpdatesDiv adminList" >
 		<div id="currentStatus" >

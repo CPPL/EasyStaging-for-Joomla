@@ -69,9 +69,10 @@ Joomla.submitbutton = function (task) {
 	}
 };
 
- com_EasyStaging.start = function (whatWeWant)
+ com_EasyStaging.start = function (whatWeWant, confirmed)
  {
-     if (confirm(Joomla.JText._('COM_EASYSTAGING_JS_PLAN_ABOUT_TO_RUN_WARNING')))
+     confirmed = typeof(confirmed) !== 'undefined' ? confirmed : false;
+     if (confirmed || confirm(Joomla.JText._('COM_EASYSTAGING_JS_PLAN_ABOUT_TO_RUN_WARNING')))
      {
          if(whatWeWant == undefined)
          {
@@ -81,7 +82,7 @@ Joomla.submitbutton = function (task) {
          {
              var msg = '<strong>' + Joomla.JText._('COM_EASYSTAGING_JS_REQUEST_MADE_PLEASE_WAIT') + '</strong>';
              this.runStage = msg;
-             this.appendTextToCurrentStatus(msg, false);
+             this.appendTextToCurrentStatus(msg, confirmed);
              this.requestData.step = whatWeWant;
              this.requestData.runticket = '';
              this.lockOutBtns(true);
@@ -195,8 +196,8 @@ com_EasyStaging.reportStatus = function ( response )
 com_EasyStaging.appendUpdatesToCurrentStatus = function (updates)
 {
     // If we have updates add them to the current status
-    var number_of_updates = 0;
-    if(updates != undefined && (number_of_updates = updates.length))
+    var number_of_updates = updates.length;
+    if(updates != undefined && number_of_updates)
     {
         for (var i = 0; i< number_of_updates; i++)
         {
@@ -325,10 +326,9 @@ com_EasyStaging.setLastRunStatus = function (append)
 	Joomla.renderMessages({'message': jmsgs });
 };
 
-com_EasyStaging.appendTextToCurrentStatus  = function (text, append, precedeWith)
+com_EasyStaging.appendTextToCurrentStatus  = function (text, append)
 {
 	append      = typeof(append) !== 'undefined' ? append : true;
-    precedeWith = typeof(precedeWith) !== 'undefined' ? precedeWith : '<br />';
     var newTextElement = Elements.from("<p>" + text + "</p>");
     var currentStatus = document.id('currentStatus');
 
@@ -560,3 +560,60 @@ com_EasyStaging.filterTableNames = function ()
         Joomla.renderMessages({'message': jmsgs });
     }
  }
+
+com_EasyStaging.checkDBSettings = function()
+{
+    // Get our database fields
+    var dbh = document.getElementById('jform_remoteSite_database_host');
+    this.requestData.database_host = dbh.value;
+    var dbu = document.getElementById('jform_remoteSite_database_user');
+    this.requestData.database_user = dbu.value;
+    var dbp = document.getElementById('jform_remoteSite_database_password');
+    this.requestData.database_password = dbp.value;
+    var dbn = document.getElementById('jform_remoteSite_database_name');
+    this.requestData.database_name = dbn.value;
+    var dbt = document.getElementById('jform_remoteSite_database_table_prefix');
+    this.requestData.database_table_prefix = dbt.value;
+
+    com_EasyStaging.requestData.task = 'plan.checkDBConnection';
+    com_EasyStaging.hilightStatusMessages();
+
+    var req = new Request.JSON({
+        url: com_EasyStaging.jsonURL,
+        method: 'get',
+        data: com_EasyStaging.requestData,
+        onRequest:  function ()
+        {
+            com_EasyStaging.waiting();
+            if((com_EasyStaging.statusTimeout != null) && (com_EasyStaging.statusTimeout != undefined))
+            {
+                window.clearTimeout(com_EasyStaging.statusTimeout);
+                com_EasyStaging.statusTimeout = null;
+            }
+        },
+        onComplete: function (response)
+        {
+            com_EasyStaging.testResult ( response );
+        }
+    });
+    req.send();
+}
+
+com_EasyStaging.testResult = function( response )
+{
+    this.notWaiting();
+    this.appendTextToCurrentStatus(response.msg);
+
+}
+
+com_EasyStaging.checkRsyncWorks = function()
+{
+    // Add the "test started" message
+    this.hilightStatusMessages();
+    this.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JSON_TEST_RSYNC_STARTED'));
+
+    this.requestData.es_drfca = 1;
+    this.start('startFile', true);
+    this.requestData.es_drfca = 0;
+}
+

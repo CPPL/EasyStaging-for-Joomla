@@ -88,6 +88,34 @@ div.toolbar-list.tb-off a:active {
     background-color: white;
 }
 
+/* Testing Div */
+#es_testing {
+    border: thin solid silver;
+    width: 100%;
+    display: table-cell;
+}
+#es_testing p {
+    font-size: 0.8em;
+    font-style: italic;
+    margin-left: 0;
+}
+
+#es_dbtest, #es_rstest {
+    border: thin solid silver;
+    padding: 2%;
+    margin: 2%;
+    width: 41%;
+}
+#es_dbtest {
+    float: left;
+}
+#es_rstest {
+    float: right;
+}
+#RSTest-icon, #dbTest-icon {
+    float: left;
+    margin-right: 10px;
+}
 /* Filter buttons */
 #table-filters {
     float: right;

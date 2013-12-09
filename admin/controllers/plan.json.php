@@ -73,9 +73,134 @@ class EasyStagingControllerPlan extends JController
 		$this->params = JComponentHelper::getParams('com_easystaging');
 	}
 
-	/*
-	 * New 1.1.0 Pro methods
+	/**
+	 * Testing functions
+	 *
+	 * @since 1.1.3
+	 *
+	 * @return mixed
 	 */
+	public function checkDBConnection()
+	{
+		$msg = '';
+		$status = 0;
+		$result = 0;
+
+		// Check for request forgeries
+		if (!JSession::checkToken('request'))
+		{
+			$msg = JText::_('JINVALID_TOKEN');
+		}
+		else
+		{
+			$jIn = JFactory::getApplication()->input;
+			$plan_id = $this->_plan_id();
+
+			if ($plan_id)
+			{
+				// Get our local database connection
+				$config = JFactory::getConfig();
+				$driver = $config->get('dbtype', 'mysqli');
+
+				// Get the target database details
+				$options = array(
+					'host'		=> $jIn->get('database_host', ''),
+					'user'		=> $jIn->get('database_user', ''),
+					'password'	=> $jIn->get('database_password', ''),
+					'driver'	=> $driver,
+					'port'	    => $this->params->get('port_to_test_remotedb', 80),
+					'database'	=> $jIn->get('database_name', ''),
+					'prefix'	=> $jIn->get('database_table_prefix', ''),
+				);
+
+				// Check the host is valid
+				$host = $options['host'];
+				$hostIsIPAddress = filter_var($options['host'], FILTER_VALIDATE_IP);
+
+				if (!$hostIsIPAddress)
+				{
+					if (($hostIsURL = filter_var($host, FILTER_VALIDATE_URL)) || ($hostIsURL = filter_var('http://' . $host, FILTER_VALIDATE_URL)))
+					{
+						$hostIsValid = true;
+					}
+				}
+				else
+				{
+					$hostIsValid = true;
+				}
+
+				// Can we contact the host?
+				if ($hostIsValid)
+				{
+					$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_HOSTNAME_OK');
+					$port = $this->params->get('port_to_test_remote_host', 80);
+					$timeout = $this->params->get('timeout_for_connection_tests', 3);
+
+					$contactEstablished = $this->contactHost($host, $port, $timeout);
+
+					// We have contact
+					if ($contactEstablished)
+					{
+						$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_HOST_CONTACTED');
+
+						// Get our DB object
+						try
+						{
+							$target_db = JDatabase::getInstance($options);
+						}
+						catch (JDatabaseException $e)
+						{
+							print_r($e);
+						}
+
+						// Check for old style error
+						$errNo = $target_db->getErrorNum();
+
+						if ($errNo != 0)
+						{
+							$msg .= $target_db->getErrorMsg(true);
+							/*
+							 * @todo convert these error messages to JText::sprintf() versions
+							 */
+							if ($target_db->name == 'mysqli')
+							{
+								$mysqli = new mysqli($options['host'], $options['user'], $options['password'], null, $options['port'], $options['socket']);
+								$errNo = $mysqli->connect_errno;
+								$msg .= '<pre>' . $mysqli->connect_error . '</pre><br>';
+							}
+							elseif ($target_db->name == 'mysql')
+							{
+								$msg .= '<pre>' . mysql_error($target_db->getConnection()) . '</pre><br>';
+							}
+							else
+							{
+								$msg .= '<pre>Un-handled DB type: ' . $target_db->name . '</pre><br>';
+							}
+
+							$result = $errNo;
+						}
+						else
+						{
+							$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_CONNECTION_OK');
+							$status = 1;
+							$result = $errNo;
+						}
+					}
+					else
+					{
+						$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_HOST_TIMEDOUT');
+					}
+				}
+				else
+				{
+					$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_HOST_INVALID');
+				}
+			}
+		}
+
+		$response = array('status' => $status, 'result' => $result, 'msg' => $msg);
+		echo json_encode($response);
+	}
 
 	/**
 	 * Status is the only valid entry point for the 1.1 architecture, it acts as the gateway and mediator.
@@ -107,13 +232,16 @@ class EasyStagingControllerPlan extends JController
 
 				if (!$runTicket || is_null($runTicket))
 				{
+					// Get our --dry-run flag
+					$dry_run = $jIn->getInt('es_drfca', 0);
+
 					// Ok what steps are required?
 					$stepsRequired = $jIn->get('step', null);
 					$validSteps = array('startFile', 'startDBase', 'startAll');
 
 					if ($stepsRequired != null && in_array($stepsRequired, $validSteps))
 					{
-						$response = $this->createRun($plan_id, $stepsRequired);
+						$response = $this->createRun($plan_id, $stepsRequired, $dry_run);
 					}
 					else
 					{
@@ -187,11 +315,13 @@ class EasyStagingControllerPlan extends JController
 	 *
 	 * @param   string  $stepsRequired  The steps that need to be setup.
 	 *
+	 * @param   int     $dry_run        The flag to indicate an rsync --dry-run
+	 *
 	 * @return  array   The results array with any step details.
 	 *
 	 * @since   1.1.0
 	 */
-	protected function createRun($plan_id, $stepsRequired)
+	protected function createRun($plan_id, $stepsRequired, $dry_run)
 	{
 		if ($plan_id)
 		{
@@ -212,7 +342,7 @@ class EasyStagingControllerPlan extends JController
 				$jAp->setUserState('rt_uuid', $rt_uuid);
 
 				// Add the runs steps to be executed
-				if (($response = $this->createSteps($stepsRequired, $thePlan, $runticket)) && $response['status'] == 2)
+				if (($response = $this->createSteps($stepsRequired, $thePlan, $runticket, $dry_run)) && $response['status'] == 2)
 				{
 					// Extract our steps from the response
 					$steps = $response['steps'];
@@ -306,11 +436,13 @@ class EasyStagingControllerPlan extends JController
 	 *
 	 * @param   string  $runticket      This runticket.
 	 *
+	 * @param   int     $dry_run        The flag to indicate an rsync --dry-run
+	 *
 	 * @return  array
 	 *
 	 * @since   1.1.0
 	 */
-	protected function createSteps($stepsRequired, $thePlan, $runticket)
+	protected function createSteps($stepsRequired, $thePlan, $runticket, $dry_run)
 	{
 		// First we setup some basic required to create our steps
 		$localSite  = PlanHelper::getLocalSite($thePlan->id);
@@ -340,7 +472,7 @@ class EasyStagingControllerPlan extends JController
 		// Get our Rsync steps
 		if (($stepsRequired == 'startFile') || ($stepsRequired == 'startAll'))
 		{
-			$rsyncSteps = $this->createRsyncSteps($runticket, $localSite, $remoteSite);
+			$rsyncSteps = $this->createRsyncSteps($runticket, $localSite, $remoteSite, $dry_run);
 
 			if (is_array($rsyncSteps))
 			{
@@ -422,11 +554,13 @@ class EasyStagingControllerPlan extends JController
 	 *
 	 * @param   JTable  $remoteSite  The remote site object.
 	 *
+	 * @param   int     $dry_run     The flag to indicate an rsync --dry-run
+	 *
 	 * @return  bool|array
 	 *
 	 * @since   1.1.0
 	 */
-	protected function createRsyncSteps ($runticket, $localSite, $remoteSite)
+	protected function createRsyncSteps ($runticket, $localSite, $remoteSite, $dry_run)
 	{
 		// Setup our Rsync step, if we have local and remote paths
 		if (($localSite->site_path != '') && ($remoteSite->site_path != ''))
@@ -452,11 +586,14 @@ class EasyStagingControllerPlan extends JController
 				// To each returned row we need to add a runticket and covert the raw action upto a plan action
 				foreach ($fileCopyActions as $row)
 				{
+					// Check if our options need --dry-run
+					$rsync_options = RunHelper::checkRsyncOptions($localSite->rsync_options, $dry_run);
+
 					// Build our file copy aciton
 					$newAction['id']               = $row['id'];
 					$newAction['local_site_path']  = $localSite->site_path;
 					$newAction['remote_site_path'] = $remoteSite->site_path;
-					$newAction['rsync_options']    = $localSite->rsync_options;
+					$newAction['rsync_options']    = $rsync_options;
 					$newAction['file_exclusions']  = $localSite->file_exclusions;
 					$newAction['label']            = $row['label'];
 					$newAction['direction']        = $row['direction'];
@@ -900,5 +1037,33 @@ class EasyStagingControllerPlan extends JController
 		$result = array('cmd' => $cmd, 'cmdpath' => $cmdPath, 'status' => $returnValue, 'output' => $output, 'lastline' => $lastLine);
 
 		return $result;
+	}
+
+	/**
+	 * Contacts host using fsockopen, defaults to http and 3 seconds.
+	 *
+	 * @param   string  $domain
+	 * @param   int     $port
+	 * @param   int     $timeout
+	 *
+	 * @return float|int|mixed
+	 */
+	private function contactHost($domain, $port = 80, $timeout = 3){
+		$starttime = microtime(true);
+		$file      = fsockopen ($domain, $port, $errno, $errstr, $timeout);
+		$stoptime  = microtime(true);
+
+		// Site is down
+		if (!$file)
+		{
+			$status = false;
+		}
+		else
+		{
+			fclose($file);
+			$status = ($stoptime - $starttime) * 1000;
+			$status = floor($status);
+		}
+		return $status;
 	}
 }

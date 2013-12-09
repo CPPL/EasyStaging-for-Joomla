@@ -132,6 +132,24 @@ cppl_tools.compareTwoObjects = function (firstObj, secondObj)
     return compareResult;
 }
 
+cppl_tools.getArrayElementsThatMatchString = function (needle, haystack, matchWhole)
+{
+    matchWhole = typeof matchWhole !== 'undefined' ? matchWhole : false;
+
+    var Matches = [];
+
+    for (var i = 0; i < haystack.length; i++)
+    {
+        var thisElement = haystack[i];
+        if((matchWhole && (thisElement == needle)) || (!matchWhole && (thisElement.indexOf(needle) >= 0)))
+        {
+            Matches.push(thisElement);
+        }
+    }
+
+    return Matches;
+}
+
 cppl_tools.compareTwoArrays = function (firstArray, secondArray)
 {
     firstArray = typeof firstArray !== 'undefined' ? firstArray : false;

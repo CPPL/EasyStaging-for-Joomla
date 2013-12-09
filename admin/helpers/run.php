@@ -107,10 +107,16 @@ class RunHelper
 	 *
 	 * @return  array|string
 	 */
-	public static function addBRsToLineEnds($text, $lineEnd = '<br />')
+	public static function addBRsToLineEnds($text, $lineEnd = '<br>')
 	{
 		if (is_string($text))
 		{
+			// Convert any double \n\n to single \n
+			$text = implode('\n', explode('\n\n', $text));
+
+			// Convert any existing <br>\n to \n
+			$text = implode('\n', explode('<br>\n', $text));
+
 			$newLines = substr_count($text, "\n");
 
 			if ($newLines)
@@ -119,7 +125,10 @@ class RunHelper
 			}
 			else
 			{
-				$text .= $lineEnd;
+				if (!self::endsWith($text, $lineEnd))
+				{
+					$text .= $lineEnd;
+				}
 			}
 		}
 		elseif(is_array($text))
@@ -193,7 +202,7 @@ class RunHelper
 		}
 		else
 		{
-			$existing_rt .= $existing_rt ? "<br />\n" : '';
+			$existing_rt .= $existing_rt ? "\n" : '';
 			$new_result_text = $existing_rt . $msg;
 		}
 

@@ -139,6 +139,27 @@ class RunHelper
 		return $text;
 	}
 
+
+	/**
+	 * Checks if the string ends with $needle
+	 *
+	 * @param   string  $haystack  String to search
+	 * @param   string  $needle    Search string
+	 *
+	 * @return bool
+	 */
+	public static function endsWith($haystack, $needle)
+	{
+		$length = strlen($needle);
+
+		if ($length == 0)
+		{
+			return true;
+		}
+
+		return (substr($haystack, -$length) === $needle);
+	}
+
 	/**
 	 * Selects steps for the current run ticket that aren't completed
 	 *
@@ -256,8 +277,139 @@ class RunHelper
 	}
 
 	/**
+	 * Rsync Methods
+	 */
+	/**
+	 * Builds the appropriate file of exclusion, inserting our defaults along the way.
+	 *
+	 * @param   object                 $thisRun  The current run object or a reasonable facsimilie
+	 *
+	 * @param   EasyStagingTableSteps  $theStep  The current step or a reasonable facsimilie.
+	 *
+	 * @return array
+	 */
+	public static function createRSYNCExclusionFile($thisRun, $theStep)
+	{
+		$decoded_details = json_decode($theStep->action);
+
+		// Build our file path & file handle
+		$pathToExclusionsFile = self::get_run_directory($thisRun->runticket) . '/' . self::excl_file_name($decoded_details->id, $thisRun->runticket);
+		$result = array(
+			'fileName' => $pathToExclusionsFile,
+		);
+		$result['fullPathToExclusionFile'] = self::sync_files_path() . $pathToExclusionsFile;
+
+		if ($exclusionFile = @fopen($result['fullPathToExclusionFile'], 'w'))
+		{
+			// Create the content for our exclusions file
+			$defaultExclusions = <<< DEF
+- com_easystaging/
+- /configuration.php
+- /administrator/.htaccess
+- /administrator/cache/
+- /administrator/language/en-GB/en-GB.com_easystaging.ini
+- /administrator/language/en-GB/en-GB.com_easystaging.sys.ini
+- /cache/
+- /cli/easystaging_plan_runner.php
+- /logs/
+- /media/com_easystaging
+- /tmp/
+- /.htaccess
+- .DS_Store
+
+DEF;
+
+			// Combine the default exclusions with those in the local site record
+			$allExclusions = $defaultExclusions . trim(self::checkExclusionField($decoded_details->file_exclusions));
+			$result['fileData'] = $allExclusions;
+
+			// Attempt to write the file
+			$result['status'] = fwrite($exclusionFile, $allExclusions);
+			$result['msg'] = $result['status'] ? JText::sprintf('COM_EASYSTAGING_FILE_WRITTEN_SUCCESSFULL_DESC', $result['status'])
+				: JText::_('COM_EASYSTAGING_FAILED_TO_WRIT_DESC');
+
+			// Time to close off
+			fclose($exclusionFile);
+		}
+		else
+		{
+			$result['status'] = 0;
+			$result['msg'] = JText::_('COM_EASYSTAGING_JSON_UNABLE_TO_OPEN_RSYNC_EXC_FILE');
+		}
+
+		// Return to Maine, where the moose, deer, eagles and loons roam.
+		return $result;
+	}
+
+	/**
+	 * Checks $file_exclusions to ensure each line starts with a "-" or "+" as required by rsync ...
+	 *
+	 * @param   string  $file_exclusions  The exclusions to be checked and conformed.
+	 *
+	 * @return  string|boolean - false on failure
+	 */
+	public static function checkExclusionField($file_exclusions)
+	{
+		if (isset($file_exclusions) && ($file_exclusions != ''))
+		{
+			$result = array();
+
+			// Just in case, we convert all \r\n before exploding
+			$file_exclusions = explode("\n", str_replace("\r\n", "\n", $file_exclusions));
+
+			foreach ($file_exclusions as $fe_line)
+			{
+				$fe_line = trim($fe_line);
+
+				// Check for explicit include or exclude because some rsyncs are broken (assume exclusion)
+				if (($fe_line[0] != '-') && ($fe_line[0] != '+'))
+				{
+					$fe_line = '- ' . $fe_line;
+				}
+
+				$result[] = $fe_line;
+			}
+
+			return implode("\n", $result);
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	/**
+	 * Checks the passed in option and adds --dry-run based on $dry_run flag
+	 *
+	 * @param   string  $rsync_options  The passed in options
+	 *
+	 * @param   bool    $dry_run        Dry run flag, if true we add --dry-run if not present already
+	 *
+	 * @return  string
+	 */
+	public static function checkRsyncOptions ($rsync_options, $dry_run = false)
+	{
+		if ($dry_run && strpos($rsync_options, '--dry-run') === false && strpos($rsync_options, ' -n') === false)
+		{
+			$rsync_options .= ' --dry-run';
+		}
+
+		return $rsync_options;
+	}
+
+	/**
 	 * Tools for working with directories, files and zip.
 	 */
+
+	/**
+	 * The cental point our sync files path is defined, later this will use a preference setting.
+	 *
+	 * @return string
+	 */
+	public static function sync_files_path()
+	{
+		return JPATH_COMPONENT_ADMINISTRATOR . '/syncfiles/';
+	}
 
 	/**
 	 * Returns the run directory name in the nominated syncfile directory, creating one if it doesn't already exist.
@@ -298,6 +450,20 @@ class RunHelper
 
 		return $result;
 	}
+
+	/**
+	 * Central pont for defining the name of the exclusions file for the rsync call, later this will use a preference setting.
+	 *
+	 * @param   object  $thisRun  The current Plan Run object
+	 * @param   int     $rsyncId  ID of the File Copy Action.
+	 *
+	 * @return string
+	 */
+	private function excl_file_name($thisRun, $rsyncId)
+	{
+		return ('plan-' . $thisRun->plan_id . '-' . $rsyncId . '-exclusions.txt');
+	}
+
 
 	/**
 	 * Create a Zip file

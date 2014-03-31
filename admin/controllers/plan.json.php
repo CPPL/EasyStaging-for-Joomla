@@ -108,7 +108,7 @@ class EasyStagingControllerPlan extends JController
 					'user'		=> $jIn->get('database_user', ''),
 					'password'	=> $jIn->get('database_password', ''),
 					'driver'	=> $driver,
-					'port'	    => $this->params->get('port_to_test_remotedb', 80),
+					'port'	    => $this->params->get('port_to_test_remotedb', 3306),
 					'database'	=> $jIn->get('database_name', ''),
 					'prefix'	=> $jIn->get('database_table_prefix', ''),
 				);
@@ -386,7 +386,15 @@ class EasyStagingControllerPlan extends JController
 							$lastline = $runSIBResult['lastline'];
 							$cmdPath = $runSIBResult['cmdpath'];
 							$response['status'] = 0;
-							$response['error']  = JText::sprintf('COM_EASYSTAGING_PLAN_RUNNER_LAUNCH_FAILED_X_Y_Z', $ok, implode('|',$output), $lastline, $runnerCMD, $cmdPath, $runticket);
+							$response['error']  = JText::sprintf(
+								'COM_EASYSTAGING_PLAN_RUNNER_LAUNCH_FAILED_X_Y_Z',
+								$ok,
+								implode('|', $output),
+								$lastline,
+								$runnerCMD,
+								$cmdPath,
+								$runticket
+							);
 
 							// Set the plan back to published
 							$thePlan->published = self::PUBLISHED;
@@ -990,11 +998,12 @@ class EasyStagingControllerPlan extends JController
 		}
 
 		// Which way are we going to launch this?
-		$run_script_with = $this->params->get('run_script_with','AT');
+		$run_script_with = $this->params->get('run_script_with', 'AT');
 
-		if($run_script_with == 'AT')
+		if ($run_script_with == 'AT')
 		{
 			$cap_php_out = $capture_PHP_out_from_AT ? " > components/com_easystaging/syncfiles/pr.log.txt" : "";
+
 			// We need '2>&1' so we have something to pass back
 			$cmd = sprintf('echo "%s' . $cap_php_out . '" | at now 2>&1', $cmdPath);
 		}
@@ -1003,7 +1012,7 @@ class EasyStagingControllerPlan extends JController
 			$cmd = sprintf('%s 2>&1 &', $cmdPath);
 		}
 
-		if(JDEBUG)
+		if (JDEBUG)
 		{
 			JLog::add('Cmd: ' . $cmd, JLog::WARNING);
 		}
@@ -1017,14 +1026,14 @@ class EasyStagingControllerPlan extends JController
 		$returnValue = '';
 		$lastLine = exec($cmd, $output, $returnValue);
 
-		if(JDEBUG)
+		if (JDEBUG)
 		{
 			JLog::add('Last Line: ' . $lastLine, JLog::WARNING);
 			JLog::add('Return Value: ' . $returnValue, JLog::WARNING);
 			JLog::add('Output: ' . print_r($output, true), JLog::WARNING);
 		}
-		
-		if(($run_script_with == 'AT') && ($returnValue == 0))
+
+		if (($run_script_with == 'AT') && ($returnValue == 0))
 		{
 			// All good anything else is bad
 			$returnValue = $output[0];
@@ -1032,6 +1041,12 @@ class EasyStagingControllerPlan extends JController
 		elseif($run_script_with == 'AT')
 		{
 			$returnValue = false;
+		}
+		elseif($run_script_with == "DIRECT" && $returnValue === 0 && empty($output) && $lastLine == '')
+		{
+			// Some setups (aka SiteGround/Hive servers) don't return any values from exec(), normal situations
+			// will always put something in $returnValue or $lastLine
+			$returnValue = true;
 		}
 
 		$result = array('cmd' => $cmd, 'cmdpath' => $cmdPath, 'status' => $returnValue, 'output' => $output, 'lastline' => $lastLine);
@@ -1042,15 +1057,16 @@ class EasyStagingControllerPlan extends JController
 	/**
 	 * Contacts host using fsockopen, defaults to http and 3 seconds.
 	 *
-	 * @param   string  $domain
-	 * @param   int     $port
-	 * @param   int     $timeout
+	 * @param   string  $domain   A domain or IP address that can be contacted
+	 * @param   int     $port     The TCP/IP Port to use.
+	 * @param   int     $timeout  How long shall we wait for a response?
 	 *
 	 * @return float|int|mixed
 	 */
-	private function contactHost($domain, $port = 80, $timeout = 3){
+	private function contactHost($domain, $port = 80, $timeout = 3)
+	{
 		$starttime = microtime(true);
-		$file      = fsockopen ($domain, $port, $errno, $errstr, $timeout);
+		$file      = fsockopen($domain, $port, $errno, $errstr, $timeout);
 		$stoptime  = microtime(true);
 
 		// Site is down
@@ -1061,9 +1077,17 @@ class EasyStagingControllerPlan extends JController
 		else
 		{
 			fclose($file);
-			$status = ($stoptime - $starttime) * 1000;
-			$status = floor($status);
+			$status = true;
+			$dur = ($stoptime - $starttime) * 1000;
 		}
+
+		if (JDEBUG)
+		{
+			JLog::add('Contacting Host: ' . $domain, JLog::WARNING);
+			JLog::add('Status: ' . $status, JLog::WARNING);
+			JLog::add('Duration: ' . $dur, JLog::WARNING);
+		}
+
 		return $status;
 	}
 }

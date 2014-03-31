@@ -21,6 +21,18 @@ define('DS', DIRECTORY_SEPARATOR);
 error_reporting(E_ALL | E_NOTICE);
 ini_set('display_errors', 1);
 
+$safe_mode = true;
+if (function_exists('ini_get'))
+{
+	$safe_mode = ini_get('safe_mode');
+}
+
+if (!$safe_mode && function_exists('set_time_limit'))
+{
+	@set_time_limit(0);
+}
+
+
 // Load system defines
 if (file_exists(dirname(dirname(__FILE__)) . '/defines.php'))
 {
@@ -61,6 +73,8 @@ else
  * A basic function to dump out details if everything goes wrong.
  *
  * @param string $log String to write
+ *
+ * @return  int
  */
 function _write_pr_log($log)
  {
@@ -436,7 +450,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 				// Is it a MOVE file action?
 				if ($rsyncAction == self::RSYNC_CLEAR)
 				{
-					$this->_log($theStep, JText::sprintf('COM_EASYSTAGING_CLI_RSYNC_CLEAN_X', $details->label));
+					$this->_log($theStep, JText::sprintf('COM_EASYSTAGING_CLI_RSYNC_CLEAN_X', $details->label, $rsyncCmd));
 
 					// We make an empty directory
 					$emptyDir = $this->_run_files_path() . '/empty';
@@ -1979,4 +1993,10 @@ DEF;
 	}
 }
 
+// Instantiate the application object, passing the class name to JCli::getInstance
+// and use chaining to execute the application.
 JApplicationCli::getInstance('EasyStaging_PlanRunner')->execute();
+
+// Turn of display errors as the JApplicationCli throws an error when it tries to __destruct() a JSession that doesn't exist.
+// Which can on some setups feed into the result returned to the plan.json.php
+ini_set('display_errors', 0);

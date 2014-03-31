@@ -61,6 +61,8 @@ else
  * A basic function to dump out details if everything goes wrong.
  *
  * @param string $log String to write
+ *
+ * @return  int
  */
 function _write_pr_log($log)
  {

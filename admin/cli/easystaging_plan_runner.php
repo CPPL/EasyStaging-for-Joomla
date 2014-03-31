@@ -21,6 +21,18 @@ define('DS', DIRECTORY_SEPARATOR);
 error_reporting(E_ALL | E_NOTICE);
 ini_set('display_errors', 1);
 
+$safe_mode = true;
+if (function_exists('ini_get'))
+{
+	$safe_mode = ini_get('safe_mode');
+}
+
+if (!$safe_mode && function_exists('set_time_limit'))
+{
+	@set_time_limit(0);
+}
+
+
 // Load system defines
 if (file_exists(dirname(dirname(__FILE__)) . '/defines.php'))
 {

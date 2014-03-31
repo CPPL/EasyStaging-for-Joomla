@@ -1042,6 +1042,12 @@ class EasyStagingControllerPlan extends JController
 		{
 			$returnValue = false;
 		}
+		elseif($run_script_with == "DIRECT" && $returnValue === 0 && empty($output) && $lastLine == '')
+		{
+			// Some setups (aka SiteGround/Hive servers) don't return any values from exec(), normal situations
+			// will always put something in $returnValue or $lastLine
+			$returnValue = true;
+		}
 
 		$result = array('cmd' => $cmd, 'cmdpath' => $cmdPath, 'status' => $returnValue, 'output' => $output, 'lastline' => $lastLine);
 

@@ -115,6 +115,10 @@ com_EasyStaging.status = function ()
         onComplete: function (response)
         {
             com_EasyStaging.reportStatus ( response );
+        },
+        onError: function( test, error)
+        {
+            com_EasyStaging.reportStatus( response );
         }
     });
     req.send();
@@ -191,6 +195,12 @@ com_EasyStaging.reportStatus = function ( response )
         this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_STATUS_CHECK_FAILED')+'</span>');
         this.runEnded(false);
     }
+}
+
+com_EasyStaging.reportError = function ( text, error )
+{
+    this.appendTextToCurrentStatus('<span class="es_ajax_error_msg">'+Joomla.JText._('COM_EASYSTAGING_JS_STATUS_CHECK_FAILED') + ':' + text + ':' + error + '</span>');
+    this.statusTimeout = window.setTimeout(this.status, this.statusCheckInterval);
 }
 
 com_EasyStaging.appendUpdatesToCurrentStatus = function (updates)

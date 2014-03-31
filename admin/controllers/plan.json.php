@@ -108,7 +108,7 @@ class EasyStagingControllerPlan extends JController
 					'user'		=> $jIn->get('database_user', ''),
 					'password'	=> $jIn->get('database_password', ''),
 					'driver'	=> $driver,
-					'port'	    => $this->params->get('port_to_test_remotedb', 80),
+					'port'	    => $this->params->get('port_to_test_remotedb', 3306),
 					'database'	=> $jIn->get('database_name', ''),
 					'prefix'	=> $jIn->get('database_table_prefix', ''),
 				);

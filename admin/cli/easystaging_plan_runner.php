@@ -1993,4 +1993,10 @@ DEF;
 	}
 }
 
+// Instantiate the application object, passing the class name to JCli::getInstance
+// and use chaining to execute the application.
 JApplicationCli::getInstance('EasyStaging_PlanRunner')->execute();
+
+// Turn of display errors as the JApplicationCli throws an error when it tries to __destruct() a JSession that doesn't exist.
+// Which can on some setups feed into the result returned to the plan.json.php
+ini_set('display_errors', 0);

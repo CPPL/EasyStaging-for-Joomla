@@ -450,7 +450,7 @@ class EasyStaging_PlanRunner extends JApplicationCli
 				// Is it a MOVE file action?
 				if ($rsyncAction == self::RSYNC_CLEAR)
 				{
-					$this->_log($theStep, JText::sprintf('COM_EASYSTAGING_CLI_RSYNC_CLEAN_X', $details->label));
+					$this->_log($theStep, JText::sprintf('COM_EASYSTAGING_CLI_RSYNC_CLEAN_X', $details->label, $rsyncCmd));
 
 					// We make an empty directory
 					$emptyDir = $this->_run_files_path() . '/empty';

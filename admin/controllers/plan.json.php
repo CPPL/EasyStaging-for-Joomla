@@ -1071,8 +1071,15 @@ class EasyStagingControllerPlan extends JController
 		else
 		{
 			fclose($file);
-			$status = ($stoptime - $starttime) * 1000;
-			$status = floor($status);
+			$status = true;
+			$dur = ($stoptime - $starttime) * 1000;
+		}
+
+		if (JDEBUG)
+		{
+			JLog::add('Contacting Host: ' . $domain, JLog::WARNING);
+			JLog::add('Status: ' . $status, JLog::WARNING);
+			JLog::add('Duration: ' . $dur, JLog::WARNING);
 		}
 
 		return $status;

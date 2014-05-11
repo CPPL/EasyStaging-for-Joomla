@@ -5,7 +5,7 @@ defined('_JEXEC') or die('Restricted Access');
 $listOrder	= '';
 $listDirn	= '';
  ?>
-<form action="<?php echo JRoute::_('index.php?option=com_easystaging');?>" method="post" name="adminForm">
+<form action="<?php echo JRoute::_('index.php?option=com_easystaging');?>" method="post" name="adminForm" id="adminForm">
 <?php if ($this->jvtag !== 'j3') : ?>
 	<div id="editcell">
 <?php else : ?>

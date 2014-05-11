@@ -19,11 +19,15 @@ foreach ($this->items as $i => &$row)
 
 	if ($canDo->get('core.edit') && $canCheckin && $canChange)
 	{
-		$plan = '<a href="' . JRoute::_('index.php?option=com_easystaging&task=plan.edit&id=' . $row->id) . '">' . $row->name . '</a>';
+		$plan = '<a href="' . JRoute::_('index.php?option=com_easystaging&task=plan.edit&id=' . $row->id) . '" class="hasTooltip" title="'
+			. JHtml::tooltipText(JText::_('COM_EASYSTAGING_MANAGER_PLAN_EDIT') . '::' . JText::sprintf('COM_EASYSTAGING_MANAGER_EDIT_PLAN_X', $row->name)) . '">'
+			. $row->name . '</a>';
 	}
 	elseif ($canDo->get('easystaging.run') && !$row->checked_out && $row->published)
 	{
-		$plan = '<a href="' . JRoute::_('index.php?option=com_easystaging&task=plan.run&id=' . $row->id) . '">' . $row->name . '</a>';
+		$plan = '<a href="' . JRoute::_('index.php?option=com_easystaging&task=plan.run&id=' . $row->id) . '" class="hasTooltip"' . 'title="'
+			. JHtml::tooltipText(JText::_('COM_EASYSTAGING_MANAGER_PLAN_RUN') . '::' . JText::sprintf('COM_EASYSTAGING_MANAGER_RUN_PLAN_X', $row->name)) . '">'
+			. $row->name . '</a>';
 	}
 	else
 	{
@@ -36,7 +40,8 @@ foreach ($this->items as $i => &$row)
 	}
 
 	$last_run = JHtml::_('date', $row->last_run, JText::_('DATE_FORMAT_LC1'));
-	if($row->last_run == '0000-00-00 00:00:00')
+
+	if ($row->last_run == '0000-00-00 00:00:00')
 	{
 		$last_run = JText::_('COM_EASYSTAGING_NOT_RUN');
 	}
@@ -50,6 +55,7 @@ foreach ($this->items as $i => &$row)
 		{
 			$relDate = '';
 		}
+
 		$last_run = JText::sprintf('COM_EASYSTAGING_LAST_RUN', $last_run) . $relDate;
 	}
 

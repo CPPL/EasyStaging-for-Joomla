@@ -77,7 +77,7 @@ div.toolbar-list.tb-off a:active {
 #startDBaseBtn.com_easystaging_plan_btn_off,
 #startAllBtn.com_easystaging_plan_btn_off,
 #statusBtn.com_easystaging_plan_btn_off {
-    background-position-y: 32px;
+    background-position-y: -32px;
 }
 
 #startFileBtn.com_easystaging_plan_btn_off button:hover,

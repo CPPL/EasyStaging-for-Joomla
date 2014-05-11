@@ -113,12 +113,6 @@ class EasyStagingViewPlans extends JViewLegacy
 			JToolBarHelper::preferences('com_easystaging');
 			JToolBarHelper::divider();
 		}
-
-		JToolBarHelper::help(
-			'COM_EASYSTAGING_HELP_EASYSTAGING_MANAGER',
-			false,
-			'http://seepeoplesoftware.com/products/easystaging/1.0/help/plans.html'
-		);
 	}
 
 	/**

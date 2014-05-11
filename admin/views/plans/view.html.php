@@ -44,10 +44,9 @@ class EasyStagingViewPlans extends JView
 		JHtml::_('behavior.tooltip');
 		JHtml::_('behavior.multiselect');
 
-		// Get component helper
-		jimport('joomla.installer.packagemanifest');
-		$esManifest = new JPackageManifest(JPATH_BASE . '/components/com_easystaging/easystaging.xml');
-		$this->current_version = $esManifest->version;
+		// Get version
+		$xml = simplexml_load_file(JPATH_BASE . '/components/com_easystaging/easystaging.xml');
+		$this->current_version = (string) $xml->version;
 
 		// Setup document (Toolbar, css, js etc)
 		$this->addToolbar();

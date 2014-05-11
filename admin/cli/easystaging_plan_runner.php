@@ -680,15 +680,19 @@ DEF;
 					$status = $this->performTableCopyBack($step);
 					break;
 			}
-		}
 
-		if ($status)
-		{
-			$msg = JText::sprintf('COM_EASYSTAGING_CLI_RESULT_FOR_TABLE_X_' . $actiontype . '_STEP_SUCCESS', $step->action);
+			if ($status)
+			{
+				$msg = JText::sprintf('COM_EASYSTAGING_CLI_RESULT_FOR_TABLE_X_' . $actiontype . '_STEP_SUCCESS', $step->action);
+			}
+			else
+			{
+				$msg = JText::sprintf('COM_EASYSTAGING_CLI_RESULT_FOR_TABLE_X_' . $actiontype . '_STEP_FAILURE', $step->action);
+			}
 		}
 		else
 		{
-			$msg = JText::sprintf('COM_EASYSTAGING_CLI_RESULT_FOR_TABLE_X_' . $actiontype . '_STEP_FAILURE', $step->action);
+			$msg = JText::_('COM_EASYSTAGING_DATABASE_STEP_01_FAILED_TO_CONNECT');
 		}
 
 		$this->_log($step, $msg . "\n");

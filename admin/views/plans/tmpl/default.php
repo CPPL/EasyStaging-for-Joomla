@@ -10,9 +10,9 @@ $howtodiag2 = JURI::root().'media/com_easystaging/images/EasyStaging-How-To-Part
 <form action="<?php echo JRoute::_('index.php?option=com_easystaging');?>" method="post" name="adminForm">
 	<div id="editcell">
 		<table class="adminlist">
-			<thead><?php echo $this->loadTemplate('head');?></thead>
-			<tfoot><?php echo $this->loadTemplate('foot');?></tfoot>
-			<tbody><?php echo $this->loadTemplate('body');?></tbody>
+			<thead><?php echo $this->loadTemplate($this->jvtag . 'head');?></thead>
+			<tfoot><?php echo $this->loadTemplate($this->jvtag . 'foot');?></tfoot>
+			<tbody><?php echo $this->loadTemplate($this->jvtag . 'body');?></tbody>
 		</table>
 	</div>
 	<div id="howitworkspanel" class="m">

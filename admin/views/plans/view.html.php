@@ -13,13 +13,13 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.application.component.view');
- 
+require_once JPATH_COMPONENT_ADMINISTRATOR . '/helpers/general.php';
+
 /**
  * EasyStaging Manager View
  *
  */
-class EasyStagingViewPlans extends JView
+class EasyStagingViewPlans extends JViewLegacy
 {
 	protected $items;
 
@@ -43,6 +43,9 @@ class EasyStagingViewPlans extends JView
 		JHtml::_('behavior.framework', true);
 		JHtml::_('behavior.tooltip');
 		JHtml::_('behavior.multiselect');
+
+		// Get our Joomla Tag, installed version and our canDo's
+		$this->jvtag      = ES_General_Helper::getJoomlaVersionTag();
 
 		// Get version
 		$xml = simplexml_load_file(JPATH_BASE . '/components/com_easystaging/easystaging.xml');

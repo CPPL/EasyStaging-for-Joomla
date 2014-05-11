@@ -10,14 +10,15 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die();
 
-jimport('joomla.application.component.view');
+require_once JPATH_COMPONENT . '/helpers/general.php';
+require_once JPATH_COMPONENT . '/helpers/plan.php';
 
 /**
  * EasyStaging Plan Editor View
  *
  * @property mixed form
  */
-class EasyStagingViewPlan extends JView
+class EasyStagingViewPlan extends JViewLegacy
 {
 	/* @var $form JForm */
 	protected $form;
@@ -39,7 +40,8 @@ class EasyStagingViewPlan extends JView
 	 */
 	public function display($tpl = null)
 	{
-		require_once JPATH_COMPONENT . '/helpers/plan.php';
+		// Get our Joomla Tag, installed version and our canDo's
+		$this->jvtag = ES_General_Helper::getJoomlaVersionTag();
 
 		// Get the Data
 		$this->form = $this->get('Form');

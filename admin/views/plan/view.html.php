@@ -42,8 +42,8 @@ class EasyStagingViewPlan extends JView
 		require_once JPATH_COMPONENT . '/helpers/plan.php';
 
 		// Get the Data
-		$form = $this->get('Form');
-		$item = $this->get('Item');
+		$this->form = $this->get('Form');
+		$this->item = $this->get('Item');
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors')))
@@ -53,12 +53,8 @@ class EasyStagingViewPlan extends JView
 			return false;
 		}
 
-		// Assign the Data
-		$this->form  = $form;
-		$this->item  = $item;
-
 		// Should we be here?
-		$this->canDo = PlanHelper::getActions($item->id);
+		$this->canDo = PlanHelper::getActions($this->item->id);
 
 		// Running or Edit/Creating
 		$this->runOnly = $this->_runOnlyMode();

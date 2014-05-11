@@ -20,7 +20,7 @@ if (!JFactory::getUser()->authorise('core.manage', 'com_easystaging'))
 // Include dependencies
 jimport('joomla.application.component.controller');
 
-$controller = JController::getInstance('EasyStaging');
+$controller = JControllerLegacy::getInstance('EasyStaging');
 
 $jinput = JFactory::getApplication()->input;
 

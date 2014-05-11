@@ -20,7 +20,7 @@ jimport('joomla.application.component.controller');
  *
  * @since    1.0
  */
-class EasyStagingController extends JController
+class EasyStagingController extends JControllerLegacy
 {
 	/**
      * Our version of the default display()

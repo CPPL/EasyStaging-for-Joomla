@@ -101,6 +101,7 @@ class EasyStagingViewPlan extends JView
 		{
 			JToolBarHelper::save2new('plan.save2new');
 		}
+
 		JToolBarHelper::cancel('plan.cancel', $isNew ? 'JTOOLBAR_CANCEL' : 'JTOOLBAR_CLOSE');
 		JToolBarHelper::divider();
 		JToolBarHelper::help('COM_EASYSTAGING_HELP_EASYSTAGING_MANAGER', false, 'http://seepeoplesoftware.com/products/easystaging/1.0/help/plan.html');
@@ -226,6 +227,15 @@ JS;
 		return $actionMenu;
 	}
 
+	/**
+	 * Creates our file copy direction menu
+	 *
+	 * @param   string  $selectedDirection  The currently selected direction.
+	 * @param   string  $controlName        The name for the control
+	 * @param   string  $rowId              The row id.
+	 *
+	 * @return mixed
+	 */
 	protected function _getDirectionMenu($selectedDirection, $controlName, $rowId)
 	{
 		// Get custom field

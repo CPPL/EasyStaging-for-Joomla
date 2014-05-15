@@ -68,7 +68,7 @@ div.toolbar-list.tb-off a:active {
     padding-bottom: 10px;
 }
 
-#startFile, #startDBase, #startAll, #status {
+#startFile, #startDBase, #startAll {
     margin: 34px;
     height: 32px;
 }

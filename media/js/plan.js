@@ -574,7 +574,7 @@ com_EasyStaging.filterTableNames = function ()
     this.tableFilter = tnf.value;
     this.tablesHidden = 0;
 
-    if (this.tableFilter.length > 2)
+    if (this.tableFilter.length >= 1)
     {
         // Update each row
         tableRows.each(function(row, index)
@@ -591,14 +591,26 @@ com_EasyStaging.filterTableNames = function ()
                     row.addClass('hidden');
                     this.tablesHidden++;
                 }
-            }, com_EasyStaging
-        );
-        // Notify user of changes
-        var visibleTables = this.totalTables - this.tablesHidden;
-        var jmsgs = [cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_FILTER_RESULTS'), visibleTables, this.totalTables, this.tablesHidden)];
-        Joomla.renderMessages({'message': jmsgs });
+            }, com_EasyStaging);
     }
- };
+    else
+    {
+        // Update each row
+        tableRows.each(function(row, index)
+        {
+            if(row.hasClass('hidden'))
+            {
+                row.removeClass('hidden');
+            }
+        }, com_EasyStaging);
+    }
+
+    // Notify user of changes
+    var visibleTables = this.totalTables - this.tablesHidden;
+    var jmsgs = [cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_FILTER_RESULTS'), visibleTables, this.totalTables, this.tablesHidden)];
+    Joomla.renderMessages({'info': jmsgs });
+
+};
 
 com_EasyStaging.checkDBSettings = function()
 {

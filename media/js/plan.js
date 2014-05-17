@@ -118,17 +118,17 @@ com_EasyStaging.status = function ()
         },
         onComplete: function (response)
         {
-            com_EasyStaging.reportStatus ( response );
+            com_EasyStaging.reportStatus(response);
         },
         onError: function( test, error)
         {
-            com_EasyStaging.reportStatus( response );
+            com_EasyStaging.reportStatus(response);
         }
     });
     req.send();
 };
 
-com_EasyStaging.reportStatus = function ( response )
+com_EasyStaging.reportStatus = function (response)
 {
     "use strict";
     if (response.status !== 0)

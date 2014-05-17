@@ -13,6 +13,7 @@ if (typeof(cppl_tools) === 'undefined') {
 
 cppl_tools.setUp = function (option)
 {
+    "use strict";
     this.option                  = option;
 	this.token                   = this.getToken();
 	this.requestData[this.token] = 1;
@@ -21,11 +22,12 @@ cppl_tools.setUp = function (option)
 		url:    'index.php?option='+option+'&format=json',
 		method: 'get'
 	});
-}
+};
 
-cppl_tools.getToken = function ()
+cppl_tools.getToken = function()
 {
-	var theToken;
+    "use strict";
+    var theToken;
 	var els = document.getElementsByTagName('input');
 	for (var i = 0; i < els.length; i++) {
 		if ((els[i].type === 'hidden') && (els[i].name.length === 32) && els[i].value === '1') {
@@ -33,31 +35,34 @@ cppl_tools.getToken = function ()
 		}
 	}
 	return theToken;
-}
+};
 
-cppl_tools.getTokenSegment = function ()
+cppl_tools.getTokenSegment  = function ()
 {
-    if(typeof this.token == 'undefined' || this.token == null)
+    "use strict";
+     if(typeof this.token === 'undefined' || this.token === null)
     {
         this.token = this.getToken();
     }
-    var tokenSegment = ('&' + token + '=1');
+    var tokenSegment = ('&' + this.token + '=1');
     return tokenSegment;
 };
 
 
-cppl_tools.getID  = function ()
+cppl_tools.getID   = function ()
 {
-	if ($('id')) {
+    "use strict";
+     if ($('id')) {
 		return $('id').value;
 	} else {
 		return null;
 	}
-}
+};
 
-cppl_tools.compareTwoObjects = function (firstObj, secondObj)
+cppl_tools.compareTwoObjects  = function (firstObj, secondObj)
 {
-    firstObj = typeof firstObj !== 'undefined' ? firstObj : false;
+    "use strict";
+     firstObj = typeof firstObj !== 'undefined' ? firstObj : false;
     secondObj = typeof secondObj !== 'undefined' ? secondObj : false;
     // Assume success, look for failure
     var compareResult = true;
@@ -65,28 +70,28 @@ cppl_tools.compareTwoObjects = function (firstObj, secondObj)
     if(firstObj && secondObj)
     {
         // Compare our two objects
-        if((typeof firstObj == "object") && (typeof secondObj == "object"))
+        if((typeof firstObj === "object") && (typeof secondObj === "object"))
         {
             for (var aProp in firstObj)
             {
-                if(secondObj.hasOwnProperty(aProp) && (aProp != "__proto__") && (typeof firstObj[aProp] != "function"))
+                if(secondObj.hasOwnProperty(aProp) && (aProp !== "__proto__") && (typeof firstObj[aProp] !== "function"))
                 {
                     var foP = firstObj[aProp];
-                    var foPType = this.typeof(foP)
+                    var foPType = this.typeof(foP);
                     var soP = secondObj[aProp];
-                    var soPType = this.typeof(soP)
-                    if(foPType == soPType)
+                    var soPType = this.typeof(soP);
+                    if(foPType === soPType)
                     {
-                        if(foPType == "object")
+                        if(foPType === "object")
                         {
                             if(!this.compareTwoObjects(foP, soP))
                             {
                                 // The objects are different
                                 compareResult = false;
-                                break
+                                break;
                             }
                         }
-                        else if(foPType == "array")
+                        else if(foPType === "array")
                         {
                            if(!this.compareTwoArrays(foP, soP))
                            {
@@ -95,7 +100,7 @@ cppl_tools.compareTwoObjects = function (firstObj, secondObj)
                                break;
                            }
                         }
-                        else if(foP != soP)
+                        else if(foP !== soP)
                         {
                             // Ok same property different values, that's a fail
                             compareResult = false;
@@ -130,29 +135,31 @@ cppl_tools.compareTwoObjects = function (firstObj, secondObj)
     }
 
     return compareResult;
-}
+};
 
-cppl_tools.getArrayElementsThatMatchString = function (needle, haystack, matchWhole)
+cppl_tools.getArrayElementsThatMatchString  = function (needle, haystack, matchWhole)
 {
-    matchWhole = typeof matchWhole !== 'undefined' ? matchWhole : false;
+    "use strict";
+     matchWhole = typeof matchWhole !== 'undefined' ? matchWhole : false;
 
     var Matches = [];
 
     for (var i = 0; i < haystack.length; i++)
     {
         var thisElement = haystack[i];
-        if((matchWhole && (thisElement == needle)) || (!matchWhole && (thisElement.indexOf(needle) >= 0)))
+        if((matchWhole && (thisElement === needle)) || (!matchWhole && (thisElement.indexOf(needle) >= 0)))
         {
             Matches.push(thisElement);
         }
     }
 
     return Matches;
-}
+};
 
-cppl_tools.compareTwoArrays = function (firstArray, secondArray)
+cppl_tools.compareTwoArrays  = function (firstArray, secondArray)
 {
-    firstArray = typeof firstArray !== 'undefined' ? firstArray : false;
+    "use strict";
+     firstArray = typeof firstArray !== 'undefined' ? firstArray : false;
     secondArray = typeof secondArray !== 'undefined' ? secondArray : false;
     // Assume success, look for failure
     var compareResult = true;
@@ -160,9 +167,9 @@ cppl_tools.compareTwoArrays = function (firstArray, secondArray)
     if(firstArray && secondArray)
     {
         // Compare our two objects
-        if((this.typeof(firstArray) == "array") && (this.typeof(secondArray) == "array"))
+        if((this.typeof(firstArray) === "array") && (this.typeof(secondArray) === "array"))
         {
-            if(firstArray.length == secondArray.length)
+            if(firstArray.length === secondArray.length)
             {
                 var faItemType;
                 var saItemType;
@@ -174,11 +181,11 @@ cppl_tools.compareTwoArrays = function (firstArray, secondArray)
                     faItem = firstArray[i];
                     saItem = secondArray[i];
 
-                    if(faItemType != 'array')
+                    if(faItemType !== 'array')
                     {
-                        if(faItemType != 'object')
+                        if(faItemType !== 'object')
                         {
-                            if(faItem != saItem)
+                            if(faItem !== saItem)
                             {
                                 // Items are not the same
                                 compareResult = false;
@@ -220,10 +227,12 @@ cppl_tools.compareTwoArrays = function (firstArray, secondArray)
     }
 
     return compareResult;
-}
+};
 
-cppl_tools.typeof = function (testItem) {
-    var t = typeof testItem;
+cppl_tools.typeof  = function (testItem)
+{
+    "use strict";
+     var t = typeof testItem;
     if (t === 'object')
     {
         if (testItem)
@@ -237,13 +246,14 @@ cppl_tools.typeof = function (testItem) {
         }
     }
     return t;
-}
+};
 
 cppl_tools.disableToolbarBtn = function (toolBarBtn, newToolTipText)
 {
-	// Setup the default vars
+    "use strict";
+    // Setup the default vars
 	var ourBtn = $(toolBarBtn);
-	var ourBtnLink = ourBtn.childNodes[1]
+	var ourBtnLink = ourBtn.childNodes[1];
 	var ourBtnSpan = ourBtnLink.childNodes[1];
 	// Check to see if button class is already set to -off
 	if (ourBtnSpan.get('class').indexOf('-off') > 0)
@@ -254,10 +264,10 @@ cppl_tools.disableToolbarBtn = function (toolBarBtn, newToolTipText)
 	ourBtnLink.removeEvents();
 	ourBtnLink.removeAttribute('href');
 	ourBtnLink.removeAttribute('rel');
-	ourBtnLink.addClass('hasTip')
+	ourBtnLink.addClass('hasTip');
 
 	// Setup the new tooltip message
-	newTitle = newToolTipText;
+	var newTitle = newToolTipText;
 	ourBtnLink.set('title', newTitle);
 	var ourBtnTips = ourBtnLink.get('title').split('::',2);
 	ourBtnLink.store('tip:title', ourBtnTips[0]);
@@ -268,53 +278,64 @@ cppl_tools.disableToolbarBtn = function (toolBarBtn, newToolTipText)
 	// Change icon
 	// This could be a problem if buttons ever end up with multiple classes in different orders.
 	var ourBtnSpanClassArray = ourBtnSpan.get('class').split(' ');
-	ourBtnSpanClassOff = ourBtnSpanClassArray[0] + '-off';
+	var ourBtnSpanClassOff = ourBtnSpanClassArray[0] + '-off';
 
 	ourBtnSpan.addClass( ourBtnSpanClassOff );
 	ourBtnSpan.removeClass( ourBtnSpanClassArray[0] );
-}
+};
 
 cppl_tools.addToList = function(theList, itemToAdd)
 {
-	newList = theList.split(', ');
+    "use strict";
+	var newList = theList.split(', ');
 	newList.push(itemToAdd);
 	return newList.join(', ');
-}
+};
 
 cppl_tools.deleteFromList = function(theList, itemToRemove)
 {
-	originalList = theList.split(', ');
-	newList = new Array();
+    "use strict";
+    var originalList = theList.split(', ');
+	var newList = [];
 	// Remove the matching element from the array
 	for(var i=0; i<originalList.length; i++) {
-		if (originalList[i] != itemToRemove) newList.push(originalList[i]);
+		if (originalList[i] !== itemToRemove)
+        {
+            newList.push(originalList[i]);
+        }
 	}
 	return newList.join(', ');
-}
+};
 
 cppl_tools.makeURLSafe = function(str)
 {
+    "use strict";
 	// Modify it if it's just a number
 	if(this.isNumber(str))
 	{
 		str = 'a' + str;
 	}
-	urlSafeStr = str.replace(/\s+/g,"-").replace(/[^A-Za-z0-9\-\%]/g,'').toLowerCase();
-	if (urlSafeStr == '')
+	var urlSafeStr = str.replace(/\s+/g,"-").replace(/[^A-Za-z0-9\-\%]/g,'').toLowerCase();
+    var theAlias;
+
+	if (urlSafeStr === '')
 	{
 		theAlias = encodeURIComponent(str).toLowerCase();
 	} else {
 		theAlias = urlSafeStr;
 	}
 	return theAlias; 
-}
+};
 
 cppl_tools.isNumber = function (n) {
+    "use strict";
 	return !isNaN(parseFloat(n)) && isFinite(n);
-}
+};
 
-cppl_tools.addMessages = function(messages) {
-    var container = document.id('system-message-container');
+cppl_tools.addMessages  = function (messages)
+{
+    "use strict";
+     var container = document.id('system-message-container');
 
     var dl = new Element('dl', {
         id: 'system-message',

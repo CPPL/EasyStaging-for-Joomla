@@ -562,8 +562,18 @@ com_EasyStaging.filterTableActions = function ()
 
     // Notify user of changes
     var visibleTables = this.totalTables - this.tablesHidden;
-    var jmsgs = [cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_FILTER_RESULTS'), visibleTables, this.totalTables, this.tablesHidden)];
-    Joomla.renderMessages({'message': jmsgs });
+    var jmsgs = {info:[cppl_tools.sprintf(Joomla.JText._('COM_EASYSTAGING_JS_FILTER_RESULTS'), visibleTables, this.totalTables, this.tablesHidden)]};
+
+    if(this.last_notification === 0)
+    {
+        cppl_tools.appendMessages(jmsgs);
+        var theNowDateObj = new Date();
+        this.last_notification = theNowDateObj.getTime();
+    }
+    else
+    {
+        Joomla.renderMessages(jmsgs);
+    }
 };
 
 com_EasyStaging.filterTableNames = function ()

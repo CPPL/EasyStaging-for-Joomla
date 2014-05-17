@@ -548,7 +548,7 @@ com_EasyStaging.filterTableActions = function ()
             var theSelectValue = row.children[2].children[0].value;
             var inFilter = this.tableFilter.indexOf(parseInt(theSelectValue));
 
-            if((inFilter >= 0) || (this.tableFilter.length === 0) || ((theSelectValue !== 0) && (this.tableFilter[0] === 'N')))
+            if((inFilter >= 0) || (this.tableFilter.length === 0) || ((theSelectValue !== "0") && (this.tableFilter[0] === 'N')))
             {
                 row.removeClass('hidden');
             }

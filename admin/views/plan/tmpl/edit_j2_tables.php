@@ -9,14 +9,14 @@ defined('_JEXEC') or die('Restricted Access'); ?>
 					<p><?php echo JText::_('JSEARCH_FILTER_LABEL'); ?> </p><input id="tableNamesFilter" type="text">
 				</div>
 				<div id="tf-presets1">
-					<span id="allTablesFilter" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_JS_ALL_TABLES_FILTER'); ?>"><button id="allTables" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_JS_ALL_TABLES_BTN'); ?></button></span>
-					<span id="skippedTablesFilter" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_JS_SKIP_TABLES_FILTER'); ?>"><button id="allTables" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_JS_SKIP_TABLES_BTN'); ?></button></span>
-					<span id="notSkippedTablesFilter" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_JS_NOT_SKIP_TABLES_FILTER'); ?>"><button id="allTables" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_JS_NOT_SKIP_TABLES_BTN'); ?></button></span>
+					<span id="allTablesFilter" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_JS_ALL_TABLES_FILTER'); ?>"><button id="allTablesBtn" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_JS_ALL_TABLES_BTN'); ?></button></span>
+					<span id="skippedTablesFilter" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_JS_SKIP_TABLES_FILTER'); ?>"><button id="skippedTablesBtn" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_JS_SKIP_TABLES_BTN'); ?></button></span>
+					<span id="notSkippedTablesFilter" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_JS_NOT_SKIP_TABLES_FILTER'); ?>"><button id="notSkippedTablesBtn" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_JS_NOT_SKIP_TABLES_BTN'); ?></button></span>
 				</div>
 				<div id="tf-presets2">
-					<span id="pushTablesFilter" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_JS_PUSH_TABLES_FILTER'); ?>"><button id="allTables" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_JS_PUSH_TABLES_BTN'); ?></button></span>
-					<span id="ptpTablesFilter" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_JS_PTP_TABLES_FILTER'); ?>"><button id="allTables" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_JS_PTP_TABLES_BTN'); ?></button></span>
-					<span id="pullTablesFilter" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_JS_PULL_TABLES_FILTER'); ?>"><button id="allTables" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_JS_PULL_TABLES_BTN'); ?></button></span>
+					<span id="pushTablesFilter" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_JS_PUSH_TABLES_FILTER'); ?>"><button id="pushTablesBtn" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_JS_PUSH_TABLES_BTN'); ?></button></span>
+					<span id="ptpTablesFilter" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_JS_PTP_TABLES_FILTER'); ?>"><button id="ptpTablesBtn" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_JS_PTP_TABLES_BTN'); ?></button></span>
+					<span id="pullTablesFilter" class="hasTip" title="<?php echo JText::_('COM_EASYSTAGING_JS_PULL_TABLES_FILTER'); ?>"><button id="pullTablesBtn" type="button" class="startBtns" ><?php echo JText::_('COM_EASYSTAGING_JS_PULL_TABLES_BTN'); ?></button></span>
 				</div>
 			</div>
 		<table class="adminlist">

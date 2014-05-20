@@ -22,6 +22,7 @@ error_reporting(E_ALL | E_NOTICE);
 ini_set('display_errors', 1);
 
 $safe_mode = true;
+
 if (function_exists('ini_get'))
 {
 	$safe_mode = ini_get('safe_mode');
@@ -77,13 +78,13 @@ else
  * @return  int
  */
 function _write_pr_log($log)
- {
+{
 	$prlogfilepath = JPATH_COMPONENT_ADMINISTRATOR . '/syncfiles/planrunner.txt';
 	$prlogfile = fopen($prlogfilepath, 'ab');
 
 	$logWriteResult = fwrite($prlogfile, $log . "\n");
 	return $logWriteResult;
- }
+}
 
 /**
  * This script will load the specified plan steps that remaining and execute them.
@@ -578,7 +579,7 @@ DEF;
 			// Attempt to write the file
 			$result['status'] = fwrite($exclusionFile, $allExclusions);
 			$result['msg'] = $result['status'] ? JText::sprintf('COM_EASYSTAGING_FILE_WRITTEN_SUCCESSFULL_DESC', $result['status'])
-												: JText::_('COM_EASYSTAGING_FAILED_TO_WRIT_DESC');
+				: JText::_('COM_EASYSTAGING_FAILED_TO_WRIT_DESC');
 
 			// Time to close off
 			fclose($exclusionFile);

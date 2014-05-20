@@ -38,7 +38,7 @@ defined('_JEXEC') or die('Restricted Access');
 		</div>
 		<div id="es_rstest">
 			<p><img id="RSTest-icon"src="/media/com_easystaging/images/Rsync-Test-icon-48.png"><?php echo JText::_('COM_EASYSTAGING_JSON_TEST_RSYNC_DESC'); ?></p>
-			<button name="testDBConnection" type="button" onclick="com_EasyStaging.checkRsyncWorks()"><?php echo JText::_('COM_EASYSTAGING_JSON_TEST_RSYNC'); ?></button>
+			<button name="testRsyncWorks" type="button" onclick="com_EasyStaging.checkRsyncWorks()"><?php echo JText::_('COM_EASYSTAGING_JSON_TEST_RSYNC'); ?></button>
 		</div>
 	</div>
 	<div style="clear:left;"></div>

@@ -181,19 +181,19 @@ class EasyStagingControllerPlan extends JController
 						}
 						else
 						{
-							$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_CONNECTION_OK');
+							$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_CONNECTION_OK') . '<br>';
 							$status = 1;
 							$result = $errNo;
 						}
 					}
 					else
 					{
-						$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_HOST_TIMEDOUT');
+						$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_HOST_TIMEDOUT') . '<br>';
 					}
 				}
 				else
 				{
-					$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_HOST_INVALID');
+					$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_HOST_INVALID') . '<br>';
 				}
 			}
 		}

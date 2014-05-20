@@ -132,7 +132,7 @@ class EasyStagingControllerPlan extends JController
 				// Can we contact the host?
 				if ($hostIsValid)
 				{
-					$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_HOSTNAME_OK');
+					$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_HOSTNAME_OK') . '<br>';
 					$port = $this->params->get('port_to_test_remote_host', 80);
 					$timeout = $this->params->get('timeout_for_connection_tests', 3);
 
@@ -141,7 +141,7 @@ class EasyStagingControllerPlan extends JController
 					// We have contact
 					if ($contactEstablished)
 					{
-						$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_HOST_CONTACTED');
+						$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_HOST_CONTACTED') . '<br>';
 
 						// Get our DB object
 						try

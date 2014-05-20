@@ -3,7 +3,7 @@
 defined('_JEXEC') or die('Restricted Access'); ?>
 	<div>
 		<p class="tab-description"><?php echo JText::_('COM_EASYSTAGING_TABLESETTINGS_TAB_DESC')?></p>
-			<div id="table-filters" title="<?php echo JText::_('COM_EASYSTAGING_JS_TABLE_FILTERS'); ?>">
+			<div id="table-filters" title="<?php echo JText::_('COM_EASYSTAGING_JS_TABLE_FILTERS_TT'); ?>">
 				<div id="tf-toggle"></div>
 				<div id="tf-text">
 					<p><?php echo JText::_('JSEARCH_FILTER_LABEL'); ?> </p><input id="tableNamesFilter" type="text">

@@ -23,6 +23,7 @@ class ES_General_Helper
 	{
 		// Get our Joomla Tag
 		$jv         = new JVersion;
+
 		return 'j' . explode('.', $jv->RELEASE)[0];
 	}
 }

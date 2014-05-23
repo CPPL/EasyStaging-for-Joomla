@@ -1126,9 +1126,6 @@ DEF;
 		// Assume failure
 		$status = false;
 
-		// Get our plan
-		$plan_id = $this->_plan_id();
-
 		// Get the target site details
 		$target_site = $this->target_site;
 		$options = array(
@@ -1167,10 +1164,17 @@ DEF;
 				if ($this->targetTablesRetreived)
 				{
 					$tableList = print_r($this->targetTablesRetreived, true);
-
 					$this->_log($theStep, $tableList);
-					$status = true;
+					$msg = JText::sprintf('COM_EASYSTAGING_DATABASE_STEP_01_FOUND_X_TABLES', count($this->targetTablesRetreived), $this->target_site->site_name);
+					$this->_log($theStep, $msg);
 				}
+				else
+				{
+					$msg = JText::sprintf('COM_EASYSTAGING_DATABASE_STEP_01_FOUND_X_TABLES_0', $this->target_site->site_name);
+					$this->_log($theStep, $msg);
+				}
+
+				$status = true;
 			}
 		}
 		else

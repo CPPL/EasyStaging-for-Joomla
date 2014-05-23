@@ -655,7 +655,7 @@ DEF;
 			$this->db_status = $this->checkDBConnection($step);
 		}
 
-		$this->_log($step, JText::sprintf('COM_EASYSTAGNG_CLI_STARTING_TABLE_X', $step->action));
+		$this->_log($step, JText::sprintf('COM_EASYSTAGING_CLI_STARTING_TABLE_X', $step->action));
 
 		if ($this->db_status)
 		{

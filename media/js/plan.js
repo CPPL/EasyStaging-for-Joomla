@@ -10,7 +10,7 @@ if (typeof jQuery === 'undefined') {
         function () {
             "use strict";
             cppl_tools.setUp('com_easystaging');
-            var publishedStatus = ($('jform_published').value === 1);
+            var publishedStatus = ($('jform_published').value === "1");
             var runOnlyMode = $('runOnlyMode').value;
 
             if(publishedStatus)
@@ -20,7 +20,7 @@ if (typeof jQuery === 'undefined') {
                 $('startAll').addEvent('click', function (event) { com_EasyStaging.start(event.target.id); });
             }
 
-            if(runOnlyMode !== 1)
+            if(runOnlyMode !== "1")
             {
                 $('tableNamesFilter').addEvent('keyup', function (event) {setTimeout(com_EasyStaging.filterTableNames(), 0);});
                 $('tf-toggle').addEvent('click', function (event) {com_EasyStaging.toggleFilters();});

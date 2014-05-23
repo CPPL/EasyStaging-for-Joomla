@@ -1,8 +1,8 @@
 // Only define com_EasyStaging if it doesn't exist.
 /* global cppl_tools */
-if (typeof(com_EasyStaging) === 'undefined')
+if (typeof com_EasyStaging === 'undefined')
 {
-	var com_EasyStaging = {};
+    var com_EasyStaging = {};
 }
 
 if (typeof jQuery === 'undefined') {

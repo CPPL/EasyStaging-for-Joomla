@@ -18,8 +18,9 @@
 define('_JEXEC', 1);
 define('DS', DIRECTORY_SEPARATOR);
 
+// We need to turn off strict for J2.5.x users as J3 methods break BC by changing signatures.`
+ini_set('display_errors', 0);
 error_reporting(E_ALL | E_NOTICE);
-ini_set('display_errors', 1);
 
 $safe_mode = true;
 
@@ -1165,12 +1166,12 @@ DEF;
 				{
 					$tableList = print_r($this->targetTablesRetreived, true);
 					$this->_log($theStep, $tableList);
-					$msg = JText::sprintf('COM_EASYSTAGING_DATABASE_STEP_01_FOUND_X_TABLES', count($this->targetTablesRetreived), $this->target_site->site_name);
+					$msg = JText::sprintf('COM_EASYSTAGING_DATABASE_STEP_01_FOUND_X_TABLES', count($this->targetTablesRetreived), $target_site->site_name);
 					$this->_log($theStep, $msg);
 				}
 				else
 				{
-					$msg = JText::sprintf('COM_EASYSTAGING_DATABASE_STEP_01_FOUND_X_TABLES_0', $this->target_site->site_name);
+					$msg = JText::sprintf('COM_EASYSTAGING_DATABASE_STEP_01_FOUND_X_TABLES_0', $target_site->site_name);
 					$this->_log($theStep, $msg);
 				}
 

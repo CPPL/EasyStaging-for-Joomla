@@ -59,16 +59,16 @@
         	description="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_QUIET_DESC"
         	type="radio"
         >
-        	<option value="-q">JYES</option>
-         	<option value="">JNO</option>
+        	<option value="1">JYES</option>
+         	<option value="0">JNO</option>
          </field>
         <field name="php_file"
         	label="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_FILE_LABEL"
         	description="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_FILE_DESC"
         	type="radio"
         >
-        	<option value="-f">JYES</option>
-         	<option value="">JNO</option>
+        	<option value="1">JYES</option>
+         	<option value="0">JNO</option>
          </field>
         <field name="php_out_captured"
                label="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_OUT_CAPTURED_LABEL"

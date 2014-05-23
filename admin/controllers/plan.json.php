@@ -982,14 +982,14 @@ class EasyStagingControllerPlan extends JController
 		}
 
 		// Get the path to php from defined settings
-		$php_quiet = $this->params->get('php_quiet', '');
-		$php_file = $this->params->get('php_file', '');
+		$php_quiet = $this->params->get('php_quiet', 0) ? ' -q' : '';
+		$php_file = $this->params->get('php_file', 0) ? ' -f' : '';
 		$pathToPHP = $this->params->get('path_to_php', '');
 		$capture_PHP_out_from_AT = $this->params->get('php_out_captured', 0);
 
 		$cmdPath = $pathToPHP;
-		$cmdPath .= $php_quiet ? ' ' . $php_quiet : '';
-		$cmdPath .= $php_file ? ' ' . $php_quiet : '';
+		$cmdPath .= $php_quiet;
+		$cmdPath .= $php_file;
 		$cmdPath .= ' ' . $pathToScript;
 
 		if (JDEBUG)

@@ -31,6 +31,7 @@ defined('_JEXEC') or die('Restricted Access');
 		}
 	?></div>
 	<div class="clearfix"></div>
+<?php if (!$this->runOnly) : ?>
 	<div id="es_testing">
 		<div id="es_dbtest">
 			<p><img id="dbTest-icon"src="/media/com_easystaging/images/Test-Icon-for-EasyStaging-48.png"><?php echo JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_DESC'); ?></p>
@@ -41,6 +42,7 @@ defined('_JEXEC') or die('Restricted Access');
 			<button name="testRsyncWorks" type="button" onclick="com_EasyStaging.checkRsyncWorks()"><?php echo JText::_('COM_EASYSTAGING_JSON_TEST_RSYNC'); ?></button>
 		</div>
 	</div>
+<?php endif; ?>
 	<div style="clear:left;"></div>
 	<div class="planUpdatesDiv adminList" >
 		<div id="currentStatus" >

@@ -14,8 +14,8 @@ foreach ($this->items as $i => &$row)
 	$checked = JHTML::_('grid.id', $i, $row->id);
 	$published = '';
 	$published = JHtml::_('jgrid.published', $row->published, $i, 'plans.', $canDo->get('core.edit.state'), 'cb', $row->publish_up, $row->publish_down);
-	$canCheckin	= $user->authorise('core.manage',		'com_checkin') || $row->checked_out == $userId || $row->checked_out == 0;
-	$canChange	= $user->authorise('core.edit.state',	'com_easystaging.plan.'.$row->id) && $canCheckin;
+	$canCheckin	= $user->authorise('core.manage', 'com_checkin') || $row->checked_out == $userId || $row->checked_out == 0;
+	$canChange	= $user->authorise('core.edit.state', 'com_easystaging.plan.' . $row->id) && $canCheckin;
 
 	if ($canDo->get('core.edit') && $canCheckin && $canChange)
 	{
@@ -36,7 +36,8 @@ foreach ($this->items as $i => &$row)
 	}
 
 	$last_run = JHtml::_('date', $row->last_run, JText::_('DATE_FORMAT_LC1'));
-	if($row->last_run == '0000-00-00 00:00:00')
+
+	if ($row->last_run == '0000-00-00 00:00:00')
 	{
 		$last_run = JText::_('COM_EASYSTAGING_NOT_RUN');
 	}
@@ -50,6 +51,7 @@ foreach ($this->items as $i => &$row)
 		{
 			$relDate = '';
 		}
+
 		$last_run = JText::sprintf('COM_EASYSTAGING_LAST_RUN', $last_run) . $relDate;
 	}
 

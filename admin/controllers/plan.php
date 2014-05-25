@@ -5,16 +5,16 @@
  * @license		GNU/GPL
  * @copyright	Craig Phillips Pty Ltd
 */
- 
-// No direct access
- 
-defined( '_JEXEC' ) or die( 'Restricted access' );
- 
-// import Joomla controllerform library
+
+defined('_JEXEC') or die('Restricted access');
+
 jimport('joomla.application.component.controllerform');
- 
+
+require_once JPATH_COMPONENT_ADMINISTRATOR . '/helpers/plan.php';
 /**
- * EasyStaging Component Plan Controller
+ * Class EasyStagingControllerPlan
+ * 
+ * @since  1.0
  */
 class EasyStagingControllerPlan extends JControllerForm
 {
@@ -23,18 +23,25 @@ class EasyStagingControllerPlan extends JControllerForm
 		parent::__construct($config);
 	}
 
+	/**
+	 * 
+	 * @param null $key
+	 * @param null $urlVar
+	 *
+	 * @return bool
+	 */
 	public function run($key = null, $urlVar = null)
 	{
 		$jinput = JFactory::getApplication()->input;
+
 		// Initialise variables.
 		$app		= JFactory::getApplication();
 		$model		= $this->getModel();
 		$table		= $model->getTable();
 		$cid		= $jinput->post('cid', array(), 'array');
 		$context	= "$this->option.run.$this->context";
-		$append		= '';
 
-		
+
 		// Set the run view
 		$jinput->set('layout', 'Run');
 
@@ -51,7 +58,7 @@ class EasyStagingControllerPlan extends JControllerForm
 		}
 
 		// Get the previous record id (if any) and the current record id.
-		$recordId	= (int) (count($cid) ? $cid[0] : $jinput->get($urlVar, NULL, 'INT'));
+		$recordId	= (int) (count($cid) ? $cid[0] : $jinput->get($urlVar, null, 'INT'));
 		$checkin	= property_exists($table, 'checked_out');
 
 		// Access check.
@@ -69,15 +76,16 @@ class EasyStagingControllerPlan extends JControllerForm
 			// Check-out failed, bounce out as we shouldn't run a plan that may be changing.
 			$this->setError(JText::sprintf('JLIB_APPLICATION_ERROR_CHECKOUT_FAILED', $model->getError()));
 			$this->setMessage($this->getError(), 'error');
-			$this->setRedirect(JRoute::_('index.php?option='.$this->option.'&view='.$this->view_list.$this->getRedirectToListAppend(), false));
+			$this->setRedirect(JRoute::_('index.php?option=' . $this->option . '&view=' . $this->view_list . $this->getRedirectToListAppend(), false));
 
 			return false;
 		}
-		else {
+		else
+		{
 			// Check-out succeeded, push the new record id into the session.
 			$this->holdEditId($context, $recordId);
-			$app->setUserState($context.'.data', null);
-			$this->setRedirect('index.php?option='.$this->option.'&view='.$this->view_item.$this->getRedirectToItemAppend($recordId, $urlVar));
+			$app->setUserState($context . '.data', null);
+			$this->setRedirect('index.php?option=' . $this->option . '&view=' . $this->view_item . $this->getRedirectToItemAppend($recordId, $urlVar));
 
 			return true;
 		}
@@ -103,15 +111,15 @@ class EasyStagingControllerPlan extends JControllerForm
 			$model		= $this->getModel();
 			$table		= $model->getTable();
 			$checkin	= property_exists($table, 'checked_out');
-			$context	= "$this->option.run.$this->context";
-		
+			$context	= $this->option . '.run.' . $this->context;
+
 			if (empty($key))
 			{
 				$key = $table->getKeyName();
 			}
-		
-			$recordId	= $jinput->get($key, NULL, 'INT');
-		
+
+			$recordId	= $jinput->get($key, null, 'INT');
+
 			// Attempt to check-in the current record.
 			if ($recordId)
 			{
@@ -121,11 +129,11 @@ class EasyStagingControllerPlan extends JControllerForm
 					// Somehow the person just went to the form - we don't allow that.
 					$this->setError(JText::sprintf('JLIB_APPLICATION_ERROR_UNHELD_ID', $recordId));
 					$this->setMessage($this->getError(), 'error');
-					$this->setRedirect(JRoute::_('index.php?option='.$this->option.'&view='.$this->view_list.$this->getRedirectToListAppend(), false));
-		
+					$this->setRedirect(JRoute::_('index.php?option=' . $this->option . '&view=' . $this->view_list . $this->getRedirectToListAppend(), false));
+
 					return false;
 				}
-		
+
 				if ($checkin)
 				{
 					if ($model->checkin($recordId) === false)
@@ -133,8 +141,8 @@ class EasyStagingControllerPlan extends JControllerForm
 						// Check-in failed, go back to the record and display a notice.
 						$this->setError(JText::sprintf('JLIB_APPLICATION_ERROR_CHECKIN_FAILED', $model->getError()));
 						$this->setMessage($this->getError(), 'error');
-						$this->setRedirect('index.php?option='.$this->option.'&view='.$this->view_item.$this->getRedirectToItemAppend($recordId, $key));
-		
+						$this->setRedirect('index.php?option=' . $this->option . '&view=' . $this->view_item . $this->getRedirectToItemAppend($recordId, $key));
+
 						return false;
 					}
 				}
@@ -143,7 +151,7 @@ class EasyStagingControllerPlan extends JControllerForm
 			// Clean the session data and redirect.
 			$this->releaseEditId($context, $recordId);
 			$app->setUserState($context.'.data',	null);
-			$this->setRedirect(JRoute::_('index.php?option='.$this->option.'&view='.$this->view_list.$this->getRedirectToListAppend(), false));
+			$this->setRedirect(JRoute::_('index.php?option=' . $this->option . '&view=' . $this->view_list . $this->getRedirectToListAppend(), false));
 		
 			return true;
 		}

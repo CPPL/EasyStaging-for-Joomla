@@ -14,8 +14,8 @@ foreach ($this->items as $i => &$row)
 	$checked = JHTML::_('grid.id', $i, $row->id);
 	$published = '';
 	$published = JHtml::_('jgrid.published', $row->published, $i, 'plans.', $canDo->get('core.edit.state'), 'cb', $row->publish_up, $row->publish_down);
-	$canCheckin	= $user->authorise('core.manage',		'com_checkin') || $row->checked_out == $userId || $row->checked_out == 0;
-	$canChange	= $user->authorise('core.edit.state',	'com_easystaging.plan.'.$row->id) && $canCheckin;
+	$canCheckin	= $user->authorise('core.manage', 'com_checkin') || $row->checked_out == $userId || $row->checked_out == 0;
+	$canChange	= $user->authorise('core.edit.state', 'com_easystaging.plan.' . $row->id) && $canCheckin;
 
 	if ($canDo->get('core.edit') && $canCheckin && $canChange)
 	{

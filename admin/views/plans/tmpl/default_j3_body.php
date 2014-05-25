@@ -3,14 +3,14 @@
 defined('_JEXEC') or die('Restricted Access');
 require_once JPATH_COMPONENT . '/helpers/plan.php';
 
-// User permissions
-$canDo	= PlanHelper::getActions();
+// Setup for User permissions
 $user		= JFactory::getUser();
 $userId		= $user->get('id');
 
 foreach ($this->items as $i => &$row)
 {
 	// Row State
+	$canDo	= PlanHelper::getActions($row->id);
 	$checked = JHTML::_('grid.id', $i, $row->id);
 	$published = '';
 	$published = JHtml::_('jgrid.published', $row->published, $i, 'plans.', $canDo->get('core.edit.state'), 'cb', $row->publish_up, $row->publish_down);

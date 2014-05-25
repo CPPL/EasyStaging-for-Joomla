@@ -174,7 +174,15 @@ JS;
 	 */
 	private function _runOnlyMode()
 	{
-		if (!($this->canDo->get('core.edit') || $this->canDo->get('core.create')) && $this->canDo->get('easystaging.run'))
+		// Check if the request was for a Run Only layout
+		$jInput = JFactory::getApplication()->input;
+
+		if ($jInput->get('layout', '') == 'Run')
+		{
+			$this->runOnly = true;
+		}
+
+		if ($this->runOnly || (!($this->canDo->get('core.edit') && $this->canDo->get('core.create')) && $this->canDo->get('easystaging.run')))
 		{
 			// They can run but not hide, I mean create/edit plans - better limit the access to form elements.
 			$this->form->setFieldAttribute('name', 'class', 'readonly');

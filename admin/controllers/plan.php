@@ -62,7 +62,7 @@ class EasyStagingControllerPlan extends JControllerForm
 		$checkin	= property_exists($table, 'checked_out');
 
 		// Access check.
-		if (!$this->allowRun(array($key => $recordId), $key))
+		if (!$this->allowRun($recordId))
 		{
 			$this->setError(JText::_('COM_EASYSTAGING_PLAN_YOU_DO_NOT_HAVE_PERM'));
 			$this->setMessage($this->getError(), 'error');
@@ -74,7 +74,7 @@ class EasyStagingControllerPlan extends JControllerForm
 		if ($checkin && !$model->checkout($recordId))
 		{
 			// Check-out failed, bounce out as we shouldn't run a plan that may be changing.
-			$this->setError(JText::sprintf('JLIB_APPLICATION_ERROR_CHECKOUT_FAILED', $model->getError()));
+			$app->enqueueMessage(JText::sprintf('JLIB_APPLICATION_ERROR_CHECKOUT_FAILED', $model->getError()), 'WARNING');
 			$this->setMessage($this->getError(), 'error');
 			$this->setRedirect(JRoute::_('index.php?option=' . $this->option . '&view=' . $this->view_list . $this->getRedirectToListAppend(), false));
 
@@ -161,8 +161,17 @@ class EasyStagingControllerPlan extends JControllerForm
 		}
 	}
 
-	protected function allowRun()
+	/**
+	 * Check RUN perms.
+	 *
+	 * @param   int  $id  Plan id
+	 *
+	 * @return bool
+	 */
+	protected function allowRun($id)
 	{
-		return JFactory::getUser()->authorise('easystaging.run', $this->option);;
+		$canDo = PlanHelper::getActions($id);
+
+		return $canDo->get('easystaging.run');
 	}
 }

@@ -43,8 +43,8 @@ class com_EasyStagingInstallerScript
 		// Interesting that we need to load our language here...
 		$this->loadLanguage();
 		$jversion = new JVersion;
-		$this->jvtag = 'j' . explode('.', $jversion->RELEASE)[0];
-
+		$jvArray = explode('.', $jversion->RELEASE);
+		$this->jvtag = 'j' . $jvArray[0];
 
 		// Installing component manifest file version
 		$relVer = explode(' ', $parent->get("manifest")->version);

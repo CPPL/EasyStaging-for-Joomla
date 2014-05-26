@@ -44,9 +44,8 @@ if (typeof jQuery === 'undefined') {
                     lrs.innerHTML = com_EasyStaging.lrs + Joomla.JText._('COM_EASYSTAGING_JS_COPY_INSTRUCTIONS');
                 }
             );
-            com_EasyStaging.setUp(publishedStatus);
-            com_EasyStaging.filterTableActions('N');
             com_EasyStaging.runOnlyMode = runOnlyMode;
+            com_EasyStaging.setUp(publishedStatus);
         }
     );
 }
@@ -90,9 +89,8 @@ else
                 lrs.innerHTML = com_EasyStaging.lrs + Joomla.JText._('COM_EASYSTAGING_JS_COPY_INSTRUCTIONS');
             }
         );
-        com_EasyStaging.setUp(publishedStatus);
-        com_EasyStaging.filterTableActions('N');
         com_EasyStaging.runOnlyMode = runOnlyMode;
+        com_EasyStaging.setUp(publishedStatus);
     });
 }
 
@@ -322,10 +320,16 @@ com_EasyStaging.setUp  = function (isPublished)
     this.tableFilter           = null;
     this.totalTables           = 0;
     this.tablesHidden          = 0;
+    this.isPublished           = isPublished;
 
-	if (cppl_tools.getID() === 0 && isPublished)
+	if (cppl_tools.getID() === "0" && isPublished)
 	{
         this.lockOutBtns(false);
+    }
+
+    if (this.runOnlyMode !== "1")
+    {
+        com_EasyStaging.filterTableActions('N');
     }
 };
 
@@ -745,12 +749,20 @@ com_EasyStaging.testResult = function( response )
 com_EasyStaging.checkRsyncWorks = function()
 {
     "use strict";
-    // Add the "test started" message
-    this.hilightStatusMessages();
-    this.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JSON_TEST_RSYNC_STARTED'));
+    if(this.isPublished)
+    {
+        // Add the "test started" message
+        this.hilightStatusMessages();
+        this.appendTextToCurrentStatus(Joomla.JText._('COM_EASYSTAGING_JSON_TEST_RSYNC_STARTED'));
 
-    this.requestData.es_drfca = 1;
-    this.start('startFile', true);
-    this.requestData.es_drfca = 0;
+        this.requestData.es_drfca = 1;
+        this.start('startFile', true);
+        this.requestData.es_drfca = 0;
+    }
+    else
+    {
+        var jmsgs = {info:[Joomla.JText._('COM_EASYSTAGING_JSON_TEST_RSYNC_PLAN_NOT_PUBLISHED')]};
+        Joomla.renderMessages(jmsgs);
+    }
 };
 

@@ -44,3 +44,8 @@
 .icon-48-easystaging {
     background-image: url("../images/EasyStaging-48-icon.png");
 }
+
+.icon-easystaging:before {
+    content: "\e001";
+    color: #92f589;
+}

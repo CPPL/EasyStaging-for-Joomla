@@ -1,3 +1,63 @@
+/* v1.3 */
+.icon-easystaging:before {
+    content: "\2c";
+}
+
+.icon-tf-toggle {
+    cursor: pointer;
+}
+.icon-tf-toggle:before {
+    content: "\e005";
+}
+
+#table-filter-div.open .icon-tf-toggle:before {
+    content: "\e007";
+}
+
+#table-filter-div {
+    -webkit-transition:height 0.75s,background-color 0.75s, -webkit-transform 0.75s;
+    transition:height 0.75s, background-color 0.75s, transform 0.75s;
+    float: right;
+    margin-top: -35px;
+    height: 30px;
+    width: 280px;
+    overflow: hidden;
+    border: thin solid white;
+    padding: 2px;
+}
+
+#table-filter-div:hover {
+    background-color: #f5f5f5;
+    border: thin solid gainsboro;
+}
+
+#table-filter-div.open {
+    -webkit-transition:height 0.75s,background-color 0.75s, -webkit-transform 0.75s;
+    transition:height 0.75s, background-color 0.75s, transform 0.75s;
+    height: 110px;
+    border: thin solid gainsboro;
+    background-color: #f5f5f5;
+}
+
+#table-filter-div #tf-toggle {
+    float: right;
+    height: 10px;
+    width: 10px;
+    margin-right: 5px;
+    margin-top: 7px;
+    cursor: pointer;
+}
+
+#table-filter-div #tf-presets1 {
+    margin-left: 5px;
+}
+
+#table-filter-div #tf-presets2 {
+    margin-top: 5px;
+    margin-left: 15px;
+}
+
+/* v1.2 and prior */
 .icon-48-easystaging {
     background-image: url("../images/EasyStaging-48-icon.png");
 }
@@ -68,7 +128,7 @@ div.toolbar-list.tb-off a:active {
     padding-bottom: 10px;
 }
 
-#startFile, #startDBase, #startAll, #status {
+#startFile, #startDBase, #startAll {
     margin: 34px;
     height: 32px;
 }
@@ -77,7 +137,7 @@ div.toolbar-list.tb-off a:active {
 #startDBaseBtn.com_easystaging_plan_btn_off,
 #startAllBtn.com_easystaging_plan_btn_off,
 #statusBtn.com_easystaging_plan_btn_off {
-    background-position-y: 32px;
+    background-position-y: -32px;
 }
 
 #startFileBtn.com_easystaging_plan_btn_off button:hover,
@@ -118,11 +178,15 @@ div.toolbar-list.tb-off a:active {
 }
 /* Filter buttons */
 #table-filters {
+    -webkit-transition:height 0.75s,background-color 0.75s, -webkit-transform 0.75s;
+    transition:height 0.75s, background-color 0.75s, transform 0.75s;
     float: right;
     margin-top: -35px;
+    margin-bottom: 5px;
     height: 25px;
     width: 235px;
     overflow: hidden;
+    border: thin solid white;
 }
 #table-filters:hover {
     background-color: #f5f5f5;
@@ -160,13 +224,14 @@ div.toolbar-list.tb-off a:active {
     display: none;
 }
 
-#table-filters.open {
+#table-filters.open{
+    -webkit-transition:height 0.75s,background-color 0.75s, -webkit-transform 0.75s;
+    transition:height 0.75s, background-color 0.75s, transform 0.75s;
     height: 100px;
     border: thin solid gainsboro;
 }
 
-#table-filters.open #tf-presets1,
-#table-filters.open #tf-presets2 {
+#table-filters.open #tf-presets1, #table-filters.open #tf-presets2 {
     display: block;
 }
 

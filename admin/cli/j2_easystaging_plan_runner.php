@@ -18,10 +18,12 @@
 define('_JEXEC', 1);
 define('DS', DIRECTORY_SEPARATOR);
 
+// We need to turn off strict for J2.5.x users as J3 methods break BC by changing signatures.`
+ini_set('display_errors', 0);
 error_reporting(E_ALL | E_NOTICE);
-ini_set('display_errors', 1);
 
 $safe_mode = true;
+
 if (function_exists('ini_get'))
 {
 	$safe_mode = ini_get('safe_mode');
@@ -77,13 +79,13 @@ else
  * @return  int
  */
 function _write_pr_log($log)
- {
+{
 	$prlogfilepath = JPATH_COMPONENT_ADMINISTRATOR . '/syncfiles/planrunner.txt';
 	$prlogfile = fopen($prlogfilepath, 'ab');
 
 	$logWriteResult = fwrite($prlogfile, $log . "\n");
 	return $logWriteResult;
- }
+}
 
 /**
  * This script will load the specified plan steps that remaining and execute them.
@@ -578,7 +580,7 @@ DEF;
 			// Attempt to write the file
 			$result['status'] = fwrite($exclusionFile, $allExclusions);
 			$result['msg'] = $result['status'] ? JText::sprintf('COM_EASYSTAGING_FILE_WRITTEN_SUCCESSFULL_DESC', $result['status'])
-												: JText::_('COM_EASYSTAGING_FAILED_TO_WRIT_DESC');
+				: JText::_('COM_EASYSTAGING_FAILED_TO_WRIT_DESC');
 
 			// Time to close off
 			fclose($exclusionFile);
@@ -654,7 +656,7 @@ DEF;
 			$this->db_status = $this->checkDBConnection($step);
 		}
 
-		$this->_log($step, JText::sprintf('COM_EASYSTAGNG_CLI_STARTING_TABLE_X', $step->action));
+		$this->_log($step, JText::sprintf('COM_EASYSTAGING_CLI_STARTING_TABLE_X', $step->action));
 
 		if ($this->db_status)
 		{
@@ -680,15 +682,19 @@ DEF;
 					$status = $this->performTableCopyBack($step);
 					break;
 			}
-		}
 
-		if ($status)
-		{
-			$msg = JText::sprintf('COM_EASYSTAGING_CLI_RESULT_FOR_TABLE_X_' . $actiontype . '_STEP_SUCCESS', $step->action);
+			if ($status)
+			{
+				$msg = JText::sprintf('COM_EASYSTAGING_CLI_RESULT_FOR_TABLE_X_' . $actiontype . '_STEP_SUCCESS', $step->action);
+			}
+			else
+			{
+				$msg = JText::sprintf('COM_EASYSTAGING_CLI_RESULT_FOR_TABLE_X_' . $actiontype . '_STEP_FAILURE', $step->action);
+			}
 		}
 		else
 		{
-			$msg = JText::sprintf('COM_EASYSTAGING_CLI_RESULT_FOR_TABLE_X_' . $actiontype . '_STEP_FAILURE', $step->action);
+			$msg = JText::_('COM_EASYSTAGING_DATABASE_STEP_01_FAILED_TO_CONNECT');
 		}
 
 		$this->_log($step, $msg . "\n");
@@ -1121,9 +1127,6 @@ DEF;
 		// Assume failure
 		$status = false;
 
-		// Get our plan
-		$plan_id = $this->_plan_id();
-
 		// Get the target site details
 		$target_site = $this->target_site;
 		$options = array(
@@ -1162,10 +1165,17 @@ DEF;
 				if ($this->targetTablesRetreived)
 				{
 					$tableList = print_r($this->targetTablesRetreived, true);
-
 					$this->_log($theStep, $tableList);
-					$status = true;
+					$msg = JText::sprintf('COM_EASYSTAGING_DATABASE_STEP_01_FOUND_X_TABLES', count($this->targetTablesRetreived), $target_site->site_name);
+					$this->_log($theStep, $msg);
 				}
+				else
+				{
+					$msg = JText::sprintf('COM_EASYSTAGING_DATABASE_STEP_01_FOUND_X_TABLES_0', $target_site->site_name);
+					$this->_log($theStep, $msg);
+				}
+
+				$status = true;
 			}
 		}
 		else

@@ -23,7 +23,9 @@
 			<field
 				name="published"
 				type="list"
-				label="COM_EASYSTAGING_PUBLISHED_LABEL" description="COM_EASYSTAGING_PUBLISHED_DESC"
+                label="JSTATUS"
+                class="inputbox chzn-color-state"
+				description="COM_EASYSTAGING_PUBLISHED_DESC"
 				default="0"
 			>
 				<option value="1">JPUBLISHED</option>
@@ -48,7 +50,6 @@
 				class="inputbox"
 				component="com_easystaging"
 				section="plan"
-				
 			/>
 		</fieldset>
 		<fieldset name="basic" label="COM_EASYSTAGING_BASIC_ATTRIBUTES_LABEL">
@@ -171,14 +172,14 @@
 				name="rsync_options"
 				label="COM_EASYSTAGING_LOCALSITE_RSYNC_OPTIONS" description="COM_EASYSTAGING_LOCALSITE_RSYNC_OPTIONS_DESC"
 				type="text"
-				class="inputbox"
+				class="inputbox span6"
 				default=""
 			/>
 			<field
 				name="file_exclusions"
 				label="COM_EASYSTAGING_LOCALSITE_FILE_EXCLUSIONS" description="COM_EASYSTAGING_LOCALSITE_FILE_EXCLUSIONS_DESC"
 				type="textarea"
-				class="inputbox"
+				class="inputbox span6"
 				default=""
 				rows="10"
 				cols="50"

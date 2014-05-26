@@ -10,14 +10,15 @@
 // Check to ensure this file is included in Joomla!
 defined('_JEXEC') or die();
 
-jimport('joomla.application.component.view');
+require_once JPATH_COMPONENT . '/helpers/general.php';
+require_once JPATH_COMPONENT . '/helpers/plan.php';
 
 /**
  * EasyStaging Plan Editor View
  *
  * @property mixed form
  */
-class EasyStagingViewPlan extends JView
+class EasyStagingViewPlan extends JViewLegacy
 {
 	/* @var $form JForm */
 	protected $form;
@@ -39,11 +40,12 @@ class EasyStagingViewPlan extends JView
 	 */
 	public function display($tpl = null)
 	{
-		require_once JPATH_COMPONENT . '/helpers/plan.php';
+		// Get our Joomla Tag, installed version and our canDo's
+		$this->jvtag = ES_General_Helper::getJoomlaVersionTag();
 
 		// Get the Data
-		$form = $this->get('Form');
-		$item = $this->get('Item');
+		$this->form = $this->get('Form');
+		$this->item = $this->get('Item');
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors')))
@@ -53,12 +55,8 @@ class EasyStagingViewPlan extends JView
 			return false;
 		}
 
-		// Assign the Data
-		$this->form  = $form;
-		$this->item  = $item;
-
 		// Should we be here?
-		$this->canDo = PlanHelper::getActions($item->id);
+		$this->canDo = PlanHelper::getActions($this->item->id);
 
 		// Running or Edit/Creating
 		$this->runOnly = $this->_runOnlyMode();
@@ -101,6 +99,7 @@ class EasyStagingViewPlan extends JView
 		{
 			JToolBarHelper::save2new('plan.save2new');
 		}
+
 		JToolBarHelper::cancel('plan.cancel', $isNew ? 'JTOOLBAR_CANCEL' : 'JTOOLBAR_CLOSE');
 		JToolBarHelper::divider();
 		JToolBarHelper::help('COM_EASYSTAGING_HELP_EASYSTAGING_MANAGER', false, 'http://seepeoplesoftware.com/products/easystaging/1.0/help/plan.html');
@@ -175,7 +174,15 @@ JS;
 	 */
 	private function _runOnlyMode()
 	{
-		if (!($this->canDo->get('core.edit') || $this->canDo->get('core.create')) && $this->canDo->get('easystaging.run'))
+		// Check if the request was for a Run Only layout
+		$jInput = JFactory::getApplication()->input;
+
+		if ($jInput->get('layout', '') == 'Run')
+		{
+			$this->runOnly = true;
+		}
+
+		if ($this->runOnly || (!($this->canDo->get('core.edit') && $this->canDo->get('core.create')) && $this->canDo->get('easystaging.run')))
 		{
 			// They can run but not hide, I mean create/edit plans - better limit the access to form elements.
 			$this->form->setFieldAttribute('name', 'class', 'readonly');
@@ -226,6 +233,15 @@ JS;
 		return $actionMenu;
 	}
 
+	/**
+	 * Creates our file copy direction menu
+	 *
+	 * @param   string  $selectedDirection  The currently selected direction.
+	 * @param   string  $controlName        The name for the control
+	 * @param   string  $rowId              The row id.
+	 *
+	 * @return mixed
+	 */
 	protected function _getDirectionMenu($selectedDirection, $controlName, $rowId)
 	{
 		// Get custom field

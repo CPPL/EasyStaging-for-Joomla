@@ -164,7 +164,7 @@ class EasyStagingTablePlan extends JTable
 	 * @return	int
 	 * @since	1.7
 	 */
-	protected function _getAssetParentId($table = null, $id = null)
+	protected function _getAssetParentId(JTable $table = null, $id = null)
 	{
 		$asset = JTable::getInstance('Asset');
 		$asset->loadByName('com_easystaging');

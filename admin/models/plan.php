@@ -53,7 +53,7 @@ class EasyStagingModelPlan extends JModelAdmin
 	 * @return	mixed	A JForm object on success, false on failure
 	 * @since	1.6
 	 */
-	public function getForm($data = array(), $loadData = true) 
+	public function getForm($data = array(), $loadData = true)
 	{
 		// Get the form.
 		$form = $this->loadForm('com_easystaging.plan', 'plan', array('control' => 'jform', 'load_data' => $loadData));
@@ -116,7 +116,7 @@ class EasyStagingModelPlan extends JModelAdmin
 				// As getItem() gets called twice (first in getForm) we only need to tell the user once
 				if (count($this->_forms) && !($plan_id == 0))
 				{
-					JFactory::getApplication()->enqueueMessage( JText::sprintf('COM_EASYSTAGING_NO_LOCAL_SITE_FOUND_FOR_PLAN', $plan_id) );
+					JFactory::getApplication()->enqueueMessage(JText::sprintf('COM_EASYSTAGING_NO_LOCAL_SITE_FOUND_FOR_PLAN', $plan_id));
 				}
 			}
 
@@ -144,7 +144,7 @@ class EasyStagingModelPlan extends JModelAdmin
 				{
 					$item->clean = false;
 					$this->setState('easystaging.clean', 0);
-					JFactory::getApplication()->enqueueMessage( JText::sprintf('COM_EASYSTAGING_NO_REMOTE_SITE_FOUND_FOR_PLAN', $plan_id) );
+					JFactory::getApplication()->enqueueMessage(JText::sprintf('COM_EASYSTAGING_NO_REMOTE_SITE_FOUND_FOR_PLAN', $plan_id), 'WARNING');
 				}
 			}
 
@@ -161,7 +161,7 @@ class EasyStagingModelPlan extends JModelAdmin
 			if (count($mq))
 			{
 				$item->clean = false;
-				JFactory::getApplication()->enqueueMessage( JText::sprintf('COM_EASYSTAGING_SAVE_PLAN_BEFORE_USING', $plan_id) );
+				JFactory::getApplication()->enqueueMessage(JText::sprintf('COM_EASYSTAGING_SAVE_PLAN_BEFORE_USING', $plan_id), 'WARNING');
 				$this->setState('easystaging.clean', 1);
 			}
 		}
@@ -449,7 +449,7 @@ class EasyStagingModelPlan extends JModelAdmin
 			{
 				// In the odd event that a plan exists but has no table records we'll let the user know.
 				$msg = JText::sprintf('COM_EASYSTAGING_NO_TABLES_FOUND_FOR_PLAN', $plan_id);
-				JFactory::getApplication()->enqueueMessage( $msg );
+				JFactory::getApplication()->enqueueMessage($msg, 'WARNING');
 				$this->setState('easystaging.clean', 0);
 			}
 			// Then we'll send a copy of the current local tables to attach to the plan.
@@ -544,7 +544,7 @@ class EasyStagingModelPlan extends JModelAdmin
 			if (count($this->_forms) && $this->_removeTables($removedTables))
 			{
 				$changedMsg = JText::plural('COM_EASYSTAGING_TABLES_REMOVED', count($removedTables));
-				JFactory::getApplication()->enqueueMessage( $changedMsg );
+				JFactory::getApplication()->enqueueMessage($changedMsg, 'WARNING');
 				$this->setState('easystaging.clean', 0);
 			}
 		}
@@ -557,7 +557,7 @@ class EasyStagingModelPlan extends JModelAdmin
 			if (count($this->_forms))
 			{
 				$changedMsg =  JText::plural('COM_EASYSTAGING_NEW_TABLES_FOUND', count($newTables));
-				JFactory::getApplication()->enqueueMessage( $changedMsg );
+				JFactory::getApplication()->enqueueMessage($changedMsg, 'WARNING');
 				$this->setState('easystaging.clean', 0);
 			}
 		}

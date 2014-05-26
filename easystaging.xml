@@ -10,7 +10,7 @@
 	<copyright>© 2011 Craig Phillips Pty Ltd</copyright>
 	<license>License Info</license>
 	<!--  The version string is recorded in the components table -->
-	<version>1.2.0 (36907c4)</version>
+	<version>1.2.1 (a63d342)</version>
     <!-- The minimum PHP Version we require (used in our preflight) -->
     <phpversion>5.3.10</phpversion>
 	<!-- The description is optional and defaults to the name -->

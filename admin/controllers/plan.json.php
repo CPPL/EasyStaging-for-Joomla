@@ -15,7 +15,7 @@ jimport('joomla.database.table');
 /**
  * EasyStaging Component Plan Controller
  */
-class EasyStagingControllerPlan extends JController
+class EasyStagingControllerPlan extends JControllerLegacy
 {
 	/**
 	 * @var int $plan_id
@@ -68,6 +68,8 @@ class EasyStagingControllerPlan extends JController
 	{
 		require_once JPATH_COMPONENT . '/helpers/plan.php';
 		require_once JPATH_COMPONENT . '/helpers/run.php';
+		require_once JPATH_COMPONENT . '/helpers/general.php';
+		$this->jvtag = ES_General_Helper::getJoomlaVersionTag();
 
 		parent::__construct($config);
 		$this->params = JComponentHelper::getParams('com_easystaging');
@@ -144,29 +146,76 @@ class EasyStagingControllerPlan extends JController
 						$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_HOST_CONTACTED') . '<br>';
 
 						// Get our DB object
-						try
+						if ($this->jvtag == 'j2')
 						{
-							$target_db = JDatabase::getInstance($options);
-						}
-						catch (JDatabaseException $e)
-						{
-							print_r($e);
-						}
+							if (JError::$legacy)
+							{
+								$target_db = JDatabase::getInstance($options);
 
-						// Check for old style error
-						$errNo = $target_db->getErrorNum();
+								// Check for old style error
+								if ($errNo = $target_db->getErrorNum())
+								{
+									$msg .= JText::sprintf('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CANT_CONNECT_X', $target_db->getErrorMsg()) . '<br>';
+								}
+								else
+								{
+									$errNo = 0;
+									$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CONNECTED') . '<br>';
+								}
+							}
+							else
+							{
+								try
+								{
+									$target_db = JDatabase::getInstance($options);
+									$target_db->connect();
+									$errNo = 0;
+									$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CONNECTED') . '<br>';
+								}
+								catch (RuntimeException $e)
+								{
+									$errNo = 1;
+									$msg .= JText::sprintf('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CANT_CONNECT_X', $e->getMessage()) . '<br>';
+								}
+							}
+						}
+						else
+						{
+							try
+							{
+								$target_db = JDatabaseDriver::getInstance($options);
+								$target_db->connect();
+								$errNo = 0;
+								$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CONNECTED') . '<br>';
+							}
+							catch (RuntimeException $e)
+							{
+								$errNo = 1;
+								$msg .= JText::sprintf('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CANT_CONNECT_X', $e->getMessage()) . '<br>';
+							}
+						}
 
 						if ($errNo != 0)
 						{
-							$msg .= $target_db->getErrorMsg(true);
 							/*
 							 * @todo convert these error messages to JText::sprintf() versions
 							 */
 							if ($target_db->name == 'mysqli')
 							{
-								$mysqli = new mysqli($options['host'], $options['user'], $options['password'], null, $options['port'], $options['socket']);
-								$errNo = $mysqli->connect_errno;
-								$msg .= '<pre>' . $mysqli->connect_error . '</pre><br>';
+								mysqli_report(MYSQLI_REPORT_STRICT);
+
+								try
+								{
+									$mysqli = new mysqli($options['host'], $options['user'], $options['password'], $options['database'], $options['port']);
+									$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_DIRECTLY_CONNECTED') . '<br>';
+								}
+								catch (mysqli_sql_exception $e)
+								{
+									$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_DIRECT_CONNECTION_FAILED') . '<br>';
+									$msg .= '<pre>' . $e->getMessage() . '</pre><br>';
+								}
+
+								$msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_POSSIBLE_SOLUTIONS') . '<br>';
 							}
 							elseif ($target_db->name == 'mysql')
 							{
@@ -174,7 +223,7 @@ class EasyStagingControllerPlan extends JController
 							}
 							else
 							{
-								$msg .= '<pre>Un-handled DB type: ' . $target_db->name . '</pre><br>';
+								$msg .= '<pre>Unsupported DB type: ' . $target_db->name . '</pre><br>';
 							}
 
 							$result = $errNo;

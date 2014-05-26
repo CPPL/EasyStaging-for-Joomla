@@ -50,6 +50,51 @@ if (typeof jQuery === 'undefined') {
         }
     );
 }
+else
+{
+    // Hey jQuery time ;)
+    jQuery(function() {
+        "use strict";
+        cppl_tools.setUp('com_easystaging');
+        var publishedStatus = (jQuery('#jform_published').val() === "1");
+        var runOnlyMode = jQuery('#runOnlyMode').val();
+
+        if(publishedStatus)
+        {
+            jQuery('#startFile').on('click', function (event) { com_EasyStaging.start(event.target.id);});
+            jQuery('#startDBase').on('click', function (event) { com_EasyStaging.start(event.target.id);});
+            jQuery('#startAll').on('click', function (event) { com_EasyStaging.start(event.target.id);});
+        }
+
+        if(runOnlyMode !== "1")
+        {
+            jQuery('#tableNamesFilter').on('keyup', function (event) {setTimeout(com_EasyStaging.filterTableNames(), 0);});
+            jQuery('#tf-toggle').on('click', function (event) {com_EasyStaging.toggleFilters();});
+            jQuery('#showAllTablesBtn').on('click', function (event) { com_EasyStaging.filterTableActions();});
+            jQuery('#skippedTablesBtn').on('click', function (event) { com_EasyStaging.filterTableActions(0);});
+            jQuery('#notSkipTablesBtn').on('click', function (event) { com_EasyStaging.filterTableActions('N');});
+            jQuery('#pushTablesBtn').on('click', function (event) { com_EasyStaging.filterTableActions(1, 2);});
+            jQuery('#ptpTablesBtn').on('click', function (event) { com_EasyStaging.filterTableActions(3);});
+            jQuery('#pullTablesBtn').on('click', function (event) { com_EasyStaging.filterTableActions(4, 5, 6);});
+        }
+
+        // Just in case we want to copy the status ouput...
+        jQuery('#currentStatus').on('click',
+            function(event) {
+                com_EasyStaging.SelectText('currentStatus');
+                var lrs = document.id('lastRunStatus');
+                if(com_EasyStaging.lrs === undefined)
+                {
+                    com_EasyStaging.lrs = lrs.innerHTML;
+                }
+                lrs.innerHTML = com_EasyStaging.lrs + Joomla.JText._('COM_EASYSTAGING_JS_COPY_INSTRUCTIONS');
+            }
+        );
+        com_EasyStaging.setUp(publishedStatus);
+        com_EasyStaging.filterTableActions('N');
+        com_EasyStaging.runOnlyMode = runOnlyMode;
+    });
+}
 
 Joomla.submitbutton = function (task) {
     "use strict";
@@ -518,12 +563,18 @@ com_EasyStaging.fnDeSelectText = function ()
 com_EasyStaging.toggleFilters = function()
 {
     "use strict";
-    var filtersDIV = document.id('table-filters');
-    var fDH = filtersDIV.getHeight();
-    var origHeight = 27;
-    var maxOrigHeifht = 29;
+    var filtersDIV;
 
-    if ((fDH >= origHeight) && (fDH <= maxOrigHeifht))
+    if (typeof jQuery === 'undefined')
+    {
+        filtersDIV = $('table-filters');
+    }
+    else
+    {
+        filtersDIV = jQuery('#table-filter-div');
+    }
+
+    if (!filtersDIV.hasClass('open'))
     {
         filtersDIV.addClass('open');
     }
@@ -545,17 +596,28 @@ com_EasyStaging.filterTableActions = function ()
     // Update each row
     tableRows.each(function(row, index)
         {
-            var theSelectValue = row.children[2].children[0].value;
-            var inFilter = this.tableFilter.indexOf(parseInt(theSelectValue));
+            if (row.id !== 'noMatch')
+            {
+                var theSelectValue = row.children[2].children[0].value;
+                var inFilter = this.tableFilter.indexOf(parseInt(theSelectValue));
 
-            if((inFilter >= 0) || (this.tableFilter.length === 0) || ((theSelectValue !== "0") && (this.tableFilter[0] === 'N')))
+                if((inFilter >= 0) || (this.tableFilter.length === 0) || ((theSelectValue !== "0") && (this.tableFilter[0] === 'N')))
+                {
+                    row.removeClass('hidden');
+                }
+                else
+                {
+                    row.addClass('hidden');
+                    this.tablesHidden++;
+                }
+            }
+            else if (this.tablesHidden + 1 === this.totalTables)
             {
                 row.removeClass('hidden');
             }
             else
             {
                 row.addClass('hidden');
-                this.tablesHidden++;
             }
         }, com_EasyStaging
     );
@@ -588,6 +650,8 @@ com_EasyStaging.filterTableNames = function ()
     {
         // Update each row
         tableRows.each(function(row, index)
+        {
+            if (row.id !== 'noMatch')
             {
                 var theTableName = row.children[0].children[0].innerHTML;
                 var filterText = this.tableFilter;
@@ -601,7 +665,16 @@ com_EasyStaging.filterTableNames = function ()
                     row.addClass('hidden');
                     this.tablesHidden++;
                 }
-            }, com_EasyStaging);
+            }
+            else if (this.tablesHidden + 1 === this.totalTables)
+            {
+                row.removeClass('hidden');
+            }
+            else
+            {
+                row.addClass('hidden');
+            }
+        }, com_EasyStaging);
     }
     else
     {

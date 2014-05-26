@@ -52,12 +52,14 @@
         <field name="path_to_php"
                type="text"
                default=""
+               placeholder="/usr/bin/php"
                label="COM_EASYSTAGING_SETTINGS_GLOBAL_PATH_TO_PHP_LABEL"
                description="COM_EASYSTAGING_SETTINGS_GLOBAL_PATH_TO_PHP_DESCR" />
         <field name="php_quiet"
+        	type="radio"
+            class="btn-group btn-group-yesno"
         	label="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_QUIET_LABEL"
         	description="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_QUIET_DESC"
-        	type="radio"
         >
         	<option value="1">JYES</option>
          	<option value="0">JNO</option>
@@ -66,6 +68,7 @@
         	label="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_FILE_LABEL"
         	description="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_FILE_DESC"
         	type="radio"
+            class="btn-group btn-group-yesno"
         >
         	<option value="1">JYES</option>
          	<option value="0">JNO</option>
@@ -74,6 +77,7 @@
                label="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_OUT_CAPTURED_LABEL"
                description="COM_EASYSTAGING_SETTINGS_GLOBAL_PHP_OUT_CAPTURED_DESC"
                type="radio"
+               class="btn-group btn-group-yesno"
                 >
             <option value="1">JYES</option>
             <option value="0">JNO</option>

@@ -3,14 +3,14 @@
  
 	<name>EasyStaging</name>
 	<!-- The following elements are optional and free of formatting constraints -->
-	<creationDate>31-Mar-2014</creationDate>
+	<creationDate>26-May-2014</creationDate>
 	<author>Craig Phillips</author>
 	<authorEmail>support@craigphillips.biz</authorEmail>
 	<authorUrl>http://craigphillips.biz</authorUrl>
 	<copyright>© 2011 Craig Phillips Pty Ltd</copyright>
 	<license>License Info</license>
 	<!--  The version string is recorded in the components table -->
-	<version>1.1.4 (9be773b)</version>
+	<version>1.2.0 (36907c4)</version>
     <!-- The minimum PHP Version we require (used in our preflight) -->
     <phpversion>5.3.10</phpversion>
 	<!-- The description is optional and defaults to the name -->

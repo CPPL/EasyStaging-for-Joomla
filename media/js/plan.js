@@ -44,9 +44,8 @@ if (typeof jQuery === 'undefined') {
                     lrs.innerHTML = com_EasyStaging.lrs + Joomla.JText._('COM_EASYSTAGING_JS_COPY_INSTRUCTIONS');
                 }
             );
-            com_EasyStaging.setUp(publishedStatus);
-            com_EasyStaging.filterTableActions('N');
             com_EasyStaging.runOnlyMode = runOnlyMode;
+            com_EasyStaging.setUp(publishedStatus);
         }
     );
 }
@@ -90,9 +89,8 @@ else
                 lrs.innerHTML = com_EasyStaging.lrs + Joomla.JText._('COM_EASYSTAGING_JS_COPY_INSTRUCTIONS');
             }
         );
-        com_EasyStaging.setUp(publishedStatus);
-        com_EasyStaging.filterTableActions('N');
         com_EasyStaging.runOnlyMode = runOnlyMode;
+        com_EasyStaging.setUp(publishedStatus);
     });
 }
 
@@ -326,6 +324,11 @@ com_EasyStaging.setUp  = function (isPublished)
 	if (cppl_tools.getID() === 0 && isPublished)
 	{
         this.lockOutBtns(false);
+    }
+
+    if (this.runOnlyMode !== "1")
+    {
+        com_EasyStaging.filterTableActions('N');
     }
 };
 

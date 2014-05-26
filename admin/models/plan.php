@@ -53,7 +53,7 @@ class EasyStagingModelPlan extends JModelAdmin
 	 * @return	mixed	A JForm object on success, false on failure
 	 * @since	1.6
 	 */
-	public function getForm($data = array(), $loadData = true) 
+	public function getForm($data = array(), $loadData = true)
 	{
 		// Get the form.
 		$form = $this->loadForm('com_easystaging.plan', 'plan', array('control' => 'jform', 'load_data' => $loadData));

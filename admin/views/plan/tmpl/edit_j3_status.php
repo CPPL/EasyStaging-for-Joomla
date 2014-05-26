@@ -25,7 +25,7 @@ defined('_JEXEC') or die('Restricted Access');
 			}
 			elseif ($this->item->published)
 			{
-				echo JText::sprintf('COM_EASYSTAGING_LAST_RUN', JFactory::getDate($last_run)->format(JText::_('DATE_FORMAT_LC2'), true));
+				echo JText::sprintf('COM_EASYSTAGING_LAST_RUN', JHtml::_('date', $last_run, JText::_('DATE_FORMAT_LC2'), true));
 			}
 			elseif (!$this->item->published)
 			{

@@ -7,7 +7,7 @@
     <property name="plugin"    value="plg${subtype}_${name}"/>
     <property name="repo"         value="${extension}"/>
     <property name="repo2"        value="${plugin}"/>
-    <property name="devBuildsDir" value="./_Dev_Builds"/>
+    <property name="devBuildsDir" value="../_Dev_Builds"/>
 
     <!-- get our start time -->
     <exec command='date +"%H:%M:%S"'

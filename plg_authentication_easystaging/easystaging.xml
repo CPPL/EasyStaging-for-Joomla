@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<install version="2.5" type="plugin" group="authentication" method="upgrade">
+    <name>Authentication EasyStaging - Override</name>
+	<creationDate>24-Oct-2012</creationDate>
+	<author>Craig Phillips</author>
+	<authorEmail>support@craigphillips.biz</authorEmail>
+	<authorUrl>http://craigphillips.biz</authorUrl>
+	<copyright>©2012-2013 Craig Phillips Pty Ltd</copyright>
+    <version>1.0.0</version>
+    <description>PLG_EASYSTAGING_AUTH_DESC</description>
+    <files>
+        <filename plugin="easystaging">easystaging.php</filename>
+        <folder>language</folder>
+    </files>
+	<config>
+        <fields name="params">
+            <fieldset name="basic"
+                      label="PLG_EASYSTAGING_AUTH_BASIC_LABEL"
+                      description="PLG_EASYSTAGING_AUTH_BASIC_DESCS">
+                <field name="iprestriction"
+                       type="list"
+                       default="1"
+                       label="PLG_EASYSTAGING_AUTH_ENABLE_IP_RESTRICTION_LABEL"
+                       description="PLG_EASYSTAGING_AUTH_ENABLE_IP_RESTRICTION_DESCS">
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field name="whitelist"
+                       type="textarea"
+                       rows="10"
+                       cols="18"
+                       default=""
+                       label="PLG_EASYSTAGING_AUTH_IP_RESTRICTION_LABEL"
+                       description="PLG_EASYSTAGING_AUTH_IP_RESTRICTION_DESCS"/>
+                <field name="allowed_override_users"
+                       type="text"
+                       default=""
+                       size="36"
+                       label="PLG_EASYSTAGING_AUTH_USER_IDS_LABEL"
+                       description="PLG_EASYSTAGING_AUTH_USER_IDS_DESCS" />
+                <field name="allowed_usergroups"
+                       type="usergroup"
+                       size="10"
+                       multiple="multiple"
+                       label="PLG_EASYSTAGING_AUTH_OVERRIDE_GROUPS_LABEL"
+                       description="PLG_EASYSTAGING_AUTH_OVERRIDE_GROUPS_DESCS" />
+            </fieldset>
+        </fields>
+    </config>
+</install>

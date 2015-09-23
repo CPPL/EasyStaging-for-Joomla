@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="EasyStaging" default="package" basedir="./">
+    <property name="name"         value="easystaging"/>
+    <property name="type"         value="com"/>
+    <property name="extension"    value="${type}_${name}"/>
+    <property name="subtype"      value="_authentication"/>
+    <property name="plugin"    value="plg${subtype}_${name}"/>
+    <property name="repo"         value="${extension}"/>
+    <property name="repo2"        value="${plugin}"/>
+    <property name="devBuildsDir" value="./_Dev_Builds"/>
+
+    <!-- get our start time -->
+    <exec command='date +"%H:%M:%S"'
+          returnProperty="startReturn"
+          outputProperty="startTime"/>
+    <echo msg="Starting at: ${startTime}"/>
+
+    <!-- get our package date -->
+    <exec command='date +"%d-%b-%Y"'
+          returnProperty="dateReturn"
+          outputProperty="packageDate"/>
+    <echo msg="Pack Date is: ${packageDate}"/>
+
+    <!-- get the current year -->
+    <exec command='date +"%Y"'
+          returnProperty="yearReturn"
+          outputProperty="currentYear"/>
+    <echo msg="Current Year is: ${currentYear}"/>
+
+    <!-- get our current tag -->
+    <exec command="git describe --tags `git log master -n 0 --pretty=format:%H`"
+          dir="${repo}"
+          returnProperty="gitReturn"
+          outputProperty="gitTag"/>
+    <echo msg="Last Tag is: ${gitTag}"/>
+
+    <!-- get the last commits hash -->
+    <exec command="git rev-parse --short HEAD"
+          dir="${repo}"
+          returnProperty="gitReturn"
+          outputProperty="gitHash"/>
+    <echo msg="Last Commit is: ${gitHash}"/>
+
+    <property name="thisbuild" value="${gitTag}-${extension}" override="true"/>
+    <property name="buildDir" value="./${devBuildsDir}/${thisbuild}"/>
+
+    <!-- ============================================  -->
+    <!--                  FILESETS                     -->
+    <!-- ============================================  -->
+    <!-- The copy needs to ignore certain unneeded files from git and the OS etc. -->
+    <fileset dir="${repo}" id="content_repo">
+        <include name="**"/>
+        <exclude name="**/.git/**"/>
+        <exclude name=".gitignore"/>
+        <exclude name=".DS_Store"/>
+        <exclude name="**/.idea/**"/>
+    </fileset>
+
+    <fileset dir="${repo2}" id="plugin_repo">
+        <include name="**"/>
+        <exclude name="**/.git/**"/>
+        <exclude name=".gitignore"/>
+        <exclude name=".DS_Store"/>
+        <exclude name="**/.idea/**"/>
+    </fileset>
+
+    <!-- ============================================  -->
+    <!--                   FILTERS                     -->
+    <!-- ============================================  -->
+    <!-- The standard tokens to be replaced -->
+    <filterchain id="std_tokens">
+        <replacetokens begintoken="##" endtoken="##">
+            <token key="VER" value="${gitTag}"/>
+            <token key="COMHASH" value="${gitHash}"/>
+            <token key="CREATEDATE" value="${packageDate}"/>
+            <token key="CURYEAR" value="${currentYear}"/>
+            <token key="FoP" value="${freeOrPro}"/>
+        </replacetokens>
+    </filterchain>
+    <!-- Strip out any PROBLOCK -->
+    <filterchain id="procode_block">
+        <replaceregexp>
+            <regexp pattern="\@PROBLOCK_START\@.*?\@PROBLOCK_END\@"
+                    replace=" "
+                    ignoreCase="true"
+                    multiline="true"/>
+        </replaceregexp>
+    </filterchain>
+    <!-- Strip out any PROBLOCK tags -->
+    <filterchain id="procode_tags">
+        <replacetokens begintoken="@" endtoken="@">
+            <token key="PROBLOCK_START" value=""/>
+            <token key="PROBLOCK_END" value=""/>
+        </replacetokens>
+    </filterchain>
+
+    <!-- ============================================  -->
+    <!-- Tareget: CreateArchives                       -->
+    <!-- ============================================  -->
+    <target name="CreateArchives">
+        <echo msg="Creating ${freeOrPro} archive..."/>
+        <echo msg="File Name: ${thisbuild}${ffop}"/>
+
+        <echo msg=".zip archive last..."/>
+        <property name="dzfile" value="${devBuildsDir}/${thisbuild}${ffop}.zip"/>
+        <zip destfile="${dzfile}">
+            <fileset dir="${buildDir}">
+                <include name="**"/>
+            </fileset>
+        </zip>
+    </target>
+
+    <!-- ============================================  -->
+    <!-- Target: prepare                               -->
+    <!-- ============================================  -->
+    <target name="prepare">
+        <echo msg="Making build directory ${buildDir}"/>
+        <mkdir dir="${buildDir}"/>
+    </target>
+
+    <!-- ============================================  -->
+    <!-- Target: build_free                            -->
+    <!-- Desc:   Creates the Joomla Install file for   -->
+    <!--         Free and Pro versions by stripping    -->
+    <!--         any @PROBLOCK from the Free Version   -->
+    <!-- ============================================  -->
+    <target name="build_free" depends="prepare">
+        <echo msg="Copying GIT Repo to ${buildDir} from ${repo} for ${freeOrPro}..."/>
+        <copy todir="${buildDir}">
+            <fileset refid="content_repo"/>
+            <filterchain refid="std_tokens"/>
+            <filterchain refid="procode_block"/>
+        </copy>
+        <phingcall target="CreateArchives">
+            <property name="freeOrPro" value="${freeOrPro}" override="true"/>
+            <property name="ffop" value="${ffop}" override="true"/>
+        </phingcall>
+
+        <!-- Remove the leftover buildDir -->
+        <delete dir="${buildDir}"/>
+    </target>
+
+
+    <!-- ============================================  -->
+    <!-- Target: build_pro                             -->
+    <!-- Desc:   Same as the Free Version except it    -->
+    <!--         doesn't strip the contents of the     -->
+    <!--         PROBLOCK just the tags around it.     -->
+    <!-- ============================================  -->
+    <target name="build_pro" depends="prepare">
+        <!-- ================================  -->
+        <!-- First build the component    -->
+        <!-- ================================  -->
+        <echo msg="Copying GIT Repo to ${buildDir} from ${repo} for ${freeOrPro}..."/>
+        <copy todir="${buildDir}">
+            <fileset refid="content_repo"/>
+            <filterchain refid="std_tokens"/>
+            <filterchain refid="procode_tags"/>
+        </copy>
+        <phingcall target="CreateArchives">
+            <property name="freeOrPro" value="${freeOrPro}" override="true"/>
+            <property name="ffop" value="${ffop}" override="true"/>
+        </phingcall>
+
+        <!-- Remove the leftover buildDir -->
+        <delete dir="${buildDir}"/>
+
+        <!-- ================================  -->
+        <!-- Second, build the system plugin,  -->
+        <!-- after we reset some properties.   -->
+        <!-- ================================  -->
+        <property name="extension" value="${type}_system_${name}" override="true"/>
+        <property name="thisbuild" value="${gitTag}-${extension}" override="true"/>
+        <property name="buildDir" value="./${devBuildsDir}/${thisbuild}" override="true"/>
+
+        <echo msg="Copying GIT Repo to ${buildDir} from ${repo2} for ${freeOrPro}..."/>
+        <copy todir="${buildDir}">
+            <fileset refid="plugin_repo"/>
+            <filterchain refid="std_tokens"/>
+            <filterchain refid="procode_tags"/>
+        </copy>
+        <phingcall target="CreateArchives">
+            <property name="freeOrPro" value="${freeOrPro}" override="true"/>
+            <property name="ffop" value="${ffop}" override="true"/>
+            <property name="thisbuild" value="${thisbuild}" override="true"/>
+        </phingcall>
+
+        <!-- Remove the leftover buildDir -->
+        <delete dir="${buildDir}"/>
+
+        <!-- ================================  -->
+        <!-- Build the Pro Package file        -->
+        <!-- ================================  -->
+        <property name="pkgDir" value="pkg_${name}${ffop}"/>
+        <echo msg="Package Directory: ${pkgDir}"/>
+        <mkdir dir="${devBuildsDir}/${pkgDir}"/>
+
+        <!-- We copy the pkg xml by itself as the next copy uses a mapper which would fail on the Pkg XML name. -->
+        <copy todir="${devBuildsDir}/${pkgDir}">
+            <filelist dir="./" files="pkg_easystaging_pro.xml"/>
+            <filterchain refid="std_tokens"/>
+        </copy>
+        <!-- Now we can copy the zips (removing the Git Tag from their name so they match up with the Pkg XML. -->
+        <copy todir="${devBuildsDir}/${pkgDir}">
+            <fileset dir="${devBuildsDir}">
+                <include name="${gitTag}*${ffop}.zip"/>
+            </fileset>
+            <filelist dir="./" files="pkg_easystaging_pro.xml"/>
+            <mapper type="glob" from="${gitTag}-*_pro.zip" to="*.zip" />
+        </copy>
+
+        <!-- Now we can zip up the Pkg. -->
+        <property name="pkgFile" value="${devBuildsDir}/${gitTag}-${pkgDir}.zip"/>
+        <property name="srcDir"  value="${devBuildsDir}/${pkgDir}"/>
+        <zip destfile="${pkgFile}">
+            <fileset dir="${srcDir}">
+                <include name="**"/>
+            </fileset>
+        </zip>
+
+        <!-- Remove the leftover buildDir -->
+        <delete dir="${srcDir}"/>
+    </target>
+
+    <!-- ============================================  -->
+    <!-- (DEFAULT)  Target: package                    -->
+    <!-- ============================================  -->
+    <target name="package">
+        <!-- Call FREE Version Build -->
+        <phingcall target="build_free">
+            <property name="freeOrPro" value=" Free"/>
+            <property name="ffop" value="_free"/>
+        </phingcall>
+
+        <!-- Call Pro Version Build -->
+        <phingcall target="build_pro">
+            <property name="freeOrPro" value=" Pro"/>
+            <property name="ffop" value="_pro"/>
+        </phingcall>
+    </target>
+</project>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension type="package" version="2.5" method="upgrade">
+    <name>EasyStaging Pro Package</name>
+    <author>Craig Phillips</author>
+    <copyright>Copyright © 2015 Craig Phillips Pty Ltd. All rights reserved.</copyright>
+    <creationDate>##CREATEDATE##</creationDate>
+    <packagename>easystaging_pro</packagename>
+    <version>##VER## (##COMHASH##)</version>
+    <url>http://seepeoplesoftware.com//</url>
+    <packager>CPPL</packager>
+    <packagerurl>http://craigphillips.biz/</packagerurl>
+    <description><![CDATA[
+    <h3>EasyStaing Pro Component and Plugin</h3>\n<p>EasyStaging Pro is a combination of standard Joomla plugins and a component that allow secured staging sites to push changes out to public websites all from within your Joomla Admin area.</p>\n<p style='font-weight:bold'>Credits</p>\n<p>EasyStaging Pro for Joomla is an commercial product created by <a href='http://craigphillips.biz/?utm_source=EasyStagingPro&utm_medium=OS%2BSoftware&utm_campaign=EasyStagingPro' target='_blank'>CPPL</a> for all your custom software projects.</p>\n<p><a href='http://craigphillips.biz/?utm_source=EasyStagingPro&utm_medium=OS%2BSoftware&utm_campaign=EasyStagingPro' target='_blank'><img src='http://craigphillips.biz/logo.png' /></a></p>
+    ]]></description>
+    <files>
+        <file type="component" id="com_easystaging"                       >com_easystaging.zip</file>
+        <file type="plugin"    id="easystaging"     group="authentication">plg_authentication_easystaging.zip</file>
+    </files>
+</extension>

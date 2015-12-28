@@ -363,10 +363,10 @@ class EasyStagingModelPlan extends JModelAdmin
 
         if ($thisSiteConfig) {
             $thisSite->site_name = $thisSiteConfig->get('sitename');
-            $thisSite->database_name = $thisSiteConfig->get('db');
-            $thisSite->database_user = $thisSiteConfig->get('user');
-            $thisSite->database_password = $thisSiteConfig->get('password');
-            $thisSite->database_host = $thisSiteConfig->get('host');
+            $thisSite->database_name = '';
+            $thisSite->database_user = '';
+            $thisSite->database_password = '';
+            $thisSite->database_host = '';
             $thisSite->database_table_prefix = $thisSiteConfig->get('dbprefix');
         }
 

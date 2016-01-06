@@ -398,6 +398,12 @@ class EasyStagingControllerPlan extends JControllerLegacy
 
 					// Ok, we have our steps, lets change the state of the plan
 					$thePlan->published = self::RUNNING;
+
+					// If not a dry-run update last user to run it
+					if ($dry_run != false && $dry_run != 0) {
+						$thePlan->last_run_by = JFactory::getUser();
+					}
+
 					$thePlan->store();
 
 					// Ok lets add our steps to the DB for PlanRunner to use

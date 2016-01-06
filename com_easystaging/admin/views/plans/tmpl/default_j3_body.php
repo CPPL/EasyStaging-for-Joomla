@@ -56,14 +56,18 @@ foreach ($this->items as $i => &$row)
 	{
 		if ($last_run != $row->lastRunDTS)
 		{
-			$relDate = ' (' . $row->lastRunDTS . ')';
+			$relDate = $row->lastRunDTS;
 		}
 		else
 		{
 			$relDate = '';
 		}
 
-		$last_run = JText::sprintf('COM_EASYSTAGING_LAST_RUN', $last_run) . $relDate;
+        if ($relDate == '') {
+            $last_run = JText::sprintf('COM_EASYSTAGING_LAST_RUN_NO_REL_DATE', $last_run, $row->last_run_by);
+        } else {
+            $last_run = JText::sprintf('COM_EASYSTAGING_LAST_RUN', $last_run, $relDate, $row->last_run_by);
+        }
 	}
 
 ?>

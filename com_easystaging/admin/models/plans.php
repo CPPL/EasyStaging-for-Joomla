@@ -65,6 +65,8 @@ class EasyStagingModelPlans extends JModelList
 		$query->select($db->quoteName('publish_up'));
 		$query->select($db->quoteName('checked_out'));
 		$query->select($db->quoteName('checked_out_time'));
+		$query->select($db->quoteName('modified'));
+		$query->select($db->quoteName('modified_by'));
 		$query->select($db->quoteName('last_run'));
 
 		// From the EasyStaging table

@@ -116,6 +116,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
 				);
 
 				// Check the host is valid
+				$hostIsValid = false;
 				$host = $options['host'];
 				$hostIsIPAddress = filter_var($options['host'], FILTER_VALIDATE_IP);
 

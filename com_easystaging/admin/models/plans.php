@@ -31,11 +31,18 @@ class EasyStagingModelPlans extends JModelList
 
 		foreach ($items as &$item)
 		{
-			$item->lastRunDTS = JHtml::_('date.relative', $item->last_run);
+			$item->lastRunDTS  = JHtml::_('date.relative', $item->last_run);
+
+            $lrb = $item->last_run_by;
+            if (is_null($lrb) || $lrb == 0 || empty($lrb)) {
+                $item->last_run_by = '';
+            } else {
+                $item->last_run_by = JFactory::getUser($item->last_run_by)->name;
+            }
 
 			if($item->checked_out)
 			{
-				$editor = JFactory::getUser($item->checked_out);
+				$editor       = JFactory::getUser($item->checked_out);
 				$item->editor = JText::sprintf('COM_EASYSTAGING_PLANS_CHECKED_OUT_BY_X_AKA_Y', $editor->username, $editor->name);
 			}
 		}
@@ -65,7 +72,10 @@ class EasyStagingModelPlans extends JModelList
 		$query->select($db->quoteName('publish_up'));
 		$query->select($db->quoteName('checked_out'));
 		$query->select($db->quoteName('checked_out_time'));
+		$query->select($db->quoteName('modified'));
+		$query->select($db->quoteName('modified_by'));
 		$query->select($db->quoteName('last_run'));
+        $query->select($db->quoteName('last_run_by'));
 
 		// From the EasyStaging table
 		$query->from('#__easystaging_plans');

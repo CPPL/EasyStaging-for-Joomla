@@ -1,9 +1,9 @@
 <?php
 /**
- * @package		EasyStaging
- * @link		http://seepeoplesoftware.com
- * @license		GNU/GPL
- * @copyright	Craig Phillips Pty Ltd
+ * @package     EasyStaging
+ * @link        http://seepeoplesoftware.com
+ * @license     GNU/GPL
+ * @copyright   Craig Phillips Pty Ltd
 */
 
 defined('_JEXEC') or die('Restricted access');
@@ -18,160 +18,174 @@ require_once JPATH_COMPONENT_ADMINISTRATOR . '/helpers/plan.php';
  */
 class EasyStagingControllerPlan extends JControllerForm
 {
-	public function __construct($config = array())
-	{
-		parent::__construct($config);
-	}
+    public function __construct($config = array())
+    {
+        parent::__construct($config);
+    }
 
-	/**
-	 * 
-	 * @param null $key
-	 * @param null $urlVar
-	 *
-	 * @return bool
-	 */
-	public function run($key = null, $urlVar = null)
-	{
-		$jinput = JFactory::getApplication()->input;
+    /**
+     *
+     * @param null $key
+     * @param null $urlVar
+     *
+     * @return bool
+     */
+    public function run($key = null, $urlVar = null)
+    {
+        $jinput = JFactory::getApplication()->input;
 
-		// Initialise variables.
-		$app		= JFactory::getApplication();
-		$model		= $this->getModel();
-		$table		= $model->getTable();
-		$cid		= $jinput->post('cid', array(), 'array');
-		$context	= "$this->option.run.$this->context";
+        // Initialise variables.
+        $app        = JFactory::getApplication();
+        $model      = $this->getModel();
+        $table      = $model->getTable();
+        $cid        = $jinput->post('cid', array(), 'array');
+        $context    = "$this->option.run.$this->context";
 
 
-		// Set the run view
-		$jinput->set('layout', 'Run');
+        // Set the run view
+        $jinput->set('layout', 'Run');
 
-		// Determine the name of the primary key for the data.
-		if (empty($key))
-		{
-			$key = $table->getKeyName();
-		}
+        // Determine the name of the primary key for the data.
 
-		// To avoid data collisions the urlVar may be different from the primary key.
-		if (empty($urlVar))
-		{
-			$urlVar = $key;
-		}
+        if (empty($key)) {
+            $key = $table->getKeyName();
+        }
 
-		// Get the previous record id (if any) and the current record id.
-		$recordId	= (int) (count($cid) ? $cid[0] : $jinput->get($urlVar, null, 'INT'));
-		$checkin	= property_exists($table, 'checked_out');
+        // To avoid data collisions the urlVar may be different from the primary key.
+        if (empty($urlVar)) {
+            $urlVar = $key;
+        }
 
-		// Access check.
-		if (!$this->allowRun($recordId))
-		{
-			$this->setError(JText::_('COM_EASYSTAGING_PLAN_YOU_DO_NOT_HAVE_PERM'));
-			$this->setMessage($this->getError(), 'error');
+        // Get the previous record id (if any) and the current record id.
+        $recordId = (int) (count($cid) ? $cid[0] : $jinput->get($urlVar, null, 'INT'));
+        $checkin  = property_exists($table, 'checked_out');
 
-			return false;
-		}
+        // Access check.
+        if (!$this->allowRun($recordId)) {
+            $this->setError(JText::_('COM_EASYSTAGING_PLAN_YOU_DO_NOT_HAVE_PERM'));
+            $this->setMessage($this->getError(), 'error');
 
-		// Attempt to check-out the plan to run and redirect.
-		if ($checkin && !$model->checkout($recordId))
-		{
-			// Check-out failed, bounce out as we shouldn't run a plan that may be changing.
-			$app->enqueueMessage(JText::sprintf('JLIB_APPLICATION_ERROR_CHECKOUT_FAILED', $model->getError()), 'WARNING');
-			$this->setMessage($this->getError(), 'error');
-			$this->setRedirect(JRoute::_('index.php?option=' . $this->option . '&view=' . $this->view_list . $this->getRedirectToListAppend(), false));
+            return false;
+        }
 
-			return false;
-		}
-		else
-		{
-			// Check-out succeeded, push the new record id into the session.
-			$this->holdEditId($context, $recordId);
-			$app->setUserState($context . '.data', null);
-			$this->setRedirect('index.php?option=' . $this->option . '&view=' . $this->view_item . $this->getRedirectToItemAppend($recordId, $urlVar));
+        // Attempt to check-out the plan to run and redirect.
+        if ($checkin && !$model->checkout($recordId)) {
+            // Check-out failed, bounce out as we shouldn't run a plan that may be changing.
+            $app->enqueueMessage(
+                JText::sprintf('JLIB_APPLICATION_ERROR_CHECKOUT_FAILED', $model->getError()),
+                'WARNING'
+            );
+            $this->setMessage($this->getError(), 'error');
+            $this->setRedirect(
+                JRoute::_(
+                    'index.php?option=' . $this->option .
+                    '&view=' . $this->view_list . $this->getRedirectToListAppend(),
+                    false
+                )
+            );
 
-			return true;
-		}
-	}
+            return false;
+        } else {
+            // Check-out succeeded, push the new record id into the session.
+            $this->holdEditId($context, $recordId);
+            $app->setUserState($context . '.data', null);
+            $this->setRedirect(
+                'index.php?option=' . $this->option .
+                '&view=' . $this->view_item . $this->getRedirectToItemAppend($recordId, $urlVar)
+            );
 
-	public function cancel($key = null)
-	{
-		/*
-		 * @TODO remove the JRequest::checkToken() once JInput is upto speed
-		 */
-		JRequest::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+            return true;
+        }
+    }
 
-		$jinput = JFactory::getApplication()->input;
+    public function cancel($key = null)
+    {
+        /*
+         * @TODO remove the JRequest::checkToken() once JInput is upto speed
+         */
+        JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 
-		// If we're canceling a plan_run view
-		$layout     = $jinput->get('layout');
-		$task       = $jinput->get('task');
+        $jinput = JFactory::getApplication()->input;
 
-		if (($task == 'cancel') && ($layout == 'run'))
-		{
-			// Initialise variables.
-			$app		= JFactory::getApplication();
-			$model		= $this->getModel();
-			$table		= $model->getTable();
-			$checkin	= property_exists($table, 'checked_out');
-			$context	= $this->option . '.run.' . $this->context;
+        // If we're canceling a plan_run view
+        $layout     = $jinput->get('layout');
+        $task       = $jinput->get('task');
 
-			if (empty($key))
-			{
-				$key = $table->getKeyName();
-			}
+        if (($task == 'cancel') && ($layout == 'run')) {
+            // Initialise variables.
+            $app        = JFactory::getApplication();
+            $model      = $this->getModel();
+            $table      = $model->getTable();
+            $checkin    = property_exists($table, 'checked_out');
+            $context    = $this->option . '.run.' . $this->context;
 
-			$recordId	= $jinput->get($key, null, 'INT');
+            if (empty($key)) {
+                $key = $table->getKeyName();
+            }
 
-			// Attempt to check-in the current record.
-			if ($recordId)
-			{
-				// Check we are holding the id in the edit list.
-				if (!$this->checkEditId($context, $recordId))
-				{
-					// Somehow the person just went to the form - we don't allow that.
-					$this->setError(JText::sprintf('JLIB_APPLICATION_ERROR_UNHELD_ID', $recordId));
-					$this->setMessage($this->getError(), 'error');
-					$this->setRedirect(JRoute::_('index.php?option=' . $this->option . '&view=' . $this->view_list . $this->getRedirectToListAppend(), false));
+            $recordId   = $jinput->get($key, null, 'INT');
 
-					return false;
-				}
+            // Attempt to check-in the current record.
+            if ($recordId) {
+                // Check we are holding the id in the edit list.
+                if (!$this->checkEditId($context, $recordId)) {
+                    // Somehow the person just went to the form - we don't allow that.
+                    $this->setError(JText::sprintf('JLIB_APPLICATION_ERROR_UNHELD_ID', $recordId));
+                    $this->setMessage($this->getError(), 'error');
+                    $this->setRedirect(
+                        JRoute::_(
+                            'index.php?option=' . $this->option .
+                            '&view=' . $this->view_list . $this->getRedirectToListAppend(),
+                            false
+                        )
+                    );
 
-				if ($checkin)
-				{
-					if ($model->checkin($recordId) === false)
-					{
-						// Check-in failed, go back to the record and display a notice.
-						$this->setError(JText::sprintf('JLIB_APPLICATION_ERROR_CHECKIN_FAILED', $model->getError()));
-						$this->setMessage($this->getError(), 'error');
-						$this->setRedirect('index.php?option=' . $this->option . '&view=' . $this->view_item . $this->getRedirectToItemAppend($recordId, $key));
+                    return false;
+                }
 
-						return false;
-					}
-				}
-			}
-		
-			// Clean the session data and redirect.
-			$this->releaseEditId($context, $recordId);
-			$app->setUserState($context.'.data',	null);
-			$this->setRedirect(JRoute::_('index.php?option=' . $this->option . '&view=' . $this->view_list . $this->getRedirectToListAppend(), false));
-		
-			return true;
-		}
-		else
-		{
-			return parent::cancel($key);
-		}
-	}
+                if ($checkin) {
+                    if ($model->checkin($recordId) === false) {
+                        // Check-in failed, go back to the record and display a notice.
+                        $this->setError(JText::sprintf('JLIB_APPLICATION_ERROR_CHECKIN_FAILED', $model->getError()));
+                        $this->setMessage($this->getError(), 'error');
+                        $this->setRedirect(
+                            'index.php?option=' . $this->option .
+                            '&view=' . $this->view_item . $this->getRedirectToItemAppend($recordId, $key)
+                        );
 
-	/**
-	 * Check RUN perms.
-	 *
-	 * @param   int  $id  Plan id
-	 *
-	 * @return bool
-	 */
-	protected function allowRun($id)
-	{
-		$canDo = PlanHelper::getActions($id);
+                        return false;
+                    }
+                }
+            }
+        
+            // Clean the session data and redirect.
+            $this->releaseEditId($context, $recordId);
+            $app->setUserState($context.'.data', null);
+            $this->setRedirect(
+                JRoute::_(
+                    'index.php?option=' . $this->option .
+                    '&view=' . $this->view_list . $this->getRedirectToListAppend(),
+                    false
+                )
+            );
+        
+            return true;
+        } else {
+            return parent::cancel($key);
+        }
+    }
 
-		return $canDo->get('easystaging.run');
-	}
+    /**
+     * Check RUN perms.
+     *
+     * @param   int  $id  Plan id
+     *
+     * @return bool
+     */
+    protected function allowRun($id)
+    {
+        $canDo = PlanHelper::getActions($id);
+
+        return $canDo->get('easystaging.run');
+    }
 }

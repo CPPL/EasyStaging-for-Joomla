@@ -116,6 +116,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
 				);
 
 				// Check the host is valid
+				$hostIsValid = false;
 				$host = $options['host'];
 				$hostIsIPAddress = filter_var($options['host'], FILTER_VALIDATE_IP);
 
@@ -391,13 +392,24 @@ class EasyStagingControllerPlan extends JControllerLegacy
 				$jAp->setUserState('rt_uuid', $rt_uuid);
 
 				// Add the runs steps to be executed
-				if (($response = $this->createSteps($stepsRequired, $thePlan, $runticket, $dry_run)) && $response['status'] == 2)
+				$response = $this->createSteps($stepsRequired, $thePlan, $runticket, $dry_run);
+				if (is_array($response) && $response['status'] == 2)
 				{
-					// Extract our steps from the response
+				    // Get our current user
+				    $currentUser = JFactory::getUser()->id;
+
+				    // Extract our steps from the response
 					$steps = $response['steps'];
 
 					// Ok, we have our steps, lets change the state of the plan
 					$thePlan->published = self::RUNNING;
+					$thePlan->dry_run = $dry_run;
+
+					// If not a dry-run update last user to run it
+					if ($dry_run != true && $dry_run != 1) {
+						$thePlan->last_run_by = $currentUser;
+					}
+
 					$thePlan->store();
 
 					// Ok lets add our steps to the DB for PlanRunner to use

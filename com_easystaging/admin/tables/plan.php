@@ -38,7 +38,7 @@ class EasyStagingTablePlan extends JTable
 		if ($this->id)
 		{
 			// Existing item
-			if (!isset($this->dry_run) || !$this->dry_run) {
+			if (!isset($this->_dry_run) || !$this->_dry_run) {
 				$this->modified = $date;
 				$this->modified_by = $uid;
 			}

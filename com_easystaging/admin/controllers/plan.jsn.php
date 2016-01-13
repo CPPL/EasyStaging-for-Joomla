@@ -93,7 +93,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
             $msg = JText::_('JINVALID_TOKEN');
         } else {
             $jIn = JFactory::getApplication()->input;
-            $plan_id = $this->_plan_id();
+            $plan_id = $this->getPlanId();
 
             if ($plan_id) {
                 // Get our local database connection
@@ -117,7 +117,8 @@ class EasyStagingControllerPlan extends JControllerLegacy
                 $hostIsIPAddress = filter_var($options['host'], FILTER_VALIDATE_IP);
 
                 if (!$hostIsIPAddress) {
-                    if (($hostIsURL = filter_var($host, FILTER_VALIDATE_URL)) || ($hostIsURL = filter_var('http://' . $host, FILTER_VALIDATE_URL))) {
+                    if (($hostIsURL = filter_var($host, FILTER_VALIDATE_URL)) ||
+                        ($hostIsURL = filter_var('http://' . $host, FILTER_VALIDATE_URL))) {
                         $hostIsValid = true;
                     }
                 } else {
@@ -143,37 +144,46 @@ class EasyStagingControllerPlan extends JControllerLegacy
 
                                 // Check for old style error
                                 if ($errNo = $target_db->getErrorNum()) {
-                                    $msg .= JText::sprintf('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CANT_CONNECT_X', $target_db->getErrorMsg()) . '<br>';
+                                    $msg .= JText::sprintf(
+                                        'COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CANT_CONNECT_X',
+                                        $target_db->getErrorMsg()
+                                    )
+                                    . '<br>';
+
                                 } else {
                                     $errNo = 0;
-                                    $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CONNECTED') . '<br>';
+                                    $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CONNECTED')
+                                        . '<br>';
                                 }
                             } else {
-                                try
-                                {
+                                try {
                                     $target_db = JDatabase::getInstance($options);
                                     $target_db->connect();
                                     $errNo = 0;
-                                    $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CONNECTED') . '<br>';
-                                }
-                                catch (RuntimeException $e)
-                                {
+                                    $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CONNECTED')
+                                        . '<br>';
+                                } catch (RuntimeException $e) {
                                     $errNo = 1;
-                                    $msg .= JText::sprintf('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CANT_CONNECT_X', $e->getMessage()) . '<br>';
+                                    $msg .= JText::sprintf(
+                                        'COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CANT_CONNECT_X',
+                                        $e->getMessage()
+                                    )
+                                    . '<br>';
                                 }
                             }
                         } else {
-                            try
-                            {
+                            try {
                                 $target_db = JDatabaseDriver::getInstance($options);
                                 $target_db->connect();
                                 $errNo = 0;
                                 $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CONNECTED') . '<br>';
-                            }
-                            catch (RuntimeException $e)
-                            {
+                            } catch (RuntimeException $e) {
                                 $errNo = 1;
-                                $msg .= JText::sprintf('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CANT_CONNECT_X', $e->getMessage()) . '<br>';
+                                $msg .= JText::sprintf(
+                                    'COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CANT_CONNECT_X',
+                                    $e->getMessage()
+                                )
+                                . '<br>';
                             }
                         }
 
@@ -184,20 +194,27 @@ class EasyStagingControllerPlan extends JControllerLegacy
                             if ($target_db->name == 'mysqli') {
                                 mysqli_report(MYSQLI_REPORT_STRICT);
 
-                                try
-                                {
-                                    $mysqli = new mysqli($options['host'], $options['user'], $options['password'], $options['database'], $options['port']);
-                                    $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_DIRECTLY_CONNECTED') . '<br>';
-                                }
-                                catch (mysqli_sql_exception $e)
-                                {
-                                    $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_DIRECT_CONNECTION_FAILED') . '<br>';
+                                try {
+                                    $mysqli = new mysqli(
+                                        $options['host'],
+                                        $options['user'],
+                                        $options['password'],
+                                        $options['database'],
+                                        $options['port']
+                                    );
+                                    $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_DIRECTLY_CONNECTED')
+                                        . '<br>';
+                                } catch (mysqli_sql_exception $e) {
+                                    $msg .= JText::_(
+                                        'COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_DIRECT_CONNECTION_FAILED'
+                                    )
+                                    . '<br>';
                                     $msg .= '<pre>' . $e->getMessage() . '</pre><br>';
                                 }
 
-                                $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_POSSIBLE_SOLUTIONS') . '<br>';
-                            }
-                            elseif ($target_db->name == 'mysql') {
+                                $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_POSSIBLE_SOLUTIONS')
+                                    . '<br>';
+                            } elseif ($target_db->name == 'mysql') {
                                 $msg .= '<pre>' . mysql_error($target_db->getConnection()) . '</pre><br>';
                             } else {
                                 $msg .= '<pre>Unsupported DB type: ' . $target_db->name . '</pre><br>';
@@ -240,9 +257,9 @@ class EasyStagingControllerPlan extends JControllerLegacy
         } else {
             // Better check our use has permissions to run this plan and isn't swizzling the JS on the browser...
             $jIn = JFactory::getApplication()->input;
-            $plan_id = $this->_plan_id();
+            $plan_id = $this->getPlanId();
 
-            if ($this->_areWeAllowed($plan_id)) {
+            if ($this->areWeAllowed($plan_id)) {
                 // Do we have a run ticket?
                 $runTicket = $jIn->get('runticket', '');
 
@@ -369,7 +386,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
                     if ($response['status']) {
                         // Finally we launch our server side cli app
                         $cmdPath = JPATH_SITE . '/cli/easystaging_plan_runner.php --runticket=' . $runticket;
-                        $runSIBResult = $this->_runScriptInBackground($cmdPath);
+                        $runSIBResult = $this->runScriptInBackground($cmdPath);
                         $runnerCMD = $runSIBResult['cmd'];
                         $ok = $runSIBResult['status'];
                         $output = $runSIBResult['output'];
@@ -378,7 +395,12 @@ class EasyStagingControllerPlan extends JControllerLegacy
                             if ($this->params->get('run_script_with', 'AT') == 'AT') {
                                 $resultText = JText::sprintf('COM_EASYSTAGING_PLAN_RUNNER_LAUNCHED_AT_ID_X', $ok);
                             } else {
-                                $resultText = JText::sprintf('COM_EASYSTAGING_PLAN_RUNNER_LAUNCHED_X_Y_Z', $runnerCMD, $ok, implode('|', $output));
+                                $resultText = JText::sprintf(
+                                    'COM_EASYSTAGING_PLAN_RUNNER_LAUNCHED_X_Y_Z',
+                                    $runnerCMD,
+                                    $ok,
+                                    implode('|', $output)
+                                );
                             }
 
                             $steps[] = array('action_type' => 99, 'result_text' => $resultText);
@@ -406,8 +428,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
                         $response['updates'] = $steps;
                     }
                 }
-            }
-            elseif ($thePlan && ($thePlan->published == 2)) {
+            } elseif ($thePlan && ($thePlan->published == 2)) {
                 // Ok Plan is in the 'run' state, we say hey sorry someone else is running this plan
                 $response = array(
                     'status' => 0,
@@ -460,7 +481,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
             'state' => self::WAITING,
             'result_text' => JText::_('COM_EASYSTAGING_JSON_ROOT_ACTION_MSG'),
         );
-        $this->_writeMsgToLog($steps[0]['result_text'], $runticket);
+        $this->writeMsgToLog($steps[0]['result_text'], $runticket);
 
         // We assume success, but we will fail if any step goes wrong...
         // Where "Goes wrong" means a serious breakdown... not just a single copy failing...
@@ -468,7 +489,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
             'status' => self::FINISHED,
             'msg' => JText::_('COM_EASYSTAGING_JSON_CREATING_RUN_STEPS')
         );
-        $this->_writeMsgToLog($response['msg'], $runticket);
+        $this->writeMsgToLog($response['msg'], $runticket);
         $rsyncSteps  = false;
         $tableSteps = false;
         $totalSteps = 0;
@@ -488,7 +509,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
                     'state' => self::FINISHED,
                     'result_text' => $msg,
                 );
-                $this->_writeMsgToLog($msg, $runticket);
+                $this->writeMsgToLog($msg, $runticket);
             }
         } else {
             $msg = JText::_('COM_EASYSTAGING_JSON_FILE_SYNC_NOT_REQUESTED');
@@ -498,7 +519,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
                 'state' => self::FINISHED,
                 'result_text' => $msg,
             );
-            $this->_writeMsgToLog($msg, $runticket);
+            $this->writeMsgToLog($msg, $runticket);
         }
 
         // Get our Table steps
@@ -516,7 +537,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
                     'state' => self::FINISHED,
                     'result_text' => $msg,
                 );
-                $this->_writeMsgToLog($msg, $runticket);
+                $this->writeMsgToLog($msg, $runticket);
             }
         }
 
@@ -524,13 +545,13 @@ class EasyStagingControllerPlan extends JControllerLegacy
         if (!$rsyncSteps && !$tableSteps) {
             $response['status'] = self::NOTRUNNING;
             $response['error']  = JText::_('COM_EASYSTAGING_JSON_NO_STEPS_CREATED_FOR_PLAN');
-            $this->_writeMsgToLog($response['error'], $runticket);
+            $this->writeMsgToLog($response['error'], $runticket);
         } else {
             $response['status']    = self::RUNNING;
             $response['msg']       = JText::sprintf('COM_EASYSTAGING_JSON_X_STEPS_CREATED_FOR_PLAN', $totalSteps);
             $response['runticket'] = $runticket;
             $response['steps']     = $steps;
-            $this->_writeMsgToLog($response['msg'], $runticket);
+            $this->writeMsgToLog($response['msg'], $runticket);
         }
 
         return $response;
@@ -551,7 +572,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
      *
      * @since   1.1.0
      */
-    protected function createRsyncSteps ($runticket, $localSite, $remoteSite, $dry_run)
+    protected function createRsyncSteps($runticket, $localSite, $remoteSite, $dry_run)
     {
         // Setup our Rsync step, if we have local and remote paths
         if (($localSite->site_path != '') && ($remoteSite->site_path != '')) {
@@ -565,7 +586,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
             $query->select($db->quoteName('source_path'));
             $query->select($db->quoteName('target_path'));
             $query->from($db->quoteName('#__easystaging_rsyncs'));
-            $query->where($db->quoteName('plan_id') . ' = ' . $db->quote($this->_plan_id()));
+            $query->where($db->quoteName('plan_id') . ' = ' . $db->quote($this->getPlanId()));
             $db->setQuery($query);
 
             // Finally we can get our list of file copy actions for this plan
@@ -573,8 +594,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
 
             if ($fileCopyActions = $db->loadAssocList()) {
                 // To each returned row we need to add a runticket and covert the raw action upto a plan action
-                foreach ($fileCopyActions as $row)
-                {
+                foreach ($fileCopyActions as $row) {
                     // Check if our options need --dry-run
                     $rsync_options = RunHelper::checkRsyncOptions($localSite->rsync_options, $dry_run);
 
@@ -601,7 +621,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
                     $steps[] = $step;
 
                     // Log it
-                    $this->_writeMsgToLog($step['result_text'], $runticket);
+                    $this->writeMsgToLog($step['result_text'], $runticket);
                 }
             }
 
@@ -645,11 +665,14 @@ class EasyStagingControllerPlan extends JControllerLegacy
 
         if ($theTables = $db->loadAssocList()) {
             // To each returned row we need to add a runticket and covert the table action upto a plan action
-            foreach ($theTables as $row)
-            {
+            foreach ($theTables as $row) {
                 $row['runticket'] = $runticket;
                 $row['action_type'] = $row['action_type'] + 10;
-                $row['result_text'] = JText::sprintf('COM_EASYSTAGING_JSON_TABLE_X_STEP_ADDED', $row['action'], $thePlan->name);
+                $row['result_text'] = JText::sprintf(
+                    'COM_EASYSTAGING_JSON_TABLE_X_STEP_ADDED',
+                    $row['action'],
+                    $thePlan->name
+                );
                 $steps[] = $row;
             }
         }
@@ -716,7 +739,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
      *
      * @return  array
      */
-    protected function getRunSteps($runticket, $state, $reported=null)
+    protected function getRunSteps($runticket, $state, $reported = null)
     {
         // Retreive all of our run steps that haven't been reported
         $db = JFactory::getDbo();
@@ -761,8 +784,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
             )
         );
 
-        foreach ($steps as $row)
-        {
+        foreach ($steps as $row) {
             $values = array();
             $values[] = isset($row['runticket']) ? $db->quote($row['runticket']) : "''";
             $values[] = isset($row['action_type']) ? $db->quote($row['action_type']) : "''";
@@ -793,8 +815,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
         $stepsToUpdate = array();
         $open = $db->quoteName('id') . ' = ';
 
-        foreach ($steps as $step)
-        {
+        foreach ($steps as $step) {
             $stepsToUpdate[] = $open . $db->quote($step['id']);
         }
 
@@ -851,13 +872,13 @@ class EasyStagingControllerPlan extends JControllerLegacy
      *
      * @return  null
      */
-    private function _writeMsgToLog($msg, $runticket)
+    private function writeMsgToLog($msg, $runticket)
     {
         $response = array(
             'msg' => $msg,
             'status' => 1,
         );
-        $this->_writeToLog($response, $runticket);
+        $this->writeToLog($response, $runticket);
     }
 
     /**
@@ -869,7 +890,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
      *
      * @return bool|int
      */
-    private function _writeToLog($response, $runTicket)
+    private function writeToLog($response, $runTicket)
     {
         $logWriteResult = false;
         $runDirectory = RunHelper::get_run_directory($runTicket);
@@ -902,7 +923,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
      *
      * @return int
      */
-    private function _plan_id()
+    private function getPlanId()
     {
         if (!isset($this->plan_id)) {
             $jinput = JFactory::getApplication()->input;
@@ -921,7 +942,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
      *
      * @since 1.0
      */
-    private function _areWeAllowed($plan_id)
+    private function areWeAllowed($plan_id)
     {
         // Should we be here?
         $canDo = PlanHelper::getActions($plan_id);
@@ -936,7 +957,7 @@ class EasyStagingControllerPlan extends JControllerLegacy
      *
      * @return  int
      */
-    private function _runScriptInBackground($pathToScript)
+    private function runScriptInBackground($pathToScript)
     {
         if (JDEBUG) {
             jimport('joomla.log.log');
@@ -992,15 +1013,21 @@ class EasyStagingControllerPlan extends JControllerLegacy
         if (($run_script_with == 'AT') && ($returnValue == 0)) {
             // All good anything else is bad
             $returnValue = $output[0];
-        } elseif($run_script_with == 'AT') {
+        } elseif ($run_script_with == 'AT') {
             $returnValue = false;
-        } elseif($run_script_with == "DIRECT" && $returnValue === 0 && empty($output) && $lastLine == '') {
+        } elseif ($run_script_with == "DIRECT" && $returnValue === 0 && empty($output) && $lastLine == '') {
             // Some setups (aka SiteGround/Hive servers) don't return any values from exec(), normal situations
             // will always put something in $returnValue or $lastLine
             $returnValue = true;
         }
 
-        $result = array('cmd' => $cmd, 'cmdpath' => $cmdPath, 'status' => $returnValue, 'output' => $output, 'lastline' => $lastLine);
+        $result = array(
+            'cmd' => $cmd,
+            'cmdpath' => $cmdPath,
+            'status' => $returnValue,
+            'output' => $output,
+            'lastline' => $lastLine
+        );
 
         return $result;
     }

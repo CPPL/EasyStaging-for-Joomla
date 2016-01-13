@@ -14,6 +14,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 require_once JPATH_COMPONENT_ADMINISTRATOR . '/helpers/general.php';
+require_once JPATH_COMPONENT . '/helpers/plan.php';
 
 /**
  * EasyStaging Manager View
@@ -21,118 +22,113 @@ require_once JPATH_COMPONENT_ADMINISTRATOR . '/helpers/general.php';
  */
 class EasyStagingViewPlans extends JViewLegacy
 {
-	protected $items;
+    protected $items;
 
-	protected $pagination;
+    protected $pagination;
 
-	protected $state;
+    protected $state;
 
-	protected $current_version;
+    protected $current_version;
 
-	/**
-	 * Our implementation of display()
-	 *
-	 * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
-	 *
-	 * @return  mixed  A string if successful, otherwise a JError object.
-	 */
-	public function display($tpl = null)
-	{
-		require_once JPATH_COMPONENT . '/helpers/plan.php';
+    protected $jvtag;
 
-		JHtml::_('behavior.framework', true);
-		JHtml::_('behavior.tooltip');
-		JHtml::_('behavior.multiselect');
+    /**
+     * Our implementation of display()
+     *
+     * @param   string  $tpl  The name of the template file to parse; automatically searches through the template paths.
+     *
+     * @return  mixed  A string if successful, otherwise a JError object.
+     */
+    public function display($tpl = null)
+    {
 
-		// Get our Joomla Tag, installed version and our canDo's
-		$this->jvtag      = ES_General_Helper::getJoomlaVersionTag();
+        JHtml::_('behavior.framework', true);
+        JHtml::_('behavior.tooltip');
+        JHtml::_('behavior.multiselect');
 
-		// Get version
-		$xml = simplexml_load_file(JPATH_BASE . '/components/com_easystaging/easystaging.xml');
-		$this->current_version = (string) $xml->version;
+        // Get our Joomla Tag, installed version and our canDo's
+        $this->jvtag      = ES_General_Helper::getJoomlaVersionTag();
 
-		// Setup document (Toolbar, css, js etc)
-		$this->addToolbar();
-		$this->addCSSEtc();
+        // Get version
+        $xml = simplexml_load_file(JPATH_BASE . '/components/com_easystaging/easystaging.xml');
+        $this->current_version = (string) $xml->version;
 
-		// Get data from the model
-		$items = $this->get('Items');
-		$pagination = $this->get('Pagination');
+        // Setup document (Toolbar, css, js etc)
+        $this->addToolbar();
+        $this->addCSSEtc();
 
-		if (count($errors = $this->get('Errors')))
-		{
-			JError::raiseError(500, implode('<br />', $errors));
+        // Get data from the model
+        $items = $this->get('Items');
+        $pagination = $this->get('Pagination');
 
-			return false;
-		}
-		// Assign data to the view
-		$this->items = $items;
-		$this->pagination = $pagination;
+        if (count($errors = $this->get('Errors'))) {
+            JError::raiseError(500, implode('<br />', $errors));
 
-		parent::display($tpl);
-	}
+            return false;
+        }
+        // Assign data to the view
+        $this->items = $items;
+        $this->pagination = $pagination;
 
-	/**
-	 * addToolbar()
-	 *
-	 * @return null
-	 *
-	 * @since 1.1
-	 */
-	private function addToolbar()
-	{
-		JToolBarHelper::title(JText::_('COM_EASYSTAGING_EASYSTAGING_MANAGER'), 'easystaging');
+        parent::display($tpl);
+    }
 
-		$canDo	= PlanHelper::getActions();
+    /**
+     * addToolbar()
+     *
+     * @return null
+     *
+     * @since 1.1
+     */
+    private function addToolbar()
+    {
+        JToolBarHelper::title(JText::_('COM_EASYSTAGING_EASYSTAGING_MANAGER'), 'easystaging');
 
-		if ($canDo->get('core.create'))
-		{
-			JToolBarHelper::addNew('plan.add');
-		}
+        $canDo  = PlanHelper::getActions();
 
-		if ($canDo->get('core.edit'))
-		{
-			JToolBarHelper::editList('plan.edit');
-		}
+        if ($canDo->get('core.create')) {
+            JToolBarHelper::addNew('plan.add');
+        }
 
-		if ($canDo->get('core.edit.state'))
-		{
-			JToolBarHelper::divider();
-			JToolBarHelper::publishList('plans.publish', 'JTOOLBAR_PUBLISH', true);
-			JToolBarHelper::unpublishList('plans.unpublish', 'JTOOLBAR_UNPUBLISH', true);
-		}
+        if ($canDo->get('core.edit')) {
+            JToolBarHelper::editList('plan.edit');
+        }
 
-		if ($canDo->get('core.delete'))
-		{
-			JToolBarHelper::deleteList('', 'plans.delete');
-			JToolBarHelper::divider();
-		}
+        if ($canDo->get('core.edit.state')) {
+            JToolBarHelper::divider();
+            JToolBarHelper::publishList('plans.publish', 'JTOOLBAR_PUBLISH');
+            JToolBarHelper::unpublishList('plans.unpublish', 'JTOOLBAR_UNPUBLISH');
+        }
 
-		if ($canDo->get('core.admin'))
-		{
-			JToolBarHelper::preferences('com_easystaging');
-			JToolBarHelper::divider();
-		}
-	}
+        if ($canDo->get('core.delete')) {
+            JToolBarHelper::deleteList('', 'plans.delete');
+            JToolBarHelper::divider();
+        }
 
-	/**
-	 * addCSSEtc()
-	 *
-	 * @return null
-	 *
-	 * @since 1.1
-	 */
-	private function addCSSEtc ()
-	{
-		// Get the document object
-		$document = JFactory::getDocument();
+        if ($canDo->get('core.admin')) {
+            JToolBarHelper::preferences('com_easystaging');
+            JToolBarHelper::divider();
+        }
+    }
 
-		// First add CSS to the document
-		$document->addStyleSheet(JURI::root() . 'media/com_easystaging/css/plans.css');
+    /**
+     * addCSSEtc()
+     *
+     * @return null
+     *
+     * @since 1.1
+     */
+    private function addCSSEtc()
+    {
+        // Get the document object
+        $document = JFactory::getDocument();
 
-		// Then add JS to the document‚ - make sure all JS comes after CSS
-		$jsFile = 'media/com_easystaging/js/plans.js';
-		$document->addScript(JURI::root() . $jsFile);
-		PlanHelper::loadJSLanguageKeys('/' . $jsFile);
-	}
+        // First add CSS to the document
+        $document->addStyleSheet(JURI::root() . 'media/com_easystaging/css/plans.css');
+
+        // Then add JS to the document‚ - make sure all JS comes after CSS
+        $jsFile = 'media/com_easystaging/js/plans.js';
+        $document->addScript(JURI::root() . $jsFile);
+        PlanHelper::loadJSLanguageKeys('/' . $jsFile);
+    }
 }

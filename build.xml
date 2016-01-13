@@ -169,7 +169,7 @@
         <!-- Second, build the system plugin,  -->
         <!-- after we reset some properties.   -->
         <!-- ================================  -->
-        <property name="extension" value="${type}_system_${name}" override="true"/>
+        <property name="extension" value="${plugin}" override="true"/>
         <property name="thisbuild" value="${gitTag}-${extension}" override="true"/>
         <property name="buildDir" value="./${devBuildsDir}/${thisbuild}" override="true"/>
 

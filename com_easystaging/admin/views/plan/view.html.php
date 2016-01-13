@@ -43,6 +43,12 @@ class EasyStagingViewPlan extends JViewLegacy
         // Get our Joomla Tag, installed version and our canDo's
         $this->jvtag = ES_General_Helper::getJoomlaVersionTag();
 
+        // Check EasyStaging is configured properly
+        if (!ES_General_Helper::isEveryThingOK()) {
+            JFactory::getApplication()->redirect('index.php?option=com_easystaging', 303);
+            return false;
+        }
+
         // Get the Data
         $this->form = $this->get('Form');
         $this->item = $this->get('Item');

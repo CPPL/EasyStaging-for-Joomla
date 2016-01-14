@@ -36,6 +36,15 @@
     color: silver;
 }
 
+span.com_easystaging_mgr_last_modified {
+    font-size: 0.9em;
+    color: silver;
+}
+
+span.com_easystaging_mgr_last_modified em {
+
+}
+
 .com_easystaging_mgr_last_run {
     font-style: italic;
     color: silver;

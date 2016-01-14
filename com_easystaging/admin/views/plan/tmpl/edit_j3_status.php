@@ -16,7 +16,8 @@ defined('_JEXEC') or die('Restricted Access');
 		</div>
 		<div id="rsyncErrors"><?php echo JText::_('COM_EASYSTAGING_RSYNC_RUN_ERROR_CODES'); ?></div>
 		<div id="lastRunStatus" ><?php
-			$last_run = $this->item->last_run;
+			$last_run    = $this->item->last_run;
+			$last_run_by = JFactory::getUser($this->item->last_run_by)->name;
 			$not_run_yet = ($last_run == '0000-00-00 00:00:00' || empty($last_run));
 
 			if ($not_run_yet && $this->item->published)
@@ -25,7 +26,7 @@ defined('_JEXEC') or die('Restricted Access');
 			}
 			elseif ($this->item->published)
 			{
-				echo JText::sprintf('COM_EASYSTAGING_LAST_RUN', JHtml::_('date', $last_run, JText::_('DATE_FORMAT_LC2'), true));
+				echo JText::sprintf('COM_EASYSTAGING_LAST_RUN_NO_REL_DATE', JHtml::_('date', $last_run, JText::_('DATE_FORMAT_LC2'), true), $last_run_by);
 			}
 			elseif (!$this->item->published)
 			{

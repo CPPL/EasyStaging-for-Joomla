@@ -316,7 +316,7 @@ com_EasyStaging.setUp  = function (isPublished)
 	this.requestData[token]    = 1;
     this.requestData.runticket = '';
 	this.requestData.plan_id   = cppl_tools.getID();
-	this.jsonURL               = 'index.php?option=com_easystaging&format=json';
+	this.jsonURL               = 'index.php?option=com_easystaging&format=jsn';
     this.tableFilter           = null;
     this.totalTables           = 0;
     this.tablesHidden          = 0;

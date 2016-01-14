@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `#__easystaging_plans` (
   `publish_up` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `publish_down` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `last_run` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `last_run_by` int(10) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 

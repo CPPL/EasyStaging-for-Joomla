@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Restricted Access'); ?>
 				</tr>
 			</thead>
 			<tbody>
-				<?php echo $this->loadTemplate($this->jvtag . '_rsyncs_body');?>
+				<?php echo $this->loadTemplate('rsyncs_body');?>
 			</tbody>
 		</table>
 	</div>

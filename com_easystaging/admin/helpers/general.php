@@ -14,21 +14,6 @@ defined('_JEXEC') or die;
 class ES_General_Helper
 {
     /**
-     * Creates a simple tag to denote major versions that can be used in file names to load version appropriate files.
-     * e.g. views etc
-     *
-     * @return string
-     */
-    public static function getJoomlaVersionTag()
-    {
-        // Get our Joomla Tag
-        $jv      = new JVersion;
-        $jvArray = explode('.', $jv->RELEASE);
-
-        return 'j' . $jvArray[0];
-    }
-
-    /**
      * A general catch-all where we can check for essential settings, files etc.
      *
      * @param  string   $comp  The name of the component.

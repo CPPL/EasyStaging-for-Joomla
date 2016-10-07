@@ -67,7 +67,7 @@ $tableActionTH = JText::_('COM_EASYSTAGING_TABLE_ACTION_TH');
 				</tr>
 			</thead>
 			<tbody>
-				<?php echo $this->loadTemplate($this->jvtag . '_tables_body');?>
+				<?php echo $this->loadTemplate('tables_body');?>
 			</tbody>
 		</table>
 	</div>

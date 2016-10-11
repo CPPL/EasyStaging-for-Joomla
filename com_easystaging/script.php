@@ -43,8 +43,6 @@ class com_EasyStagingInstallerScript
 		// Interesting that we need to load our language here...
 		$this->loadLanguage();
 		$jversion = new JVersion;
-		$jvArray = explode('.', $jversion->RELEASE);
-		$this->jvtag = 'j' . $jvArray[0];
 
 		// Installing component manifest file version
 		$relVer = explode(' ', $parent->get("manifest")->version);
@@ -101,11 +99,12 @@ class com_EasyStagingInstallerScript
 		{
 			if ($preFlightOK)
 			{
-				$source_file = $parent->getParent()->getPath('source') . '/admin/cli/' . $this->jvtag . '_easystaging_plan_runner.php';
+				$cliRunner = 'easystaging_plan_runner.php';
+				$source_file = $parent->getParent()->getPath('source') . '/admin/cli/' . $cliRunner;
 
 				if (file_exists($source_file))
 				{
-					if (JFile::move($source_file, $cli_dir . '/easystaging_plan_runner.php'))
+					if (JFile::move($source_file, $cli_dir . '/' . $cliRunner))
 					{
 						echo '<p>' . JText::_('COM_EASYSTAGING_INSTALLER_PREFLIGHT_' . strtoupper($type) . '_CLI_FILE_MOVED') . '</p>';
 					}

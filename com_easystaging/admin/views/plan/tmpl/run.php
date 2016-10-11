@@ -2,4 +2,4 @@
 // No direct access
 defined('_JEXEC') or die('Restricted access');
 
-echo $this->loadTemplate($this->jvtag . '_form');
+echo $this->loadTemplate('form');

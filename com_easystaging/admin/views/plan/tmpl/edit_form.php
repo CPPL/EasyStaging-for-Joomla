@@ -29,30 +29,30 @@ echo $this->form->getControlGroup('id');
 	if ($this->canDo->get('easystaging.run'))
 	{
 		echo JHtml::_('bootstrap.addTab', 'myTab', 'statustab', JText::_('COM_EASYSTAGING_STATUS_TAB', true));
-		echo $this->loadTemplate($this->jvtag . '_status');
+		echo $this->loadTemplate('status');
 		echo JHtml::_('bootstrap.endTab');
 	}
 
 	echo JHtml::_('bootstrap.addTab', 'myTab', 'details', JText::_('COM_EASYSTAGING_PLAN_DETAILS', true));
-	echo $this->loadTemplate($this->jvtag . '_plan');
+	echo $this->loadTemplate('plan');
 	echo JHtml::_('bootstrap.endTab');
 
 	if ($this->canDo->get('core.edit') || ($this->canDo->get('core.create') && ($this->item->id == 0)))
 	{
 		echo JHtml::_('bootstrap.addTab', 'myTab', 'local_site', JText::_('COM_EASYSTAGING_LOCALSITE_TAB', true));
-		echo $this->loadTemplate($this->jvtag . '_local');
+		echo $this->loadTemplate('local');
 		echo JHtml::_('bootstrap.endTab');
 
 		echo JHtml::_('bootstrap.addTab', 'myTab', 'remote_site', JText::_('COM_EASYSTAGING_REMOTESITE_TAB', true));
-		echo $this->loadTemplate($this->jvtag . '_remote');
+		echo $this->loadTemplate('remote');
 		echo JHtml::_('bootstrap.endTab');
 
 		echo JHtml::_('bootstrap.addTab', 'myTab', 'table_settings', JText::_('COM_EASYSTAGING_TABLESETTINGS_TAB', true));
-		echo $this->loadTemplate($this->jvtag . '_tables');
+		echo $this->loadTemplate('tables');
 		echo JHtml::_('bootstrap.endTab');
 
 		echo JHtml::_('bootstrap.addTab', 'myTab', 'fileCopyActions', JText::_('COM_EASYSTAGING_RSYNCS_TAB', true));
-		echo $this->loadTemplate($this->jvtag . '_rsyncs');
+		echo $this->loadTemplate('rsyncs');
 		echo JHtml::_('bootstrap.endTab');
 	}
 

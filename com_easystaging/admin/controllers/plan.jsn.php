@@ -69,7 +69,6 @@ class EasyStagingControllerPlan extends JControllerLegacy
         require_once JPATH_COMPONENT . '/helpers/plan.php';
         require_once JPATH_COMPONENT . '/helpers/run.php';
         require_once JPATH_COMPONENT . '/helpers/general.php';
-        $this->jvtag = ES_General_Helper::getJoomlaVersionTag();
 
         parent::__construct($config);
         $this->params = JComponentHelper::getParams('com_easystaging');
@@ -138,53 +137,18 @@ class EasyStagingControllerPlan extends JControllerLegacy
                         $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_HOST_CONTACTED') . '<br>';
 
                         // Get our DB object
-                        if ($this->jvtag == 'j2') {
-                            if (JError::$legacy) {
-                                $target_db = JDatabase::getInstance($options);
-
-                                // Check for old style error
-                                if ($errNo = $target_db->getErrorNum()) {
-                                    $msg .= JText::sprintf(
-                                        'COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CANT_CONNECT_X',
-                                        $target_db->getErrorMsg()
-                                    )
-                                    . '<br>';
-
-                                } else {
-                                    $errNo = 0;
-                                    $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CONNECTED')
-                                        . '<br>';
-                                }
-                            } else {
-                                try {
-                                    $target_db = JDatabase::getInstance($options);
-                                    $target_db->connect();
-                                    $errNo = 0;
-                                    $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CONNECTED')
-                                        . '<br>';
-                                } catch (RuntimeException $e) {
-                                    $errNo = 1;
-                                    $msg .= JText::sprintf(
-                                        'COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CANT_CONNECT_X',
-                                        $e->getMessage()
-                                    )
-                                    . '<br>';
-                                }
-                            }
-                        } else {
-                            try {
-                                $target_db = JDatabaseDriver::getInstance($options);
-                                $target_db->connect();
-                                $errNo = 0;
-                                $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CONNECTED') . '<br>';
-                            } catch (RuntimeException $e) {
-                                $errNo = 1;
-                                $msg .= JText::sprintf(
-                                    'COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CANT_CONNECT_X',
-                                    $e->getMessage()
-                                )
-                                . '<br>';
-                            }
+                        try {
+                            $target_db = JDatabaseDriver::getInstance($options);
+                            $target_db->connect();
+                            $errNo = 0;
+                            $msg .= JText::_('COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CONNECTED') . '<br>';
+                        } catch (RuntimeException $e) {
+                            $errNo = 1;
+                            $msg .= JText::sprintf(
+                                'COM_EASYSTAGING_JSON_TEST_REMOTE_DATABASE_JOOMLA_CANT_CONNECT_X',
+                                $e->getMessage()
+                            )
+                            . '<br>';
                         }
 
                         if ($errNo != 0) {

@@ -20,6 +20,29 @@ class PlansHelper
     private static $_ext_actions = array('easystaging.run');
 
     /**
+     * Configure the Linkbar.
+     *
+     * @param   string  $vName  The name of the active view.
+     *
+     * @return  void
+     *
+     * @since   1.6
+     */
+    public static function addSubmenu($vName)
+    {
+        JHtmlSidebar::addEntry(
+            JText::_('COM_EASYSTAGING_MENU_PLANS'),
+            'index.php?option=com_easystaging&view=plans',
+            $vName == 'plans'
+        );
+        JHtmlSidebar::addEntry(
+            JText::_('COM_EASYSTAGING_MENU_WEBSITES'),
+            'index.php?option=com_easystaging&view=websites',
+            $vName == 'websites'
+        );
+    }
+
+    /**
      * Extracts the relevant items from the plan
      *
      * @param object   $row

@@ -51,6 +51,7 @@ class EasyStagingViewPlans extends JViewLegacy
         // Setup document (Toolbar, css, js etc)
         $this->addToolbar();
         $this->addCSSEtc();
+        PlansHelper::addSubmenu('plans');
 
         // Get data from the model
         $items = $this->get('Items');
@@ -68,7 +69,7 @@ class EasyStagingViewPlans extends JViewLegacy
         $this->state         = $this->get('State');
         $this->filterForm    = $this->get('FilterForm');
         $this->activeFilters = $this->get('ActiveFilters');
-
+        $this->sidebar = JHtmlSidebar::render();
 
         parent::display($tpl);
     }

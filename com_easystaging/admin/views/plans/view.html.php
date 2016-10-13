@@ -14,6 +14,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 require_once JPATH_COMPONENT_ADMINISTRATOR . '/helpers/general.php';
+require_once JPATH_COMPONENT . '/helpers/plans.php';
 require_once JPATH_COMPONENT . '/helpers/plan.php';
 
 /**
@@ -39,8 +40,6 @@ class EasyStagingViewPlans extends JViewLegacy
      */
     public function display($tpl = null)
     {
-        $everyThingOk = ES_General_Helper::isEveryThingOK();
-
         JHtml::_('behavior.framework', true);
         JHtml::_('behavior.tooltip');
         JHtml::_('behavior.multiselect');
@@ -55,6 +54,7 @@ class EasyStagingViewPlans extends JViewLegacy
 
         // Get data from the model
         $items = $this->get('Items');
+
         $pagination = $this->get('Pagination');
 
         if (count($errors = $this->get('Errors'))) {
@@ -63,10 +63,33 @@ class EasyStagingViewPlans extends JViewLegacy
             return false;
         }
         // Assign data to the view
-        $this->items = $items;
-        $this->pagination = $pagination;
+        $this->items         = $items;
+        $this->pagination    = $pagination;
+        $this->state         = $this->get('State');
+        $this->filterForm    = $this->get('FilterForm');
+        $this->activeFilters = $this->get('ActiveFilters');
+
 
         parent::display($tpl);
+    }
+
+    /**
+     * Returns an array of fields the table can be sorted by
+     *
+     * @return  array  Array containing the field name to sort by as the key and display text as value
+     *
+     * @since   2.0
+     */
+    protected function getSortFields()
+    {
+        return array(
+            'published'    => JText::_('JSTATUS'),
+            'name'         => JText::_('COM_EASYSTAGING_PLAN'),
+            'created_by'   => JText::_('JAUTHOR'),
+            'created'      => JText::_('JDATE'),
+            'last_run'     => JText::_('COM_EASYSTAGING_LAST_RUN'),
+            'id'           => JText::_('JGRID_HEADING_ID'),
+        );
     }
 
     /**

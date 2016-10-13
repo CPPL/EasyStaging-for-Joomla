@@ -39,8 +39,6 @@ class EasyStagingViewPlans extends JViewLegacy
      */
     public function display($tpl = null)
     {
-        $everyThingOk = ES_General_Helper::isEveryThingOK();
-
         JHtml::_('behavior.framework', true);
         JHtml::_('behavior.tooltip');
         JHtml::_('behavior.multiselect');

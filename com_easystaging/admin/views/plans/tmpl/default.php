@@ -4,9 +4,13 @@ defined('_JEXEC') or die('Restricted Access');
 
 $listOrder	= '';
 $listDirn	= '';
- ?>
+
+?>
+
 <form action="<?php echo JRoute::_('index.php?option=com_easystaging');?>" method="post" name="adminForm" id="adminForm">
-	<div id="editdiv" class="span12">
+<?php // Search tools bar
+echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
+<div id="editdiv" class="span12">
 		<table class="adminlist table table-striped">
 			<thead><?php echo $this->loadTemplate('head');?></thead>
 			<tfoot><?php echo $this->loadTemplate('foot');?></tfoot>

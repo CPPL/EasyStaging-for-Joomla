@@ -17,6 +17,54 @@ jimport( 'joomla.application.component.modellist' );
  */
 class EasyStagingModelPlans extends JModelList
 {
+	public function __construct($config = array())
+	{
+		if (empty($config['filter_fields']))
+		{
+			$config['filter_fields'] = array(
+				'name', 'name',
+				'published', 'published',
+				'created_by', 'created_by',
+                'modified_by', 'modified_by',
+				'publish_up', 'publish_up',
+				'publish_down', 'publish_down',
+				'published', 'published'
+			);
+		}
+
+		parent::__construct($config);
+	}
+
+	protected function populateState($ordering = 'id', $direction = 'desc')
+	{
+		$app = JFactory::getApplication();
+
+		// Adjust the context to support modal layouts.
+		if ($layout = $app->input->get('layout'))
+		{
+			$this->context .= '.' . $layout;
+		}
+
+		$search = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
+		$this->setState('filter.search', $search);
+
+        $published = $this->getUserStateFromRequest($this->context . '.filter.published', 'filter_published', '');
+        $this->setState('filter.published', $published);
+
+        $createdById = $app->getUserStateFromRequest($this->context . '.filter.created_by', 'filter_created_by');
+		$this->setState('filter.created_by', $createdById);
+
+        $modifiedById = $app->getUserStateFromRequest($this->context . '.filter.modified_by', 'filter_modified_by');
+        $this->setState('filter.modified_by', $modifiedById);
+
+        $lastRunById = $app->getUserStateFromRequest($this->context . '.filter.last_run_by', 'filter_last_run_by');
+        $this->setState('filter.created', $lastRunById);
+
+		// List state information.
+		parent::populateState($ordering, $direction);
+	}
+
+
 	/**
 	 * Method to get an array of data items.
 	 *
@@ -77,9 +125,69 @@ class EasyStagingModelPlans extends JModelList
 		$query->select($db->quoteName('last_run'));
         $query->select($db->quoteName('last_run_by'));
 
-		// From the EasyStaging table
+        // From the EasyStaging table
 		$query->from('#__easystaging_plans');
 
-		return $query;
+        // Filter by published state
+        $published = $this->getState('filter.published');
+
+        if (is_numeric($published))
+        {
+            $query->where('published = ' . (int) $published);
+        }
+        elseif ($published === '')
+        {
+            $query->where('(published = 0 OR published = 1)');
+        }
+
+        // Filter by Created by
+        $creatorId = $this->getState('filter.created_by');
+
+        if (is_numeric($creatorId))
+        {
+            $type = $this->getState('filter.created_by.include', true) ? '= ' : '<>';
+            $query->where('created_by ' . $type . (int) $creatorId);
+        }
+
+        // Filter by Modified by
+        $modifiedById = $this->getState('filter.modified_by');
+
+        if (is_numeric($modifiedById))
+        {
+            $type = $this->getState('filter.modified_by.include', true) ? '= ' : '<>';
+            $query->where('modified_by' . $type . (int) $modifiedById);
+        }
+
+        // Filter by Last Run by
+        $lastRunById = $this->getState('filter.last_run_by');
+
+        if (is_numeric($lastRunById))
+        {
+            $type = $this->getState('filter.last_run_by.include', true) ? '= ' : '<>';
+            $query->where('last_run_by ' . $type . (int) $lastRunById);
+        }
+
+        // Filter by search in Plan name.
+        $search = $this->getState('filter.search');
+
+        if (!empty($search))
+        {
+            if (stripos($search, 'id:') === 0)
+            {
+                $query->where('id = ' . (int) substr($search, 3));
+            }
+            else
+            {
+                $search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
+                $query->where('(name LIKE ' . $search . ' OR name LIKE ' . $search . ')');
+            }
+        }
+
+        // Add the list ordering clause.
+        $orderCol = $this->state->get('list.ordering', 'id');
+        $orderDirn = $this->state->get('list.direction', 'desc');
+        $query->order($db->escape($orderCol . ' ' . $orderDirn));
+
+        return $query;
 	}
 }

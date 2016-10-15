@@ -86,7 +86,7 @@ class EasyStagingViewPlans extends JViewLegacy
         return array(
             'published'    => JText::_('JSTATUS'),
             'name'         => JText::_('COM_EASYSTAGING_PLAN'),
-            'created_by'   => JText::_('JAUTHOR'),
+            'created_by'   => JText::_('COM_EASYSTAGING_FILTER_CREATOR'),
             'created'      => JText::_('JDATE'),
             'last_run'     => JText::_('COM_EASYSTAGING_LAST_RUN'),
             'id'           => JText::_('JGRID_HEADING_ID'),

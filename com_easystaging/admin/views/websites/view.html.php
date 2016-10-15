@@ -21,7 +21,7 @@ require_once JPATH_COMPONENT . '/helpers/plan.php';
  * EasyStaging Manager View
  *
  */
-class EasyStagingViewPlans extends JViewLegacy
+class EasyStagingViewWebsites extends JViewLegacy
 {
     protected $items;
 
@@ -51,7 +51,7 @@ class EasyStagingViewPlans extends JViewLegacy
         // Setup document (Toolbar, css, js etc)
         $this->addToolbar();
         $this->addCSSEtc();
-        PlansHelper::addSubmenu('plans');
+        PlansHelper::addSubmenu('websites');
 
         // Get data from the model
         $items = $this->get('Items');
@@ -84,12 +84,12 @@ class EasyStagingViewPlans extends JViewLegacy
     protected function getSortFields()
     {
         return array(
-            'published'    => JText::_('JSTATUS'),
-            'name'         => JText::_('COM_EASYSTAGING_PLAN'),
-            'created_by'   => JText::_('COM_EASYSTAGING_FILTER_CREATOR'),
-            'created'      => JText::_('JDATE'),
-            'last_run'     => JText::_('COM_EASYSTAGING_LAST_RUN'),
-            'id'           => JText::_('JGRID_HEADING_ID'),
+            'status'     => JText::_('JSTATUS'),
+            'type'       => JText::_('COM_EASYSTAGING_SITE_TYPE'),
+            'site_name'  => JText::_('COM_EASYSTAGING_WEBSITE'),
+            'created_by' => JText::_('COM_EASYSTAGING_FILTER_CREATOR'),
+            'created'    => JText::_('JDATE'),
+            'id'         => JText::_('JGRID_HEADING_ID'),
         );
     }
 

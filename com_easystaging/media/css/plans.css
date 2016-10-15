@@ -39,15 +39,24 @@
 span.com_easystaging_mgr_last_modified {
     font-size: 0.9em;
     color: silver;
+    display: block;
+    float: right;
 }
 
 span.com_easystaging_mgr_last_modified em {
 
 }
 
+span.com_easystaging_mgr_created_by {
+    font-size: 0.9em;
+    color: silver;
+}
+
 .com_easystaging_mgr_last_run {
     font-style: italic;
     color: silver;
+    display: block;
+    float: left;
 }
 
 .icon-48-easystaging {
@@ -58,3 +67,4 @@ span.com_easystaging_mgr_last_modified em {
     content: "\e001";
     color: #92f589;
 }
+

@@ -26,7 +26,7 @@ foreach ($this->items as $i => &$row)
 			<td class="center">
                 <?php echo $state; ?>
 			</td>
-            <td class="center"><?php echo $row->type; ?></td>
+            <td class="center"><span class="icon-<?php echo $row->typeIcon; ?> es-large-font-icon" title="<?php echo $row->type; ?>"> </span></td>
 			<td><?php echo $plan; ?><br><span class="com_easystaging_mgr_last_modified"><?php echo $last_modified_by; ?></span><span class="com_easystaging_mgr_created_by"><?php echo $created_by; ?></span></td>
 			<td class="center"><?php echo $row->id; ?></td>
 		</tr>

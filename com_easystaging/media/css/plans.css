@@ -3,28 +3,6 @@
     width: 60%;
 }
 
-#howitworkspanel {
-    float: right;
-    width: 35%;
-    height: 142px;
-    overflow: hidden;
-}
-
-#howitworksbody {
-    maring: 5px;
-}
-
-#howitworksimage1, #howitworksimage2 {
-    margin-left: auto;
-    margin-right: auto;
-    width: 240px;
-}
-
-#howitworkstoggle {
-    width: 20px;
-    float: right;
-}
-
 #es_version {
     width: 100%;
 }
@@ -57,10 +35,6 @@ span.com_easystaging_mgr_created_by {
     color: silver;
     display: block;
     float: left;
-}
-
-.icon-48-easystaging {
-    background-image: url("../images/EasyStaging-48-icon.png");
 }
 
 .icon-easystaging:before {

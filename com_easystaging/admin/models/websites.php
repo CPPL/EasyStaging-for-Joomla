@@ -86,10 +86,12 @@ class EasyStagingModelWebsites extends JModelList
 			// Humanise Site type
 			if ($item->type == 1)
 			{
-				$item->type = JText::_('COM_EASYSTAGING_LOCALSITE_SHORT');
+				$item->type = JText::_('COM_EASYSTAGING_LOCALSITE');
+				$item->typeIcon = "screen";
 			} elseif ($item->type == 2)
 			{
-				$item->type = JText::_('COM_EASYSTAGING_REMOTESITE_SHORT');
+				$item->type = JText::_('COM_EASYSTAGING_REMOTESITE');
+				$item->typeIcon = "upload";
 			}
 		}
 

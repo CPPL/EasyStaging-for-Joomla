@@ -3,28 +3,6 @@
     width: 60%;
 }
 
-#howitworkspanel {
-    float: right;
-    width: 35%;
-    height: 142px;
-    overflow: hidden;
-}
-
-#howitworksbody {
-    maring: 5px;
-}
-
-#howitworksimage1, #howitworksimage2 {
-    margin-left: auto;
-    margin-right: auto;
-    width: 240px;
-}
-
-#howitworkstoggle {
-    width: 20px;
-    float: right;
-}
-
 #es_version {
     width: 100%;
 }
@@ -59,12 +37,14 @@ span.com_easystaging_mgr_created_by {
     float: left;
 }
 
-.icon-48-easystaging {
-    background-image: url("../images/EasyStaging-48-icon.png");
-}
-
 .icon-easystaging:before {
     content: "\e001";
     color: #92f589;
 }
 
+.es-large-font-icon {
+    margin-top: 0.25em;
+    font-size: 2.0em;
+    width: auto;
+    height: auto;
+}

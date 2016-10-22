@@ -39,14 +39,6 @@ echo $this->form->getControlGroup('id');
 
 	if ($this->canDo->get('core.edit') || ($this->canDo->get('core.create') && ($this->item->id == 0)))
 	{
-		echo JHtml::_('bootstrap.addTab', 'myTab', 'local_site', JText::_('COM_EASYSTAGING_LOCALSITE_TAB', true));
-		echo $this->loadTemplate('local');
-		echo JHtml::_('bootstrap.endTab');
-
-		echo JHtml::_('bootstrap.addTab', 'myTab', 'remote_site', JText::_('COM_EASYSTAGING_REMOTESITE_TAB', true));
-		echo $this->loadTemplate('remote');
-		echo JHtml::_('bootstrap.endTab');
-
 		echo JHtml::_('bootstrap.addTab', 'myTab', 'table_settings', JText::_('COM_EASYSTAGING_TABLESETTINGS_TAB', true));
 		echo $this->loadTemplate('tables');
 		echo JHtml::_('bootstrap.endTab');

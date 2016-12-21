@@ -1,4 +1,4 @@
-# EasyStaging-for-Joomla
+# EasyStaging for Joomla
 EasyStaging is a Joomla! 2.5.4+ and Joomla 3.3+ component that simplifies the process of copying changes from a private "staging" version of a website to a "live" or public webserver. 
 
 ## How does it work?
